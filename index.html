@@ -73,6 +73,7 @@
       padding: 7px 10px; background: #fff2; color: var(--cream); font-size: 12px;
     }
     .chip.got { text-decoration: line-through; opacity: .4; }
+    #toast.on { opacity: 1; }
     #bar {
       display: grid; grid-template-columns: 1fr 1fr;
       gap: 8px; padding: 8px 10px 10px; background: #1c1010;
@@ -81,6 +82,8 @@
       grid-column: 1 / -1; height: 40px; border: 0; border-radius: 12px;
       background: transparent; color: var(--gold);
       font: 800 14px "Trebuchet MS", sans-serif;
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none;
     }
     #bar button {
       height: 48px; border: 0; border-radius: 14px;
@@ -107,6 +110,21 @@
     #pay button { height: 48px; border: 0; border-radius: 14px; font: 800 16px "Trebuchet MS", sans-serif; margin-top: 8px; }
     #payGo { background: var(--gold); color: #1a1208; }
     #payNo { background: #3a241c; color: var(--cream); }
+    #contact {
+      position: fixed; inset: 0; background: #140a0cf2;
+      display: none; flex-direction: column; justify-content: flex-end;
+      padding: 18px; z-index: 7;
+    }
+    #contact.on { display: flex; }
+    #contact a, #contact button {
+      height: 48px; border: 0; border-radius: 14px;
+      font: 800 16px "Trebuchet MS", sans-serif; margin-top: 8px;
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none;
+    }
+    #mailGo { background: var(--gold); color: #1a1208; }
+    #copyMail, #contactNo { background: #3a241c; color: var(--cream); }
+    #mailAddr { color: var(--gold); font-size: 16px; word-break: break-all; margin: 4px 0 10px; }
   </style>
 </head>
 <body>
@@ -126,7 +144,7 @@
   <div id="bar">
     <button id="roomsBtn" type="button">Rooms</button>
     <button id="hintBtn" type="button">Hint</button>
-    <button id="contactBtn" type="button">Contact us</button>
+    <a id="contactBtn" href="mailto:info@merahissa.co.in?subject=Holly%20Haunt">Contact us</a>
   </div>
   <div id="pick">
     <p style="color:#e8c36a;letter-spacing:.16em;font-size:11px">HOLLY HAUNT</p>
@@ -139,6 +157,15 @@
     <p id="payLine" style="margin-bottom:12px;opacity:.9">Pay $1 on this phone. Kitchen and Bedroom open as soon as Razorpay confirms the payment. The link works for every player.</p>
     <button id="payGo" type="button">Pay $1 to unlock</button>
     <button id="payNo" type="button">Not now</button>
+  </div>
+  <div id="contact">
+    <p style="color:#e8c36a;letter-spacing:.16em;font-size:11px">CONTACT</p>
+    <h1>Email us</h1>
+    <p style="opacity:.9">Write to</p>
+    <p id="mailAddr">info@merahissa.co.in</p>
+    <a id="mailGo" href="mailto:info@merahissa.co.in?subject=Holly%20Haunt">Open mail app</a>
+    <button id="copyMail" type="button">Copy email</button>
+    <button id="contactNo" type="button">Close</button>
   </div>
 <script>
 const UNLOCK_URL = "https://rzp.io/rzp/hollyhaunt-unlock";
@@ -436,8 +463,18 @@ async function startPay() {
   }
 }
 document.getElementById("payGo").onclick = () => { startPay(); };
-document.getElementById("contactBtn").onclick = () => {
-  window.location.href = "mailto:info@merahissa.co.in?subject=" + encodeURIComponent("Holly Haunt");
+document.getElementById("contactBtn").addEventListener("click", (e) => {
+  e.preventDefault();
+  document.getElementById("contact").classList.add("on");
+});
+document.getElementById("contactNo").onclick = () => document.getElementById("contact").classList.remove("on");
+document.getElementById("copyMail").onclick = () => {
+  const addr = "info@merahissa.co.in";
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(addr).then(() => say("Email copied")).catch(() => say(addr));
+  } else {
+    say(addr);
+  }
 };
 document.getElementById("musicBtn").onclick = () => {
   musicOn = !musicOn;
