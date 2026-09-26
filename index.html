@@ -136,13 +136,13 @@
   <div id="pay">
     <p style="color:#e8c36a;letter-spacing:.16em;font-size:11px">LOCKED</p>
     <h1>Unlock the other rooms</h1>
-    <p id="payLine" style="margin-bottom:12px;opacity:.9">One payment unlocks Kitchen and Bedroom on this phone. Cards work from any country. Great Hall stays free.</p>
-    <button id="payGo" type="button">Pay to unlock</button>
+    <p id="payLine" style="margin-bottom:12px;opacity:.9">Pay $1 once. This link stays open for every player, in any country. Kitchen and Bedroom stay locked until Razorpay confirms the payment to this phone.</p>
+    <button id="payGo" type="button">Pay $1 to unlock</button>
     <button id="payNo" type="button">Not now</button>
   </div>
 <script>
-const UNLOCK_URL = "";
-const paid = localStorage.getItem("hollyHaunt.paid") === "1" || /[?&]paid=1/.test(location.search);
+const UNLOCK_URL = "https://rzp.io/rzp/hollyhaunt-unlock";
+const paid = localStorage.getItem("hollyHaunt.paid") === "1";
 const SCENES = [
   { id:"hall", name:"Great Hall", file:"hall.jpg", free:true, items:[
     {n:"Moon",x:50,y:11,s:10},
@@ -293,7 +293,7 @@ function renderList(){
 
 function openScene(sc){
   if (!sc.free && !paid) {
-    document.getElementById("payLine").textContent = sc.name + " unlocks with one payment. Cards work from any country. Great Hall stays free.";
+    document.getElementById("payLine").textContent = sc.name + " stays locked until Razorpay confirms a $1 payment. The link works for every player. Great Hall stays free.";
     document.getElementById("pay").classList.add("on");
     return;
   }
@@ -370,8 +370,7 @@ SCENES.forEach((sc) => {
 });
 document.getElementById("payNo").onclick = () => document.getElementById("pay").classList.remove("on");
 document.getElementById("payGo").onclick = () => {
-  if (!UNLOCK_URL) { say("Payment link is not set yet"); return; }
-  window.open(UNLOCK_URL, "_blank", "noopener");
+  window.location.href = UNLOCK_URL;
 };
 document.getElementById("contactBtn").onclick = () => {
   window.location.href = "mailto:info@merahissa.co.in?subject=" + encodeURIComponent("Holly Haunt");
