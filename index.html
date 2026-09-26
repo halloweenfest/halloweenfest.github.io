@@ -136,12 +136,25 @@
   <div id="pay">
     <p style="color:#e8c36a;letter-spacing:.16em;font-size:11px">LOCKED</p>
     <h1>Unlock the other rooms</h1>
-    <p id="payLine" style="margin-bottom:12px;opacity:.9">Pay $1 once. This link stays open for every player, in any country. Kitchen and Bedroom stay locked until Razorpay confirms the payment to this phone.</p>
+    <p id="payLine" style="margin-bottom:12px;opacity:.9">Pay $1 on this phone. Kitchen and Bedroom open as soon as Razorpay confirms the payment. The link works for every player.</p>
     <button id="payGo" type="button">Pay $1 to unlock</button>
     <button id="payNo" type="button">Not now</button>
   </div>
 <script>
 const UNLOCK_URL = "https://rzp.io/rzp/hollyhaunt-unlock";
+const PAY_PAGE = "pl_TgjuQk5VyMgvwz";
+const PAY_ITEM = "ppi_TgjuQtmzSaGEhW";
+const KEYLESS = "nocodeapps_10000:JELfVpX8LqF1reNtFfHTO2Z6PuTUjj125rEFYSmyOtgdDWQnRWzaFrK3oG5qfEMZmzun7TW+2DdjNqTH2JfAyO4qTpmxkS9+PTO8iCt35g==";
+function rememberPayment(id) {
+  if (!id || !/^pay_[A-Za-z0-9]+$/.test(id)) return false;
+  localStorage.setItem("hollyHaunt.paid", "1");
+  localStorage.setItem("hollyHaunt.paymentId", id);
+  return true;
+}
+(function () {
+  const q = new URLSearchParams(location.search);
+  if (rememberPayment(q.get("razorpay_payment_id"))) history.replaceState({}, "", location.pathname);
+})();
 const paid = localStorage.getItem("hollyHaunt.paid") === "1";
 const SCENES = [
   { id:"hall", name:"Great Hall", file:"hall.jpg", free:true, items:[
@@ -293,7 +306,7 @@ function renderList(){
 
 function openScene(sc){
   if (!sc.free && !paid) {
-    document.getElementById("payLine").textContent = sc.name + " stays locked until Razorpay confirms a $1 payment. The link works for every player. Great Hall stays free.";
+    document.getElementById("payLine").textContent = sc.name + " opens on this phone after the $1 payment succeeds. Great Hall stays free.";
     document.getElementById("pay").classList.add("on");
     return;
   }
@@ -369,9 +382,60 @@ SCENES.forEach((sc) => {
   roomsEl.appendChild(b);
 });
 document.getElementById("payNo").onclick = () => document.getElementById("pay").classList.remove("on");
-document.getElementById("payGo").onclick = () => {
-  window.location.href = UNLOCK_URL;
-};
+function loadCheckout() {
+  const frame = "https://api.razorpay.com/v1/checkout/public?keyless_header=" + encodeURIComponent(KEYLESS);
+  function stamp() {
+    window.Razorpay.config = window.Razorpay.config || {};
+    window.Razorpay.config.keyless_header = KEYLESS;
+    window.Razorpay.config.frame = frame;
+  }
+  if (typeof window.Razorpay === "function") {
+    stamp();
+    return Promise.resolve();
+  }
+  window.Razorpay = { config: { keyless_header: KEYLESS, frame: frame } };
+  return new Promise((resolve, reject) => {
+    const s = document.createElement("script");
+    s.src = "https://checkout.razorpay.com/v1/checkout.js";
+    s.onload = () => { stamp(); resolve(); };
+    s.onerror = () => reject(new Error("script"));
+    document.head.appendChild(s);
+  });
+}
+async function startPay() {
+  const btn = document.getElementById("payGo");
+  btn.disabled = true;
+  say("Opening payment");
+  try {
+    await loadCheckout();
+    const res = await fetch("https://api.razorpay.com/v1/payment_pages/" + PAY_PAGE + "/order", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ line_items: [{ payment_page_item_id: PAY_ITEM, amount: 100 }] })
+    });
+    const data = await res.json();
+    if (!data.order || !data.order.id) throw new Error("order");
+    const rzp = new window.Razorpay({
+      order_id: data.order.id,
+      amount: data.order.amount,
+      currency: data.order.currency || "USD",
+      payment_link_id: PAY_PAGE,
+      keyless_header: KEYLESS,
+      name: "Holly Haunt",
+      description: "Unlock Kitchen and Bedroom",
+      theme: { color: "#e8c36a" },
+      handler: function (response) {
+        if (rememberPayment(response && response.razorpay_payment_id)) location.reload();
+      },
+      modal: { ondismiss: function () { btn.disabled = false; say("Payment closed"); } }
+    });
+    rzp.open();
+  } catch (e) {
+    btn.disabled = false;
+    say("Could not open payment");
+  }
+}
+document.getElementById("payGo").onclick = () => { startPay(); };
 document.getElementById("contactBtn").onclick = () => {
   window.location.href = "mailto:info@merahissa.co.in?subject=" + encodeURIComponent("Holly Haunt");
 };
