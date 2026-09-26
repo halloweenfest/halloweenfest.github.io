@@ -107,7 +107,12 @@
       padding: 18px; z-index: 6;
     }
     #pay.on { display: flex; }
-    #pay button { height: 48px; border: 0; border-radius: 14px; font: 800 16px "Trebuchet MS", sans-serif; margin-top: 8px; }
+    #pay button, #pay a {
+      height: 48px; border: 0; border-radius: 14px;
+      font: 800 16px "Trebuchet MS", sans-serif; margin-top: 8px;
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none;
+    }
     #payGo { background: var(--gold); color: #1a1208; }
     #payNo { background: #3a241c; color: var(--cream); }
     #contact {
@@ -154,8 +159,8 @@
   <div id="pay">
     <p style="color:#e8c36a;letter-spacing:.16em;font-size:11px">LOCKED</p>
     <h1>Unlock the other rooms</h1>
-    <p id="payLine" style="margin-bottom:12px;opacity:.9">Pay $1 on this phone. Kitchen and Bedroom open as soon as Razorpay confirms the payment. The link works for every player.</p>
-    <button id="payGo" type="button">Pay $1 to unlock</button>
+    <p id="payLine" style="margin-bottom:12px;opacity:.9">Pay $1 on this phone. This opens Razorpay. After you pay, come back to this page. Kitchen and Bedroom then open here.</p>
+    <a id="payGo" href="https://rzp.io/rzp/hollyhaunt-unlock">Pay $1 to unlock</a>
     <button id="payNo" type="button">Not now</button>
   </div>
   <div id="contact">
@@ -409,60 +414,9 @@ SCENES.forEach((sc) => {
   roomsEl.appendChild(b);
 });
 document.getElementById("payNo").onclick = () => document.getElementById("pay").classList.remove("on");
-function loadCheckout() {
-  const frame = "https://api.razorpay.com/v1/checkout/public?keyless_header=" + encodeURIComponent(KEYLESS);
-  function stamp() {
-    window.Razorpay.config = window.Razorpay.config || {};
-    window.Razorpay.config.keyless_header = KEYLESS;
-    window.Razorpay.config.frame = frame;
-  }
-  if (typeof window.Razorpay === "function") {
-    stamp();
-    return Promise.resolve();
-  }
-  window.Razorpay = { config: { keyless_header: KEYLESS, frame: frame } };
-  return new Promise((resolve, reject) => {
-    const s = document.createElement("script");
-    s.src = "https://checkout.razorpay.com/v1/checkout.js";
-    s.onload = () => { stamp(); resolve(); };
-    s.onerror = () => reject(new Error("script"));
-    document.head.appendChild(s);
-  });
-}
-async function startPay() {
-  const btn = document.getElementById("payGo");
-  btn.disabled = true;
-  say("Opening payment");
-  try {
-    await loadCheckout();
-    const res = await fetch("https://api.razorpay.com/v1/payment_pages/" + PAY_PAGE + "/order", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ line_items: [{ payment_page_item_id: PAY_ITEM, amount: 100 }] })
-    });
-    const data = await res.json();
-    if (!data.order || !data.order.id) throw new Error("order");
-    const rzp = new window.Razorpay({
-      order_id: data.order.id,
-      amount: data.order.amount,
-      currency: data.order.currency || "USD",
-      payment_link_id: PAY_PAGE,
-      keyless_header: KEYLESS,
-      name: "Holly Haunt",
-      description: "Unlock Kitchen and Bedroom",
-      theme: { color: "#e8c36a" },
-      handler: function (response) {
-        if (rememberPayment(response && response.razorpay_payment_id)) location.reload();
-      },
-      modal: { ondismiss: function () { btn.disabled = false; say("Payment closed"); } }
-    });
-    rzp.open();
-  } catch (e) {
-    btn.disabled = false;
-    say("Could not open payment");
-  }
-}
-document.getElementById("payGo").onclick = () => { startPay(); };
+document.getElementById("payGo").addEventListener("click", () => {
+  sessionStorage.setItem("holly.payStarted", String(Date.now()));
+});
 document.getElementById("contactBtn").addEventListener("click", (e) => {
   e.preventDefault();
   document.getElementById("contact").classList.add("on");
