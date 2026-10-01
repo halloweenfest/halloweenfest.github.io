@@ -21,7 +21,7 @@
     header b { color: var(--gold); letter-spacing: .14em; font-size: 11px; }
     #sub { font-size: 13px; opacity: .85; }
     #score { font-weight: 800; font-size: 18px; }
-    #musicBtn {
+    #musicBtn, #gamesBtn {
       border: 0; border-radius: 999px; background: #3a241c; color: var(--cream);
       font: 800 12px "Trebuchet MS", sans-serif; padding: 8px 10px;
     }
@@ -153,6 +153,7 @@
       <div id="sub">Tap the objects in the picture</div>
     </div>
     <div id="score">0/12</div>
+    <button id="gamesBtn" type="button">Games</button>
     <button id="musicBtn" type="button">Music on</button>
   </header>
   <div id="stage">
@@ -459,6 +460,12 @@ document.getElementById("musicBtn").onclick = () => {
 document.getElementById("playFind").onclick = () => {
   document.getElementById("gate").classList.remove("on");
   openScene(SCENES[0]);
+};
+document.getElementById("gamesBtn").onclick = () => {
+  document.getElementById("pick").classList.remove("on");
+  document.getElementById("pay").classList.remove("on");
+  document.getElementById("contact").classList.remove("on");
+  document.getElementById("gate").classList.add("on");
 };
 </script>
 </body>
