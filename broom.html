@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Emma on a broom</title>
+  <script>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_session_id get_session_replay_url createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    posthog.init('phc_z6kQXd5am8uAvdXVkFVNWkbPxMuJ7vJc547HLKTxLLtp',{api_host:'https://us.i.posthog.com',person_profiles:'identified_only'});
+    posthog.register({ site: 'halloweenfest' });
+  </script>
   <style>
     :root { --gold:#e8c36a; --ink:#140a0c; --cream:#fff3dc; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -150,10 +155,15 @@ let over = false, won = false, hold = true;
 let scroll = 0, t = 0;
 let last = performance.now();
 const UNLOCK_URL = "https://rzp.io/rzp/hollyhaunt-unlock";
+function track(name, props) {
+  if (window.posthog) posthog.capture(name, props || {});
+}
 function rememberPayment(id) {
   if (!id || !/^pay_[A-Za-z0-9]+$/.test(id)) return false;
   localStorage.setItem("hollyHaunt.paid", "1");
   localStorage.setItem("hollyHaunt.paymentId", id);
+  track("payment_returned", { has_payment_id: true, source: "emma" });
+  if (window.posthog) posthog.setPersonProperties({ hollyhaunt_paid: true, site: "halloweenfest" });
   return true;
 }
 (function () {
@@ -204,6 +214,7 @@ function reset(nextLevel) {
   document.getElementById("pay").classList.remove("on");
   help.textContent = "Move with mouse or arrows. Left click speeds up. Right click brakes. They will chase you.";
   speedBtn.textContent = "Speed";
+  track("emma_night_started", { night: level });
 }
 
 function hit(a, b, ra, rb) {
@@ -224,6 +235,7 @@ function end(win) {
     ? "You cleared the night. Score " + score
     : "The zombies got her. Score " + score;
   document.getElementById("over").classList.add("on");
+  track("emma_ended", { result: win ? "win" : "fell", night: level, score: score });
 }
 function startBoss() {
   mode = "boss";
@@ -457,7 +469,9 @@ document.getElementById("night3").onclick = () => paidNow() ? reset(3) : showPay
 document.getElementById("payNo").onclick = () => showLevels("Night 1 is free. Nights 2 and 3 stay locked until you pay.");
 document.getElementById("payGo").addEventListener("click", () => {
   sessionStorage.setItem("holly.payStarted", String(Date.now()));
+  track("pay_clicked", { source: "emma" });
 });
+if (paidNow() && window.posthog) posthog.setPersonProperties({ hollyhaunt_paid: true, site: "halloweenfest" });
 paintNights();
 window.__emmaTest = {
   paidNow, showPay, reset, showLevels,

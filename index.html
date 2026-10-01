@@ -4,6 +4,11 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Holly Haunt</title>
+  <script>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_session_id get_session_replay_url createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    posthog.init('phc_z6kQXd5am8uAvdXVkFVNWkbPxMuJ7vJc547HLKTxLLtp',{api_host:'https://us.i.posthog.com',person_profiles:'identified_only'});
+    posthog.register({ site: 'halloweenfest' });
+  </script>
   <style>
     :root { --gold:#e8c36a; --ink:#140a0c; --cream:#fff3dc; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -225,10 +230,15 @@ const UNLOCK_URL = "https://rzp.io/rzp/hollyhaunt-unlock";
 const PAY_PAGE = "pl_TgjuQk5VyMgvwz";
 const PAY_ITEM = "ppi_TgjuQtmzSaGEhW";
 const KEYLESS = "nocodeapps_10000:JELfVpX8LqF1reNtFfHTO2Z6PuTUjj125rEFYSmyOtgdDWQnRWzaFrK3oG5qfEMZmzun7TW+2DdjNqTH2JfAyO4qTpmxkS9+PTO8iCt35g==";
+function track(name, props) {
+  if (window.posthog) posthog.capture(name, props || {});
+}
 function rememberPayment(id) {
   if (!id || !/^pay_[A-Za-z0-9]+$/.test(id)) return false;
   localStorage.setItem("hollyHaunt.paid", "1");
   localStorage.setItem("hollyHaunt.paymentId", id);
+  track("payment_returned", { has_payment_id: true, source: "rooms" });
+  if (window.posthog) posthog.setPersonProperties({ hollyhaunt_paid: true, site: "halloweenfest" });
   return true;
 }
 (function () {
@@ -385,7 +395,9 @@ function renderList(){
 }
 
 function openScene(sc){
-  if (!sc.free && !paid) {
+  const locked = !sc.free && !paid;
+  track("room_opened", { room: sc.id, locked: locked });
+  if (locked) {
     document.getElementById("payLine").textContent = sc.name + " opens on this phone after the $1 payment succeeds. Great Hall stays free.";
     document.getElementById("pay").classList.add("on");
     return;
@@ -420,6 +432,7 @@ function hit(clientX, clientY){
   if (chosen < 0) { say("Not that"); return; }
   if (found.has(chosen)) { say("Already found"); return; }
   found.add(chosen);
+  track("object_found", { room: scene.id, object: scene.items[chosen].n });
   const ho = findN % 2 === 1;
   celebrate();
   popAt(clientX, clientY, ho ? "Ho ho ho!" : "Jingle!");
@@ -449,6 +462,7 @@ document.getElementById("hintBtn").onclick = () => {
   const el = placeRing(scene.items[i], "hint");
   setTimeout(() => { if (el.isConnected) el.remove(); }, 2600);
   say("Find the " + scene.items[i].n);
+  track("hint_used", { room: scene.id, object: scene.items[i].n });
   jingle();
 };
 
@@ -464,9 +478,11 @@ SCENES.forEach((sc) => {
 document.getElementById("payNo").onclick = () => document.getElementById("pay").classList.remove("on");
 document.getElementById("payGo").addEventListener("click", () => {
   sessionStorage.setItem("holly.payStarted", String(Date.now()));
+  track("pay_clicked", { source: "rooms" });
 });
 document.getElementById("contactBtn").addEventListener("click", (e) => {
   e.preventDefault();
+  track("contact_clicked");
   document.getElementById("contact").classList.add("on");
 });
 document.getElementById("contactNo").onclick = () => document.getElementById("contact").classList.remove("on");
@@ -485,15 +501,22 @@ document.getElementById("musicBtn").onclick = () => {
   else flute.pause();
 };
 document.getElementById("playFind").onclick = () => {
+  track("game_chosen", { game: "find_objects" });
   document.getElementById("gate").classList.remove("on");
   openScene(SCENES[0]);
 };
+document.getElementById("playBroom").addEventListener("click", () => {
+  track("game_chosen", { game: "emma_broom" });
+});
 document.getElementById("gamesBtn").onclick = () => {
   document.getElementById("pick").classList.remove("on");
   document.getElementById("pay").classList.remove("on");
   document.getElementById("contact").classList.remove("on");
   document.getElementById("gate").classList.add("on");
+  track("game_picker_view");
 };
+track("game_picker_view");
+if (paid && window.posthog) posthog.setPersonProperties({ hollyhaunt_paid: true, site: "halloweenfest" });
 </script>
 </body>
 </html>
