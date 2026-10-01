@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Emma on a broom</title>
+  <style>
+    :root { --gold:#e8c36a; --ink:#140a0c; --cream:#fff3dc; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #140a0c; color: var(--cream); font-family: "Trebuchet MS", "Segoe UI", sans-serif; }
+    body { display: flex; flex-direction: column; height: 100dvh; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 12px; background: #1a1024; }
+    header b { color: var(--gold); letter-spacing: .12em; font-size: 12px; }
+    #hud { font-weight: 800; color: #ffb4b4; }
+    a.back, button.act {
+      border: 0; border-radius: 999px; background: #3a241c; color: var(--cream);
+      font: 800 13px "Trebuchet MS", sans-serif; padding: 8px 12px; text-decoration: none;
+    }
+    #wrap { position: relative; flex: 1; min-height: 0; }
+    canvas { width: 100%; height: 100%; display: block; background: #1b1030; touch-action: none; }
+    #help {
+      position: absolute; left: 50%; top: 10px; transform: translateX(-50%);
+      max-width: 92%;
+      background: #140a0ccc; border: 1px solid #e8c36a55; border-radius: 999px;
+      padding: 7px 12px; font-size: 13px; text-align: center; pointer-events: none;
+    }
+    #barTrack {
+      position: absolute; left: 12px; right: 12px; bottom: 74px; height: 8px;
+      background: #0008; border-radius: 999px; overflow: hidden;
+    }
+    #barFill { height: 100%; width: 0; background: linear-gradient(90deg, #e8c36a, #ff8a2a); }
+    #touch {
+      position: absolute; left: 10px; right: 10px; bottom: 10px;
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+    }
+    #touch button {
+      height: 52px; border: 0; border-radius: 14px;
+      font: 800 16px "Trebuchet MS", sans-serif;
+    }
+    #goSpeed { background: var(--gold); color: #1a1208; }
+    #goBrake { background: #3a241c; color: var(--cream); border: 1px solid #e8c36a44; }
+    #over {
+      position: absolute; inset: 0; background: #140a0ce6;
+      display: none; flex-direction: column; justify-content: flex-end; padding: 18px;
+    }
+    #over.on { display: flex; }
+    #over button, #over a {
+      height: 52px; border: 0; border-radius: 14px; margin-top: 8px;
+      font: 800 16px "Trebuchet MS", sans-serif;
+      display: flex; align-items: center; justify-content: center; text-decoration: none;
+    }
+    #again { background: var(--gold); color: #1a1208; }
+    #home { background: #3a241c; color: var(--cream); }
+  </style>
+</head>
+<body>
+  <header>
+    <a class="back" href="index.html">Main game</a>
+    <b id="mode">EMMA'S FLIGHT</b>
+    <div id="hud">3 lives</div>
+  </header>
+  <div id="wrap">
+    <canvas id="c"></canvas>
+    <div id="help">Move with mouse or arrows. Left click speeds up. Right click brakes.</div>
+    <div id="barTrack"><div id="barFill"></div></div>
+    <div id="touch">
+      <button id="goSpeed" type="button">Speed</button>
+      <button id="goBrake" type="button">Brake</button>
+    </div>
+    <div id="over">
+      <h1 id="endTitle" style="font-size:32px;line-height:.95;margin-bottom:8px">Emma fell</h1>
+      <p id="endLine" style="opacity:.9;margin-bottom:8px"></p>
+      <button id="again" type="button">Play again</button>
+      <a id="home" href="index.html">Pick a game</a>
+    </div>
+  </div>
+<script>
+const canvas = document.getElementById("c");
+const ctx = canvas.getContext("2d");
+const hud = document.getElementById("hud");
+const modeEl = document.getElementById("mode");
+const help = document.getElementById("help");
+const speedBtn = document.getElementById("goSpeed");
+const imgs = {};
+["emma","pumpkin","witch","ghost","skeleton","bat","wolf","zombie"].forEach((n) => {
+  const i = new Image();
+  i.src = n + ".png?v=3";
+  imgs[n] = i;
+});
+
+let W = 1, H = 1, dpr = 1;
+function resize() {
+  dpr = Math.min(2, window.devicePixelRatio || 1);
+  W = canvas.clientWidth;
+  H = canvas.clientHeight;
+  canvas.width = Math.max(1, Math.floor(W * dpr));
+  canvas.height = Math.max(1, Math.floor(H * dpr));
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+window.addEventListener("resize", resize);
+resize();
+
+const keys = {};
+let boost = false, brake = false, pointer = false, shootHeld = false;
+let mx = 0.22, my = 0.5;
+let lives = 3, score = 0, level = 1, dist = 0, goal = 24000, elapsed = 0;
+const KINDS = [
+  { img: "ghost", speed: 0.1, w: 70, r: 26 },
+  { img: "skeleton", speed: 0.14, w: 64, r: 24 },
+  { img: "bat", speed: 0.2, w: 72, r: 22 },
+  { img: "wolf", speed: 0.16, w: 86, r: 30 },
+  { img: "zombie", speed: 0.12, w: 78, r: 28 }
+];
+let mode = "fly";
+let emma = { x: 0.2, y: 0.5, vx: 0, vy: 0, inv: 0 };
+let speed = 180;
+let foes = [], treats = [], shots = [], bolts = [];
+let witch = null;
+let spawnZ = 0, spawnP = 0, shootCd = 0, boltCd = 0;
+let over = false, won = false;
+let scroll = 0, t = 0;
+let last = performance.now();
+
+function reset(nextLevel) {
+  level = nextLevel || 1;
+  lives = nextLevel ? lives : 3;
+  if (!nextLevel) score = 0;
+  dist = 0;
+  goal = level === 1 ? 24000 : 18000;
+  elapsed = 0;
+  mode = "fly";
+  emma = { x: 0.22, y: 0.5, vx: 0, vy: 0, inv: 1 };
+  speed = 180;
+  foes = []; treats = []; shots = []; bolts = [];
+  witch = null;
+  spawnZ = 0.4; spawnP = 1.2; shootCd = 0; boltCd = 1;
+  over = false; won = false;
+  document.getElementById("over").classList.remove("on");
+  help.textContent = "Move with mouse or arrows. Left click speeds up. Right click brakes.";
+  speedBtn.textContent = "Speed";
+}
+
+function hit(a, b, ra, rb) {
+  const dx = (a.x - b.x) * W, dy = (a.y - b.y) * H;
+  return Math.hypot(dx, dy) < ra + rb;
+}
+function hurt() {
+  if (emma.inv > 0 || over) return;
+  lives--;
+  emma.inv = 1.3;
+  if (lives <= 0) end(false);
+}
+function end(win) {
+  over = true;
+  won = win;
+  document.getElementById("endTitle").textContent = win ? "Witch beaten" : "Emma fell";
+  document.getElementById("endLine").textContent = win
+    ? "You cleared the night. Score " + score
+    : "The zombies got her. Score " + score;
+  document.getElementById("over").classList.add("on");
+}
+function startBoss() {
+  mode = "boss";
+  foes = []; treats = [];
+  witch = { x: 1.15, y: 0.45, hp: 6 + level * 2, max: 6 + level * 2 };
+  help.textContent = "Ugly witch! Left click shoots fireballs. Right click still brakes.";
+  speedBtn.textContent = "Fire";
+  modeEl.textContent = "WITCH";
+}
+
+function fire() {
+  if (shootCd > 0 || mode !== "boss") return;
+  shootCd = 0.28;
+  shots.push({ x: emma.x + 0.08, y: emma.y - 0.02, vx: 0.55 });
+}
+
+function step(dt) {
+  if (over) return;
+  if (mode === "boss" && shootHeld) fire();
+  t += dt;
+  emma.inv = Math.max(0, emma.inv - dt);
+  shootCd = Math.max(0, shootCd - dt);
+  const up = keys.ArrowUp || keys.KeyW;
+  const down = keys.ArrowDown || keys.KeyS;
+  const left = keys.ArrowLeft || keys.KeyA;
+  const right = keys.ArrowRight || keys.KeyD;
+  if (pointer) {
+    emma.y += (my - emma.y) * Math.min(1, dt * 6);
+    emma.x += (mx - emma.x) * Math.min(1, dt * 4);
+  }
+  if (up) emma.y -= dt * 0.55;
+  if (down) emma.y += dt * 0.55;
+  if (left) emma.x -= dt * 0.4;
+  if (right) emma.x += dt * 0.4;
+  emma.x = Math.max(0.08, Math.min(0.55, emma.x));
+  emma.y = Math.max(0.12, Math.min(0.82, emma.y));
+
+  const want = brake ? 40 : (boost && mode === "fly" ? 150 : 80);
+  speed += (want - speed) * Math.min(1, dt * 3);
+  scroll += speed * dt;
+
+  if (mode === "fly") {
+    dist += speed * dt;
+    elapsed += dt;
+    spawnZ -= dt;
+    spawnP -= dt;
+    if (spawnZ <= 0) {
+      spawnZ = level === 1 ? 2.4 : 1.6;
+      const kind = KINDS[Math.floor(Math.random() * (level === 1 ? 4 : KINDS.length))];
+      foes.push({ x: 1.12, y: 0.18 + Math.random() * 0.62, kind, bob: Math.random() * 6 });
+    }
+    if (spawnP <= 0) {
+      spawnP = 9 + Math.random() * 4;
+      treats.push({ x: 1.12, y: 0.2 + Math.random() * 0.55 });
+    }
+    foes.forEach((z) => {
+      z.x -= dt * z.kind.speed;
+      z.y += Math.sin(t * 1.4 + z.bob) * dt * 0.04;
+      if (hit(emma, z, 36, z.kind.r)) { hurt(); z.x = -1; }
+    });
+    treats.forEach((p) => {
+      p.x -= dt * 0.12;
+      if (hit(emma, p, 32, 24)) { lives = Math.min(6, lives + 1); score += 25; p.x = -1; }
+    });
+    foes = foes.filter((z) => z.x > -0.2);
+    treats = treats.filter((p) => p.x > -0.2);
+    if (dist >= goal) startBoss();
+  } else if (witch) {
+    witch.x += (0.78 - witch.x) * Math.min(1, dt * 2);
+    witch.y = 0.42 + Math.sin(t * 1.6) * 0.18;
+    boltCd -= dt;
+    if (boltCd <= 0) {
+      boltCd = Math.max(0.7, 1.5 - level * 0.15);
+      bolts.push({ x: witch.x - 0.06, y: witch.y, vx: -0.38, vy: (emma.y - witch.y) * 0.35 });
+    }
+    shots.forEach((s) => {
+      s.x += s.vx * dt;
+      if (hit(s, witch, 12, 46)) { witch.hp--; s.x = 9; score += 10; }
+    });
+    bolts.forEach((b) => {
+      b.x += b.vx * dt;
+      b.y += b.vy * dt;
+      if (hit(emma, b, 30, 12)) { hurt(); b.x = -1; }
+    });
+    if (hit(emma, witch, 34, 48)) hurt();
+    shots = shots.filter((s) => s.x < 1.2);
+    bolts = bolts.filter((b) => b.x > -0.2);
+    if (witch.hp <= 0) {
+      score += 200;
+      if (level >= 2) end(true);
+      else { level++; reset(level); }
+    }
+  }
+  hud.textContent = "♥".repeat(Math.max(0, lives)) + (lives > 5 ? " " + lives : "");
+  const mins = Math.floor(elapsed / 60);
+  const secs = String(Math.floor(elapsed % 60)).padStart(2, "0");
+  if (mode === "fly") modeEl.textContent = "NIGHT " + level + "  " + mins + ":" + secs;
+  const fill = document.getElementById("barFill");
+  if (fill) fill.style.width = Math.min(100, dist / goal * 100) + "%";
+}
+
+function draw() {
+  ctx.clearRect(0, 0, W, H);
+  const sky = ctx.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, "#1a1038");
+  sky.addColorStop(0.55, "#3a2158");
+  sky.addColorStop(1, "#5a2a22");
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, H);
+  ctx.fillStyle = "#fff8";
+  for (let i = 0; i < 28; i++) {
+    const sx = (i * 97 + 20) % W;
+    const sy = (i * 53) % (H * 0.55);
+    ctx.fillRect(sx, sy, 2, 2);
+  }
+  ctx.fillStyle = "#f6e7b2";
+  ctx.beginPath();
+  ctx.arc(W * 0.82, H * 0.16, 26, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#140c12";
+  for (let i = 0; i < 7; i++) {
+    const x = ((i * 210 - scroll * 0.04) % (W + 180)) - 50;
+    ctx.beginPath();
+    ctx.moveTo(x, H);
+    ctx.lineTo(x + 28, H * 0.72);
+    ctx.lineTo(x + 56, H);
+    ctx.fill();
+  }
+  function sprite(img, x, y, w) {
+    if (!img.complete || !img.naturalWidth) return;
+    const h = w * img.naturalHeight / img.naturalWidth;
+    ctx.drawImage(img, x - w / 2, y - h / 2, w, h);
+  }
+  treats.forEach((p) => sprite(imgs.pumpkin, p.x * W, p.y * H, 52));
+  foes.forEach((z) => sprite(imgs[z.kind.img], z.x * W, z.y * H, z.kind.w));
+  bolts.forEach((b) => {
+    ctx.fillStyle = "#b388ff";
+    ctx.beginPath();
+    ctx.arc(b.x * W, b.y * H, 8, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  shots.forEach((s) => {
+    ctx.fillStyle = "#ff8a2a";
+    ctx.beginPath();
+    ctx.arc(s.x * W, s.y * H, 9, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "#ffe08a";
+    ctx.beginPath();
+    ctx.arc(s.x * W - 6, s.y * H, 4, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  if (witch) {
+    sprite(imgs.witch, witch.x * W, witch.y * H, 130);
+    ctx.fillStyle = "#3a241c";
+    ctx.fillRect(witch.x * W - 40, witch.y * H - 78, 80, 8);
+    ctx.fillStyle = "#e24b4b";
+    ctx.fillRect(witch.x * W - 40, witch.y * H - 78, 80 * Math.max(0, witch.hp / witch.max), 8);
+  }
+  ctx.save();
+  if (emma.inv > 0 && Math.floor(t * 12) % 2 === 0) ctx.globalAlpha = 0.45;
+  sprite(imgs.emma, emma.x * W, emma.y * H, 150);
+  ctx.restore();
+}
+
+function frame(now) {
+  const dt = Math.min(0.033, (now - last) / 1000);
+  last = now;
+  step(dt);
+  draw();
+  requestAnimationFrame(frame);
+}
+
+function setPointer(e) {
+  const r = canvas.getBoundingClientRect();
+  mx = (e.clientX - r.left) / r.width;
+  my = (e.clientY - r.top) / r.height;
+  pointer = true;
+}
+canvas.addEventListener("pointerdown", (e) => {
+  if (e.pointerType === "mouse" && e.button === 2) { brake = true; e.preventDefault(); return; }
+  if (e.pointerType === "mouse" && e.button === 0) {
+    setPointer(e);
+    if (mode === "boss") { shootHeld = true; fire(); }
+    else boost = true;
+    return;
+  }
+  setPointer(e);
+});
+canvas.addEventListener("pointermove", (e) => {
+  if (e.pointerType === "mouse" || e.buttons) setPointer(e);
+});
+canvas.addEventListener("pointerup", (e) => {
+  if (e.button === 0) { boost = false; shootHeld = false; }
+  if (e.button === 2) brake = false;
+});
+canvas.addEventListener("pointerleave", () => { pointer = false; });
+canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+window.addEventListener("keydown", (e) => {
+  keys[e.code] = true;
+  if (e.code === "Space") {
+    e.preventDefault();
+    if (mode === "boss") { shootHeld = true; fire(); }
+    else boost = true;
+  }
+  if (e.code === "ShiftLeft" || e.code === "ShiftRight") brake = true;
+});
+window.addEventListener("keyup", (e) => {
+  keys[e.code] = false;
+  if (e.code === "Space") { boost = false; shootHeld = false; }
+  if (e.code === "ShiftLeft" || e.code === "ShiftRight") brake = false;
+});
+function hold(btn, fnDown) {
+  const on = (e) => { e.preventDefault(); fnDown(true); };
+  const off = (e) => { e.preventDefault(); fnDown(false); };
+  btn.addEventListener("pointerdown", on);
+  btn.addEventListener("pointerup", off);
+  btn.addEventListener("pointerleave", off);
+  btn.addEventListener("pointercancel", off);
+}
+hold(speedBtn, (v) => {
+  if (mode === "boss") { shootHeld = v; if (v) fire(); }
+  else boost = v;
+});
+hold(document.getElementById("goBrake"), (v) => { brake = v; });
+document.getElementById("again").onclick = () => reset(1);
+reset(1);
+requestAnimationFrame(frame);
+</script>
+</body>
+</html>
