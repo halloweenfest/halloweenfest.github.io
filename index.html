@@ -129,7 +129,21 @@
     }
     #mailGo { background: var(--gold); color: #1a1208; }
     #copyMail, #contactNo { background: #3a241c; color: var(--cream); }
-    #mailAddr { color: var(--gold); font-size: 16px; word-break: break-all; margin: 4px 0 10px; }
+    #gate {
+      position: fixed; inset: 0; z-index: 9;
+      background: #140a0c;
+      display: none; flex-direction: column; justify-content: flex-end;
+      padding: 22px 18px 28px;
+    }
+    #gate.on { display: flex; }
+    #gate button, #gate a {
+      height: 64px; border: 0; border-radius: 16px;
+      font: 800 18px "Trebuchet MS", sans-serif; margin-top: 10px;
+      display: flex; align-items: center; justify-content: center;
+      text-decoration: none;
+    }
+    #playFind { background: var(--gold); color: #1a1208; }
+    #playBroom { background: #3a241c; color: var(--cream); }
   </style>
 </head>
 <body>
@@ -171,6 +185,12 @@
     <a id="mailGo" href="mailto:info@merahissa.co.in?subject=Holly%20Haunt">Open mail app</a>
     <button id="copyMail" type="button">Copy email</button>
     <button id="contactNo" type="button">Close</button>
+  </div>
+  <div id="gate" class="on">
+    <p style="color:#e8c36a;letter-spacing:.16em;font-size:11px">HOLLY HAUNT</p>
+    <h1>Pick a game</h1>
+    <button id="playFind" type="button">Find the objects</button>
+    <a id="playBroom" href="broom.html">Emma on a broom</a>
   </div>
 <script>
 const UNLOCK_URL = "https://rzp.io/rzp/hollyhaunt-unlock";
@@ -436,7 +456,10 @@ document.getElementById("musicBtn").onclick = () => {
   if (musicOn) flute.play().catch(() => {});
   else flute.pause();
 };
-openScene(SCENES[0]);
+document.getElementById("playFind").onclick = () => {
+  document.getElementById("gate").classList.remove("on");
+  openScene(SCENES[0]);
+};
 </script>
 </body>
 </html>
