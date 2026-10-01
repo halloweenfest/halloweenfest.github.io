@@ -38,13 +38,14 @@
     #barFill { height: 100%; width: 0; background: linear-gradient(90deg, #e8c36a, #ff8a2a); }
     #touch {
       position: absolute; left: 10px; right: 10px; bottom: 10px;
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 8px;
     }
     #touch button {
       height: 52px; border: 0; border-radius: 14px;
       font: 800 16px "Trebuchet MS", sans-serif;
     }
     #goSpeed { background: var(--gold); color: #1a1208; }
+    #goShoot { background: #d7ecff; color: #102033; }
     #goBrake { background: #3a241c; color: var(--cream); border: 1px solid #e8c36a44; }
     #over {
       position: absolute; inset: 0; background: #140a0ce6;
@@ -88,6 +89,23 @@
     #payNo { background: #3a241c; color: var(--cream); }
     #night2.lock, #night3.lock { filter: grayscale(.5) brightness(.7); }
     .tag { display: block; font-size: 11px; letter-spacing: .12em; color: #e8c36a; margin-top: 4px; }
+    #emmaContact {
+      margin-top: 10px; height: 44px; border: 0; border-radius: 14px;
+      background: transparent; color: var(--gold);
+      font: 800 15px "Trebuchet MS", sans-serif;
+    }
+    #contact {
+      position: absolute; inset: 0; background: #140a0cf2; z-index: 6;
+      display: none; flex-direction: column; justify-content: flex-end; padding: 18px;
+    }
+    #contact.on { display: flex; }
+    #contact a, #contact button {
+      height: 48px; border: 0; border-radius: 14px; margin-top: 8px;
+      font: 800 16px "Trebuchet MS", sans-serif;
+      display: flex; align-items: center; justify-content: center; text-decoration: none;
+    }
+    #igGo, #mailGo { background: var(--gold); color: #1a1208; }
+    #contactNo { background: #3a241c; color: var(--cream); }
   </style>
 </head>
 <body>
@@ -98,10 +116,11 @@
   </header>
   <div id="wrap">
     <canvas id="c"></canvas>
-    <div id="help">Move with mouse or arrows. Left click speeds up. Right click brakes.</div>
+    <div id="help">Move, then tap Shoot. Lightning from the wand. Two hits fell a villain.</div>
     <div id="barTrack"><div id="barFill"></div></div>
     <div id="touch">
       <button id="goSpeed" type="button">Speed</button>
+      <button id="goShoot" type="button">Shoot</button>
       <button id="goBrake" type="button">Brake</button>
     </div>
     <div id="over">
@@ -119,6 +138,18 @@
         <button id="night2" type="button" style="background-image:url('night2.jpg?v=1')"><span class="label">Night 2<span class="tag">LOCKED · PAY</span></span></button>
         <button id="night3" type="button" style="background-image:url('night3.jpg?v=1')"><span class="label">Night 3<span class="tag">LOCKED · PAY</span></span></button>
       </div>
+      <button id="emmaContact" type="button">Contact us</button>
+    </div>
+    <div id="contact">
+      <p style="color:#e8c36a;letter-spacing:.16em;font-size:11px">CONTACT</p>
+      <h1 style="font-size:32px;line-height:.95;margin:6px 0 8px">Emma</h1>
+      <p style="opacity:.9">Instagram</p>
+      <p style="font-weight:800;margin-bottom:8px">@emma.goodwitch</p>
+      <a id="igGo" href="https://instagram.com/emma.goodwitch" target="_blank" rel="noopener">Open Instagram</a>
+      <p style="opacity:.9;margin-top:8px">Email</p>
+      <p style="margin-bottom:4px">info@merahissa.co.in</p>
+      <a id="mailGo" href="mailto:info@merahissa.co.in?subject=Holly%20Haunt">Open mail app</a>
+      <button id="contactNo" type="button">Close</button>
     </div>
     <div id="pay">
       <p style="color:#e8c36a;letter-spacing:.16em;font-size:11px">LOCKED</p>
@@ -232,7 +263,7 @@ function reset(nextLevel) {
   document.getElementById("over").classList.remove("on");
   document.getElementById("levels").classList.remove("on");
   document.getElementById("pay").classList.remove("on");
-  help.textContent = "Move with mouse or arrows. Left click speeds up. Right click brakes. They will chase you.";
+  help.textContent = "Shoot lightning with the wand. Two hits fell a villain. Left click still speeds up.";
   speedBtn.textContent = "Speed";
   track("emma_night_started", { night: level });
 }
@@ -260,21 +291,36 @@ function end(win) {
 function startBoss() {
   mode = "boss";
   foes = []; treats = [];
-  witch = { x: 1.15, y: 0.45, hp: 6 + level * 2, max: 6 + level * 2 };
-  help.textContent = "Ugly witch! Left click shoots fireballs. Right click still brakes.";
-  speedBtn.textContent = "Fire";
-  modeEl.textContent = "WITCH";
+  const bossHp = level === 1 ? 20 : 20 + level * 8;
+  witch = { x: 1.15, y: 0.45, hp: bossHp, max: bossHp };
+  help.textContent = "Lightning wand. Night " + level + " witch needs " + bossHp + " hits.";
+  modeEl.textContent = "WITCH " + bossHp;
 }
 
+function zap() {
+  const a = new Audio("lightning.wav");
+  a.volume = 0.7;
+  a.play().catch(() => {});
+}
 function fire() {
-  if (shootCd > 0 || mode !== "boss") return;
-  shootCd = 0.28;
-  shots.push({ x: emma.x + 0.08, y: emma.y - 0.02, vx: 0.55 });
+  if (shootCd > 0 || over || hold) return;
+  if (mode !== "fly" && mode !== "boss") return;
+  shootCd = 0.34;
+  shots.push({ x: emma.x + 0.12, y: emma.y - 0.06, vx: 0.85, vy: 0, life: 0.45 });
+  zap();
+}
+function wound(z) {
+  z.hp--;
+  z.flash = 0.18;
+  if (z.hp <= 0) {
+    z.x = -1;
+    score += 20;
+  }
 }
 
 function step(dt) {
   if (over || hold) return;
-  if (mode === "boss" && shootHeld) fire();
+  if (shootHeld) fire();
   t += dt;
   emma.inv = Math.max(0, emma.inv - dt);
   shootCd = Math.max(0, shootCd - dt);
@@ -305,7 +351,7 @@ function step(dt) {
     if (spawnZ <= 0) {
       spawnZ = level === 1 ? 1.7 : level === 2 ? 1.05 : 0.72;
       const kind = KINDS[Math.floor(Math.random() * (level === 1 ? 4 : KINDS.length))];
-      foes.push({ x: 1.12, y: 0.18 + Math.random() * 0.62, kind, bob: Math.random() * 6 });
+      foes.push({ x: 1.12, y: 0.18 + Math.random() * 0.62, kind, bob: Math.random() * 6, hp: 2, max: 2, flash: 0 });
     }
     if (spawnP <= 0) {
       spawnP = 9 + Math.random() * 4;
@@ -313,16 +359,28 @@ function step(dt) {
     }
     foes.forEach((z) => {
       const chase = 0.22 + level * 0.16;
+      z.flash = Math.max(0, z.flash - dt);
       z.x -= dt * (z.kind.speed + level * 0.045);
       z.y += (emma.y - z.y) * dt * chase;
       if (hit(emma, z, 36, z.kind.r)) { hurt(); z.x = -1; }
+    });
+    shots.forEach((s) => {
+      s.x += s.vx * dt;
+      s.life -= dt;
+      foes.forEach((z) => {
+        if (z.hp > 0 && s.x < 2 && hit(s, z, 16, z.kind.r)) {
+          wound(z);
+          s.x = 9;
+        }
+      });
     });
     treats.forEach((p) => {
       p.x -= dt * 0.12;
       if (hit(emma, p, 32, 24)) { lives = Math.min(6, lives + 1); score += 25; p.x = -1; }
     });
-    foes = foes.filter((z) => z.x > -0.2);
+    foes = foes.filter((z) => z.x > -0.2 && z.hp > 0);
     treats = treats.filter((p) => p.x > -0.2);
+    shots = shots.filter((s) => s.x < 1.3 && s.life > 0);
     if (dist >= goal) startBoss();
   } else if (witch) {
     witch.x += (0.78 - witch.x) * Math.min(1, dt * 2);
@@ -334,7 +392,8 @@ function step(dt) {
     }
     shots.forEach((s) => {
       s.x += s.vx * dt;
-      if (hit(s, witch, 12, 46)) { witch.hp--; s.x = 9; score += 10; }
+      s.life -= dt;
+      if (hit(s, witch, 16, 46)) { witch.hp--; s.x = 9; score += 10; }
     });
     bolts.forEach((b) => {
       b.x += b.vx * dt;
@@ -342,7 +401,7 @@ function step(dt) {
       if (hit(emma, b, 30, 12)) { hurt(); b.x = -1; }
     });
     if (hit(emma, witch, 34, 48)) hurt();
-    shots = shots.filter((s) => s.x < 1.2);
+    shots = shots.filter((s) => s.x < 1.2 && s.life > 0);
     bolts = bolts.filter((b) => b.x > -0.2);
     if (witch.hp <= 0) {
       score += 200;
@@ -355,6 +414,7 @@ function step(dt) {
   const mins = Math.floor(elapsed / 60);
   const secs = String(Math.floor(elapsed % 60)).padStart(2, "0");
   if (mode === "fly") modeEl.textContent = "NIGHT " + level + "  " + mins + ":" + secs;
+  if (mode === "boss" && witch) modeEl.textContent = "WITCH " + Math.max(0, witch.hp);
   const fill = document.getElementById("barFill");
   if (fill) fill.style.width = Math.min(100, dist / goal * 100) + "%";
 }
@@ -392,7 +452,18 @@ function draw() {
     ctx.drawImage(img, x - w / 2, y - h / 2, w, h);
   }
   treats.forEach((p) => sprite(imgs.pumpkin, p.x * W, p.y * H, 52));
-  foes.forEach((z) => sprite(imgs[z.kind.img], z.x * W, z.y * H, z.kind.w));
+  foes.forEach((z) => {
+    ctx.save();
+    if (z.flash > 0) ctx.globalAlpha = 0.55;
+    sprite(imgs[z.kind.img], z.x * W, z.y * H, z.kind.w);
+    ctx.restore();
+    if (z.hp < z.max) {
+      ctx.fillStyle = "#3a241c";
+      ctx.fillRect(z.x * W - 16, z.y * H - 46, 32, 5);
+      ctx.fillStyle = "#9fd0ff";
+      ctx.fillRect(z.x * W - 16, z.y * H - 46, 32 * Math.max(0, z.hp / z.max), 5);
+    }
+  });
   bolts.forEach((b) => {
     ctx.fillStyle = "#b388ff";
     ctx.beginPath();
@@ -400,14 +471,30 @@ function draw() {
     ctx.fill();
   });
   shots.forEach((s) => {
-    ctx.fillStyle = "#ff8a2a";
+    const x1 = emma.x * W + 54;
+    const y1 = emma.y * H - 18;
+    const x2 = s.x * W;
+    const y2 = s.y * H;
+    ctx.save();
+    ctx.lineJoin = "round";
+    ctx.strokeStyle = "#8ec8ff";
+    ctx.lineWidth = 5;
+    ctx.globalAlpha = 0.45;
     ctx.beginPath();
-    ctx.arc(s.x * W, s.y * H, 9, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.fillStyle = "#ffe08a";
-    ctx.beginPath();
-    ctx.arc(s.x * W - 6, s.y * H, 4, 0, Math.PI * 2);
-    ctx.fill();
+    ctx.moveTo(x1, y1);
+    const steps = 5;
+    for (let i = 1; i <= steps; i++) {
+      const p = i / steps;
+      const jx = i === steps ? 0 : (Math.sin(t * 40 + i * 3 + s.x * 20) * 14);
+      const jy = i === steps ? 0 : (Math.cos(t * 36 + i * 2) * 12);
+      ctx.lineTo(x1 + (x2 - x1) * p + jx, y1 + (y2 - y1) * p + jy);
+    }
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = "#f7fbff";
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.restore();
   });
   if (witch) {
     sprite(imgs.witch, witch.x * W, witch.y * H, 130);
@@ -420,6 +507,18 @@ function draw() {
   if (emma.inv > 0 && Math.floor(t * 12) % 2 === 0) ctx.globalAlpha = 0.45;
   sprite(imgs.emma, emma.x * W, emma.y * H, 150);
   ctx.restore();
+  const wx = emma.x * W + 36;
+  const wy = emma.y * H + 8;
+  ctx.strokeStyle = "#c9a36a";
+  ctx.lineWidth = 4;
+  ctx.beginPath();
+  ctx.moveTo(wx, wy);
+  ctx.lineTo(wx + 34, wy - 28);
+  ctx.stroke();
+  ctx.fillStyle = shootCd > 0.2 ? "#f4fbff" : "#e8c36a";
+  ctx.beginPath();
+  ctx.arc(wx + 36, wy - 30, shootCd > 0.2 ? 6 : 4, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 function frame(now) {
@@ -457,16 +556,16 @@ canvas.addEventListener("pointerleave", () => { pointer = false; });
 canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 window.addEventListener("keydown", (e) => {
   keys[e.code] = true;
-  if (e.code === "Space") {
+  if (e.code === "Space" || e.code === "KeyF") {
     e.preventDefault();
-    if (mode === "boss") { shootHeld = true; fire(); }
+    if (e.code === "KeyF" || mode === "boss") { shootHeld = true; fire(); }
     else boost = true;
   }
   if (e.code === "ShiftLeft" || e.code === "ShiftRight") brake = true;
 });
 window.addEventListener("keyup", (e) => {
   keys[e.code] = false;
-  if (e.code === "Space") { boost = false; shootHeld = false; }
+  if (e.code === "Space" || e.code === "KeyF") { boost = false; shootHeld = false; }
   if (e.code === "ShiftLeft" || e.code === "ShiftRight") brake = false;
 });
 function bindHold(btn, fnDown) {
@@ -477,10 +576,8 @@ function bindHold(btn, fnDown) {
   btn.addEventListener("pointerleave", off);
   btn.addEventListener("pointercancel", off);
 }
-bindHold(speedBtn, (v) => {
-  if (mode === "boss") { shootHeld = v; if (v) fire(); }
-  else boost = v;
-});
+bindHold(speedBtn, (v) => { boost = v; });
+bindHold(document.getElementById("goShoot"), (v) => { shootHeld = v; if (v) fire(); });
 bindHold(document.getElementById("goBrake"), (v) => { brake = v; });
 document.getElementById("again").onclick = () => showLevels("Night 1 is free. Villains chase her.");
 document.getElementById("night1").onclick = () => reset(1);
@@ -491,14 +588,23 @@ document.getElementById("payGo").addEventListener("click", () => {
   sessionStorage.setItem("holly.payStarted", String(Date.now()));
   track("pay_clicked", { source: "emma" });
 });
+document.getElementById("emmaContact").onclick = () => {
+  document.getElementById("contact").classList.add("on");
+  track("contact_clicked");
+};
+document.getElementById("contactNo").onclick = () => document.getElementById("contact").classList.remove("on");
 if (paidNow() && window.posthog) posthog.setPersonProperties({ hollyhaunt_paid: true, site: "halloweenfest" });
 paintNights();
 window.__emmaTest = {
-  paidNow, showPay, reset, showLevels,
+  paidNow, showPay, reset, showLevels, fire, startBoss,
   spawnAbove() {
-    foes.push({ x: emma.x + 0.45, y: Math.max(0.08, emma.y - 0.32), kind: KINDS[0], bob: 1 });
+    foes.push({ x: emma.x + 0.25, y: emma.y, kind: KINDS[0], bob: 1, hp: 2, max: 2, flash: 0 });
   },
-  state: () => ({ level, lives, mode, hold, over, emma: { x: emma.x, y: emma.y }, foes: foes.map((z) => ({ x: z.x, y: z.y, img: z.kind.img })) })
+  state: () => ({
+    level, lives, mode, hold, over,
+    witch: witch && { hp: witch.hp, max: witch.max },
+    foes: foes.map((z) => ({ x: z.x, y: z.y, hp: z.hp, img: z.kind.img }))
+  })
 };
 requestAnimationFrame(frame);
 </script>
