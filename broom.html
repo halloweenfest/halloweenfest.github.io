@@ -9,9 +9,9 @@
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; background: #140a0c; color: var(--cream); font-family: "Trebuchet MS", "Segoe UI", sans-serif; }
     body { display: flex; flex-direction: column; height: 100dvh; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
-    header { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 12px; }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 12px; background: #1a1024; }
     header b { color: var(--gold); letter-spacing: .12em; font-size: 12px; }
-    #hud { font-weight: 800; }
+    #hud { font-weight: 800; color: #ffb4b4; }
     a.back, button.act {
       border: 0; border-radius: 999px; background: #3a241c; color: var(--cream);
       font: 800 13px "Trebuchet MS", sans-serif; padding: 8px 12px; text-decoration: none;
@@ -19,9 +19,16 @@
     #wrap { position: relative; flex: 1; min-height: 0; }
     canvas { width: 100%; height: 100%; display: block; background: #1b1030; touch-action: none; }
     #help {
-      position: absolute; left: 10px; right: 10px; top: 8px;
-      font-size: 13px; text-align: center; pointer-events: none; text-shadow: 0 1px 4px #000;
+      position: absolute; left: 50%; top: 10px; transform: translateX(-50%);
+      max-width: 92%;
+      background: #140a0ccc; border: 1px solid #e8c36a55; border-radius: 999px;
+      padding: 7px 12px; font-size: 13px; text-align: center; pointer-events: none;
     }
+    #barTrack {
+      position: absolute; left: 12px; right: 12px; bottom: 74px; height: 8px;
+      background: #0008; border-radius: 999px; overflow: hidden;
+    }
+    #barFill { height: 100%; width: 0; background: linear-gradient(90deg, #e8c36a, #ff8a2a); }
     #touch {
       position: absolute; left: 10px; right: 10px; bottom: 10px;
       display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
@@ -31,7 +38,7 @@
       font: 800 16px "Trebuchet MS", sans-serif;
     }
     #goSpeed { background: var(--gold); color: #1a1208; }
-    #goBrake { background: #3a241c; color: var(--cream); }
+    #goBrake { background: #3a241c; color: var(--cream); border: 1px solid #e8c36a44; }
     #over {
       position: absolute; inset: 0; background: #140a0ce6;
       display: none; flex-direction: column; justify-content: flex-end; padding: 18px;
@@ -55,6 +62,7 @@
   <div id="wrap">
     <canvas id="c"></canvas>
     <div id="help">Move with mouse or arrows. Left click speeds up. Right click brakes.</div>
+    <div id="barTrack"><div id="barFill"></div></div>
     <div id="touch">
       <button id="goSpeed" type="button">Speed</button>
       <button id="goBrake" type="button">Brake</button>
@@ -74,7 +82,7 @@ const modeEl = document.getElementById("mode");
 const help = document.getElementById("help");
 const speedBtn = document.getElementById("goSpeed");
 const imgs = {};
-["emma","zombie","pumpkin","witch"].forEach((n) => {
+["emma","pumpkin","witch","ghost","skeleton","bat","wolf","zombie"].forEach((n) => {
   const i = new Image();
   i.src = n + ".png";
   imgs[n] = i;
@@ -95,7 +103,14 @@ resize();
 const keys = {};
 let boost = false, brake = false, pointer = false, shootHeld = false;
 let mx = 0.22, my = 0.5;
-let lives = 3, score = 0, level = 1, dist = 0, goal = 1400;
+let lives = 3, score = 0, level = 1, dist = 0, goal = 24000, elapsed = 0;
+const KINDS = [
+  { img: "ghost", speed: 0.1, w: 70, r: 26 },
+  { img: "skeleton", speed: 0.14, w: 64, r: 24 },
+  { img: "bat", speed: 0.2, w: 72, r: 22 },
+  { img: "wolf", speed: 0.16, w: 86, r: 30 },
+  { img: "zombie", speed: 0.12, w: 78, r: 28 }
+];
 let mode = "fly";
 let emma = { x: 0.2, y: 0.5, vx: 0, vy: 0, inv: 0 };
 let speed = 180;
@@ -111,7 +126,8 @@ function reset(nextLevel) {
   lives = nextLevel ? lives : 3;
   if (!nextLevel) score = 0;
   dist = 0;
-  goal = 1100 + level * 350;
+  goal = level === 1 ? 24000 : 18000;
+  elapsed = 0;
   mode = "fly";
   emma = { x: 0.22, y: 0.5, vx: 0, vy: 0, inv: 1 };
   speed = 180;
@@ -179,26 +195,28 @@ function step(dt) {
   emma.x = Math.max(0.08, Math.min(0.55, emma.x));
   emma.y = Math.max(0.12, Math.min(0.82, emma.y));
 
-  const want = brake ? 70 : (boost && mode === "fly" ? 460 : 190);
+  const want = brake ? 40 : (boost && mode === "fly" ? 150 : 80);
   speed += (want - speed) * Math.min(1, dt * 3);
   scroll += speed * dt;
 
   if (mode === "fly") {
     dist += speed * dt;
+    elapsed += dt;
     spawnZ -= dt;
     spawnP -= dt;
     if (spawnZ <= 0) {
-      spawnZ = Math.max(0.45, 1.15 - level * 0.12);
-      foes.push({ x: 1.15, y: 0.15 + Math.random() * 0.7, vy: (Math.random() - 0.5) * 0.15 });
+      spawnZ = level === 1 ? 2.4 : 1.6;
+      const kind = KINDS[Math.floor(Math.random() * (level === 1 ? 4 : KINDS.length))];
+      foes.push({ x: 1.12, y: 0.18 + Math.random() * 0.62, kind, bob: Math.random() * 6 });
     }
     if (spawnP <= 0) {
-      spawnP = 2.6 + Math.random() * 1.4;
-      treats.push({ x: 1.12, y: 0.18 + Math.random() * 0.62 });
+      spawnP = 9 + Math.random() * 4;
+      treats.push({ x: 1.12, y: 0.2 + Math.random() * 0.55 });
     }
     foes.forEach((z) => {
-      z.x -= dt * (0.22 + level * 0.03);
-      z.y += Math.sin(t * 2 + z.x * 8) * dt * 0.05 + (emma.y - z.y) * dt * 0.08;
-      if (hit(emma, z, 34, 28)) { hurt(); z.x = -1; }
+      z.x -= dt * z.kind.speed;
+      z.y += Math.sin(t * 1.4 + z.bob) * dt * 0.04;
+      if (hit(emma, z, 36, z.kind.r)) { hurt(); z.x = -1; }
     });
     treats.forEach((p) => {
       p.x -= dt * 0.12;
@@ -233,29 +251,39 @@ function step(dt) {
       else { level++; reset(level); }
     }
   }
-  hud.textContent = lives + (lives === 1 ? " life" : " lives");
-  if (mode === "fly") modeEl.textContent = "LEVEL " + level;
+  hud.textContent = "♥".repeat(Math.max(0, lives)) + (lives > 5 ? " " + lives : "");
+  const mins = Math.floor(elapsed / 60);
+  const secs = String(Math.floor(elapsed % 60)).padStart(2, "0");
+  if (mode === "fly") modeEl.textContent = "NIGHT " + level + "  " + mins + ":" + secs;
+  const fill = document.getElementById("barFill");
+  if (fill) fill.style.width = Math.min(100, dist / goal * 100) + "%";
 }
 
 function draw() {
   ctx.clearRect(0, 0, W, H);
   const sky = ctx.createLinearGradient(0, 0, 0, H);
-  sky.addColorStop(0, "#241447");
-  sky.addColorStop(1, "#3a1d16");
+  sky.addColorStop(0, "#1a1038");
+  sky.addColorStop(0.55, "#3a2158");
+  sky.addColorStop(1, "#5a2a22");
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = "#f4e2a8";
+  ctx.fillStyle = "#fff8";
+  for (let i = 0; i < 28; i++) {
+    const sx = (i * 97 + 20) % W;
+    const sy = (i * 53) % (H * 0.55);
+    ctx.fillRect(sx, sy, 2, 2);
+  }
+  ctx.fillStyle = "#f6e7b2";
   ctx.beginPath();
-  ctx.arc(W * 0.78, H * 0.16, 28, 0, Math.PI * 2);
+  ctx.arc(W * 0.82, H * 0.16, 26, 0, Math.PI * 2);
   ctx.fill();
-  ctx.fillStyle = "#1a0e14";
-  for (let i = 0; i < 8; i++) {
-    const x = ((i * 180 - scroll * 0.15) % (W + 160)) - 40;
-    ctx.fillRect(x, H * 0.78, 70, H * 0.22);
+  ctx.fillStyle = "#140c12";
+  for (let i = 0; i < 7; i++) {
+    const x = ((i * 210 - scroll * 0.04) % (W + 180)) - 50;
     ctx.beginPath();
-    ctx.moveTo(x - 10, H * 0.78);
-    ctx.lineTo(x + 35, H * 0.62);
-    ctx.lineTo(x + 80, H * 0.78);
+    ctx.moveTo(x, H);
+    ctx.lineTo(x + 28, H * 0.72);
+    ctx.lineTo(x + 56, H);
     ctx.fill();
   }
   function sprite(img, x, y, w) {
@@ -263,8 +291,8 @@ function draw() {
     const h = w * img.naturalHeight / img.naturalWidth;
     ctx.drawImage(img, x - w / 2, y - h / 2, w, h);
   }
-  treats.forEach((p) => sprite(imgs.pumpkin, p.x * W, p.y * H, 54));
-  foes.forEach((z) => sprite(imgs.zombie, z.x * W, z.y * H, 78));
+  treats.forEach((p) => sprite(imgs.pumpkin, p.x * W, p.y * H, 52));
+  foes.forEach((z) => sprite(imgs[z.kind.img], z.x * W, z.y * H, z.kind.w));
   bolts.forEach((b) => {
     ctx.fillStyle = "#b388ff";
     ctx.beginPath();
@@ -290,13 +318,8 @@ function draw() {
   }
   ctx.save();
   if (emma.inv > 0 && Math.floor(t * 12) % 2 === 0) ctx.globalAlpha = 0.45;
-  sprite(imgs.emma, emma.x * W, emma.y * H, 118);
+  sprite(imgs.emma, emma.x * W, emma.y * H, 150);
   ctx.restore();
-  if (mode === "fly") {
-    ctx.fillStyle = "#fff3dc";
-    ctx.font = "800 14px Trebuchet MS, sans-serif";
-    ctx.fillText("Night " + Math.min(100, Math.floor(dist / goal * 100)) + "%", 12, 22);
-  }
 }
 
 function frame(now) {
