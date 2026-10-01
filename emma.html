@@ -66,10 +66,26 @@
       font: 800 16px "Trebuchet MS", sans-serif;
       display: flex; align-items: center; justify-content: center; text-decoration: none;
     }
-    #night1, #payGo { background: var(--gold); color: #1a1208; }
-    #night2, #night3, #payNo { background: #3a241c; color: var(--cream); }
-    #night2.lock, #night3.lock { filter: grayscale(.4); }
-    .tag { display: block; font-size: 11px; letter-spacing: .12em; color: #e8c36a; margin-top: 2px; }
+    .nights {
+      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px; margin-top: 8px;
+    }
+    #levels .nights button {
+      position: relative; height: auto; aspect-ratio: 3 / 4; max-height: 48vh;
+      margin: 0; padding: 10px 6px; border-radius: 16px; overflow: hidden;
+      background-size: cover; background-position: center;
+      color: var(--cream); text-shadow: 0 2px 8px #000;
+      align-items: flex-end;
+    }
+    #levels .nights button::after {
+      content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 46%;
+      background: linear-gradient(transparent, #140a0ce6);
+    }
+    #levels .nights .label { position: relative; z-index: 1; text-align: center; line-height: 1.1; }
+    #payGo { background: var(--gold); color: #1a1208; }
+    #payNo { background: #3a241c; color: var(--cream); }
+    #night2.lock, #night3.lock { filter: grayscale(.5) brightness(.7); }
+    .tag { display: block; font-size: 11px; letter-spacing: .12em; color: #e8c36a; margin-top: 4px; }
   </style>
 </head>
 <body>
@@ -96,9 +112,11 @@
       <p style="color:#e8c36a;letter-spacing:.16em;font-size:11px">EMMA'S FLIGHT</p>
       <h1 style="font-size:32px;line-height:.95;margin:6px 0 8px">Pick a night</h1>
       <p id="levelLine" style="opacity:.9">Night 1 is free. Villains chase her. Nights 2 and 3 unlock together.</p>
-      <button id="night1" type="button">Night 1<span class="tag">FREE</span></button>
-      <button id="night2" type="button">Night 2<span class="tag">LOCKED · PAY</span></button>
-      <button id="night3" type="button">Night 3<span class="tag">LOCKED · PAY</span></button>
+      <div class="nights">
+        <button id="night1" type="button" style="background-image:url('night1.jpg?v=1')"><span class="label">Night 1<span class="tag">FREE</span></span></button>
+        <button id="night2" type="button" style="background-image:url('night2.jpg?v=1')"><span class="label">Night 2<span class="tag">LOCKED · PAY</span></span></button>
+        <button id="night3" type="button" style="background-image:url('night3.jpg?v=1')"><span class="label">Night 3<span class="tag">LOCKED · PAY</span></span></button>
+      </div>
     </div>
     <div id="pay">
       <p style="color:#e8c36a;letter-spacing:.16em;font-size:11px">LOCKED</p>
