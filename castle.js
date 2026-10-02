@@ -8,12 +8,11 @@ const speedBtn = document.getElementById("goSpeed");
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(1.6, window.devicePixelRatio || 1));
-renderer.setClearColor(0x141c2c);
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.05;
+renderer.setClearColor(0x0c1220);
+renderer.toneMappingExposure = 1.15;
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x243044, 28, 160);
-const camera = new THREE.PerspectiveCamera(62, 1, 0.1, 280);
+scene.fog = new THREE.Fog(0x12182c, 18, 110);
+const camera = new THREE.PerspectiveCamera(68, 1, 0.1, 220);
 
 scene.add(new THREE.HemisphereLight(0x9aabc8, 0x1a1814, 0.7));
 const moonLight = new THREE.DirectionalLight(0xd5def0, 0.85);
@@ -36,98 +35,80 @@ const black = new THREE.MeshStandardMaterial({ color: 0x141414, roughness: 0.55 
 const brown = new THREE.MeshStandardMaterial({ color: 0x6a3a28, roughness: 0.8 });
 const skin = new THREE.MeshStandardMaterial({ color: 0xf0c8a8, roughness: 0.6 });
 
-const winGeo = new THREE.PlaneGeometry(0.85, 1.35);
-const towerGeo = new THREE.CylinderGeometry(1.35, 1.6, 1, 7);
-const roofGeo = new THREE.ConeGeometry(1.9, 2.8, 7);
+const winGeo = new THREE.PlaneGeometry(0.55, 0.85);
+const dummy = new THREE.Object3D();
 
-function addWindows(parent, x, y, z, cols, rows, facing) {
-  for (let r = 0; r < rows; r++) {
-    for (let c = 0; c < cols; c++) {
-      const w = new THREE.Mesh(winGeo, glow);
-      w.position.set(x + (c - (cols - 1) / 2) * 1.15, y + r * 1.7, z);
-      if (facing === "x") w.rotation.y = Math.PI / 2;
-      parent.add(w);
-    }
-  }
-}
-function pineTree(x, z, s) {
-  const g = new THREE.Group();
-  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.18, 1.2, 5), wood);
-  const top = new THREE.Mesh(new THREE.ConeGeometry(0.7 * s, 2.4 * s, 6), pine);
-  top.position.y = 1.4 * s;
-  g.add(trunk, top);
-  g.position.set(x, -1.6, z);
-  return g;
-}
-function buildLandmark(z) {
+function buildBlock(z, seed) {
   const g = new THREE.Group();
   g.position.z = z;
-  const cliff = new THREE.Mesh(new THREE.CylinderGeometry(10, 16, 14, 7), rock);
-  cliff.position.set(7, -4, -6);
-  g.add(cliff);
-  const hall = new THREE.Mesh(new THREE.BoxGeometry(16, 9, 8), stone);
-  hall.position.set(6, 6.5, -8);
-  g.add(hall);
-  addWindows(g, 6, 4.2, -3.9, 6, 3, "z");
-  const heights = [16, 22, 13, 19, 15];
-  heights.forEach((h, i) => {
-    const x = 1 + i * 3.1;
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(1.15, 1.35, h, 8), stone);
-    body.position.set(x, h / 2 + 2, -10);
-    const cap = new THREE.Mesh(new THREE.ConeGeometry(1.7, 4.2, 8), roofM);
-    cap.position.set(x, h + 4, -10);
-    g.add(body, cap);
-    for (let k = 0; k < 4; k++) {
-      const w = new THREE.Mesh(winGeo, glow);
-      w.position.set(x, 3 + k * (h / 5), -8.6);
-      g.add(w);
+  const road = new THREE.Mesh(new THREE.PlaneGeometry(22, 44), new THREE.MeshStandardMaterial({ color: 0x17191f, roughness: 0.95 }));
+  road.rotation.x = -Math.PI / 2;
+  road.position.y = -1.55;
+  g.add(road);
+  const stripe = new THREE.Mesh(new THREE.PlaneGeometry(0.18, 44), goldSoft);
+  stripe.rotation.x = -Math.PI / 2;
+  stripe.position.y = -1.52;
+  g.add(stripe);
+  const windows = [];
+  for (const side of [-1, 1]) {
+    for (let i = 0; i < 3; i++) {
+      const h = 18 + ((seed + i * 5) % 6) * 3.4;
+      const x = side * (8.2 + (i % 2) * 1.6);
+      const zz = -15 + i * 13;
+      const body = new THREE.Mesh(new THREE.BoxGeometry(4.6, h, 6.2), stone);
+      body.position.set(x, h / 2 - 1.5, zz);
+      const cap = new THREE.Mesh(new THREE.ConeGeometry(3.3, 4.2, 4), roofM);
+      cap.position.set(x, h + 0.6, zz);
+      const spire = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 2.4, 5), black);
+      spire.position.set(x, h + 3.4, zz);
+      g.add(body, cap, spire);
+      const cols = 4;
+      const rows = Math.floor(h / 2.05);
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          if ((r + c + i + seed) % 6 === 0) continue;
+          windows.push(x - side * 2.35, -0.2 + r * 1.85, zz + (c - 1.5) * 1.25, 1);
+          windows.push(x + (c - 1.5) * 1.05, -0.2 + r * 1.85, zz + 3.15, 0);
+        }
+      }
     }
-  });
-  for (let i = 0; i < 7; i++) {
-    const pillar = new THREE.Mesh(new THREE.BoxGeometry(1.1, 8, 1.1), stone);
-    pillar.position.set(-8 + i * 2.6, 2.2, 6);
-    const arch = new THREE.Mesh(new THREE.TorusGeometry(1.35, 0.28, 6, 10, Math.PI), stone);
-    arch.rotation.z = Math.PI;
-    arch.position.set(-6.7 + i * 2.6, 5.4, 6);
-    g.add(pillar);
-    if (i < 6) g.add(arch);
-    const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.12, 6, 6), glow);
-    lamp.position.set(-8 + i * 2.6, 5.8, 6.6);
-    g.add(lamp);
+    for (let i = 0; i < 4; i++) {
+      const pole = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.08, 3.4, 5), black);
+      pole.position.set(side * 3.2, 0.15, -16 + i * 10);
+      const bulb = new THREE.Mesh(new THREE.SphereGeometry(0.18, 8, 6), glow);
+      bulb.position.set(side * 3.2, 1.85, -16 + i * 10);
+      g.add(pole, bulb);
+    }
   }
-  for (let i = 0; i < 5; i++) g.add(pineTree(-12 + i * 2.2, 2, 1 + (i % 2) * 0.4));
-  g.add(pineTree(14, 0, 1.3));
+  const mesh = new THREE.InstancedMesh(winGeo, glow, windows.length / 4);
+  for (let i = 0; i < windows.length; i += 4) {
+    dummy.position.set(windows[i], windows[i + 1], windows[i + 2]);
+    dummy.rotation.set(0, windows[i + 3] ? Math.PI / 2 : 0, 0);
+    dummy.updateMatrix();
+    mesh.setMatrixAt(i / 4, dummy.matrix);
+  }
+  mesh.instanceMatrix.needsUpdate = true;
+  g.add(mesh);
   return g;
 }
-const lake = new THREE.Mesh(new THREE.PlaneGeometry(220, 220), waterM);
-lake.rotation.x = -Math.PI / 2;
-lake.position.y = -2.4;
-scene.add(lake);
-const ridges = new THREE.Group();
-for (let i = 0; i < 9; i++) {
-  const m = new THREE.Mesh(new THREE.ConeGeometry(8 + (i % 3) * 4, 18 + (i % 4) * 6, 5), rock);
-  m.position.set(-40 + i * 12, 4, -30);
-  ridges.add(m);
-}
-scene.add(ridges);
-const landmarks = [];
-let nextLandmarkZ = -70;
-for (let i = 0; i < 3; i++) {
-  const c = buildLandmark(nextLandmarkZ);
-  landmarks.push(c);
+const blocks = [];
+let nextBlockZ = -8;
+for (let i = 0; i < 6; i++) {
+  const c = buildBlock(nextBlockZ, i + 1);
+  blocks.push(c);
   scene.add(c);
-  nextLandmarkZ -= 150;
+  nextBlockZ -= 42;
 }
 function recycleLandmarks() {
-  for (const c of landmarks) {
-    if (c.position.z > emma.position.z + 30) {
-      c.position.z = nextLandmarkZ;
-      nextLandmarkZ -= 150;
+  for (const c of blocks) {
+    if (c.position.z > emma.position.z + 24) {
+      c.position.z = nextBlockZ;
+      nextBlockZ -= 42;
     }
   }
 }
 
-const ringGeo = new THREE.TorusGeometry(2.25, 0.075, 8, 32);
+const ringGeo = new THREE.TorusGeometry(2.6, 0.09, 10, 36);
 const ringGlowGeo = new THREE.TorusGeometry(2.5, 0.02, 6, 28);
 const rings = [];
 let nextRingZ = -16;
@@ -205,7 +186,8 @@ const emma = buildEmma();
 const lamp = new THREE.PointLight(0xffb060, 18, 36, 2);
 lamp.position.set(0, 1.2, -1);
 emma.add(lamp);
-emma.position.set(0, 2.1, 6);
+emma.position.set(0, 1.6, 6);
+emma.scale.setScalar(1.45);
 scene.add(emma);
 
 const boltMat = new THREE.LineBasicMaterial({ color: 0xf7fbff });
@@ -340,7 +322,7 @@ function reset(nextLevel) {
   document.getElementById("over").classList.remove("on");
   document.getElementById("levels").classList.remove("on");
   document.getElementById("pay").classList.remove("on");
-  help.textContent = "Low over the lake. The castle is ahead. Thread the arches and the golden rings.";
+  help.textContent = "Steer through the golden rings. Castles on both sides.";
   speedBtn.textContent = "Speed";
   track("emma_night_started", { night: level });
 }
@@ -457,14 +439,9 @@ function step(dt) {
   }
   if (emma.userData.cape) emma.userData.cape.rotation.x = 0.4 + Math.sin(t * 6) * 0.18;
   moon.position.set(emma.position.x + 28, emma.position.y + 22, emma.position.z - 70);
-
-  lake.position.x = emma.position.x;
-  lake.position.z = emma.position.z - 20;
-  ridges.position.x = emma.position.x;
-  ridges.position.z = emma.position.z - 40;
-  const desired = new THREE.Vector3(emma.position.x * 0.35, emma.position.y + 1.15, emma.position.z + 4.4);
-  camera.position.lerp(desired, 1 - Math.exp(-3.4 * dt));
-  camera.lookAt(emma.position.x, emma.position.y + 0.35, emma.position.z - 22);
+  const desired = new THREE.Vector3(emma.position.x * 0.25, emma.position.y + 0.85, emma.position.z + 3.6);
+  camera.position.lerp(desired, 1 - Math.exp(-4 * dt));
+  camera.lookAt(emma.position.x, emma.position.y + 0.55, emma.position.z - 16);
   if (hold || over) return;
 
   inv = Math.max(0, inv - dt);
