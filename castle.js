@@ -8,22 +8,23 @@ const speedBtn = document.getElementById("goSpeed");
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
 renderer.setPixelRatio(Math.min(1.6, window.devicePixelRatio || 1));
-renderer.setClearColor(0x070410);
+renderer.setClearColor(0x141c2c);
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
-renderer.toneMappingExposure = 1.12;
+renderer.toneMappingExposure = 1.05;
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x120818, 22, 95);
-const camera = new THREE.PerspectiveCamera(68, 1, 0.1, 180);
+scene.fog = new THREE.Fog(0x243044, 28, 160);
+const camera = new THREE.PerspectiveCamera(62, 1, 0.1, 280);
 
-scene.add(new THREE.HemisphereLight(0x8aa0d8, 0x1a1020, 0.55));
-const moonLight = new THREE.DirectionalLight(0xc9d6ff, 1.25);
-moonLight.position.set(30, 40, 12);
+scene.add(new THREE.HemisphereLight(0x9aabc8, 0x1a1814, 0.7));
+const moonLight = new THREE.DirectionalLight(0xd5def0, 0.85);
+moonLight.position.set(-20, 40, 30);
 scene.add(moonLight);
-const moon = new THREE.Mesh(new THREE.SphereGeometry(4.2, 16, 12), new THREE.MeshBasicMaterial({ color: 0xf6e7c4 }));
+const moon = new THREE.Mesh(new THREE.SphereGeometry(3.4, 16, 12), new THREE.MeshBasicMaterial({ color: 0xe7e0cc }));
 scene.add(moon);
 
 const stone = new THREE.MeshStandardMaterial({ color: 0x6e655c, roughness: 0.92 });
-const darkStone = new THREE.MeshStandardMaterial({ color: 0x2a242c, roughness: 0.95 });
+const rock = new THREE.MeshStandardMaterial({ color: 0x3a4038, roughness: 1 });
+const pine = new THREE.MeshStandardMaterial({ color: 0x1c2a22, roughness: 1 });
 const roofM = new THREE.MeshStandardMaterial({ color: 0x3d1824, roughness: 0.7 });
 const wood = new THREE.MeshStandardMaterial({ color: 0x6a4120, roughness: 0.62 });
 const waterM = new THREE.MeshStandardMaterial({ color: 0x10283c, metalness: 0.55, roughness: 0.18 });
@@ -39,70 +40,89 @@ const winGeo = new THREE.PlaneGeometry(0.85, 1.35);
 const towerGeo = new THREE.CylinderGeometry(1.35, 1.6, 1, 7);
 const roofGeo = new THREE.ConeGeometry(1.9, 2.8, 7);
 
-function tower(x, z, h) {
-  const g = new THREE.Group();
-  const body = new THREE.Mesh(towerGeo, stone);
-  body.scale.y = h;
-  body.position.y = h / 2;
-  const cap = new THREE.Mesh(roofGeo, roofM);
-  cap.position.y = h + 1.2;
-  const spire = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 2.2, 5), black);
-  spire.position.y = h + 3.2;
-  g.add(body, cap, spire);
-  for (let i = 0; i < 4; i++) {
-    const w = new THREE.Mesh(winGeo, glow);
-    w.position.set(x > 0 ? -1.35 : 1.35, 2 + i * (h / 5), 0.2);
-    w.rotation.y = x > 0 ? Math.PI / 2 : -Math.PI / 2;
-    g.add(w);
+function addWindows(parent, x, y, z, cols, rows, facing) {
+  for (let r = 0; r < rows; r++) {
+    for (let c = 0; c < cols; c++) {
+      const w = new THREE.Mesh(winGeo, glow);
+      w.position.set(x + (c - (cols - 1) / 2) * 1.15, y + r * 1.7, z);
+      if (facing === "x") w.rotation.y = Math.PI / 2;
+      parent.add(w);
+    }
   }
-  g.position.set(x, -2.2, z);
+}
+function pineTree(x, z, s) {
+  const g = new THREE.Group();
+  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.18, 1.2, 5), wood);
+  const top = new THREE.Mesh(new THREE.ConeGeometry(0.7 * s, 2.4 * s, 6), pine);
+  top.position.y = 1.4 * s;
+  g.add(trunk, top);
+  g.position.set(x, -1.6, z);
   return g;
 }
-
-function buildChunk(z) {
+function buildLandmark(z) {
   const g = new THREE.Group();
   g.position.z = z;
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(100, 40), darkStone);
-  ground.rotation.x = -Math.PI / 2;
-  ground.position.y = -3.2;
-  const lake = new THREE.Mesh(new THREE.PlaneGeometry(100, 16), waterM);
-  lake.rotation.x = -Math.PI / 2;
-  lake.position.set(0, -3.05, 0);
-  g.add(ground, lake);
-  for (const side of [-1, 1]) {
-    const wall = new THREE.Mesh(new THREE.BoxGeometry(5.5, 10, 36), stone);
-    wall.position.set(side * 13.5, 1.8, 0);
-    g.add(wall);
-    for (let row = 0; row < 3; row++) {
-      for (let col = 0; col < 6; col++) {
-        const w = new THREE.Mesh(winGeo, glow);
-        w.position.set(side * 10.55, -0.2 + row * 2.4, -14 + col * 5.4);
-        w.rotation.y = side > 0 ? Math.PI / 2 : -Math.PI / 2;
-        g.add(w);
-      }
+  const cliff = new THREE.Mesh(new THREE.CylinderGeometry(10, 16, 14, 7), rock);
+  cliff.position.set(7, -4, -6);
+  g.add(cliff);
+  const hall = new THREE.Mesh(new THREE.BoxGeometry(16, 9, 8), stone);
+  hall.position.set(6, 6.5, -8);
+  g.add(hall);
+  addWindows(g, 6, 4.2, -3.9, 6, 3, "z");
+  const heights = [16, 22, 13, 19, 15];
+  heights.forEach((h, i) => {
+    const x = 1 + i * 3.1;
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(1.15, 1.35, h, 8), stone);
+    body.position.set(x, h / 2 + 2, -10);
+    const cap = new THREE.Mesh(new THREE.ConeGeometry(1.7, 4.2, 8), roofM);
+    cap.position.set(x, h + 4, -10);
+    g.add(body, cap);
+    for (let k = 0; k < 4; k++) {
+      const w = new THREE.Mesh(winGeo, glow);
+      w.position.set(x, 3 + k * (h / 5), -8.6);
+      g.add(w);
     }
-    g.add(tower(side * 18, -8, 11 + Math.random() * 7));
-    g.add(tower(side * 16.5, 9, 8 + Math.random() * 5));
+  });
+  for (let i = 0; i < 7; i++) {
+    const pillar = new THREE.Mesh(new THREE.BoxGeometry(1.1, 8, 1.1), stone);
+    pillar.position.set(-8 + i * 2.6, 2.2, 6);
+    const arch = new THREE.Mesh(new THREE.TorusGeometry(1.35, 0.28, 6, 10, Math.PI), stone);
+    arch.rotation.z = Math.PI;
+    arch.position.set(-6.7 + i * 2.6, 5.4, 6);
+    g.add(pillar);
+    if (i < 6) g.add(arch);
+    const lamp = new THREE.Mesh(new THREE.SphereGeometry(0.12, 6, 6), glow);
+    lamp.position.set(-8 + i * 2.6, 5.8, 6.6);
+    g.add(lamp);
   }
-  const bridge = new THREE.Mesh(new THREE.BoxGeometry(20, 0.35, 2.4), stone);
-  bridge.position.set(0, -1.4, 2);
-  g.add(bridge);
+  for (let i = 0; i < 5; i++) g.add(pineTree(-12 + i * 2.2, 2, 1 + (i % 2) * 0.4));
+  g.add(pineTree(14, 0, 1.3));
   return g;
 }
-
-const chunks = [];
-let nextChunkZ = 10;
-for (let i = 0; i < 7; i++) {
-  const c = buildChunk(nextChunkZ);
-  chunks.push(c);
-  scene.add(c);
-  nextChunkZ -= 38;
+const lake = new THREE.Mesh(new THREE.PlaneGeometry(220, 220), waterM);
+lake.rotation.x = -Math.PI / 2;
+lake.position.y = -2.4;
+scene.add(lake);
+const ridges = new THREE.Group();
+for (let i = 0; i < 9; i++) {
+  const m = new THREE.Mesh(new THREE.ConeGeometry(8 + (i % 3) * 4, 18 + (i % 4) * 6, 5), rock);
+  m.position.set(-40 + i * 12, 4, -30);
+  ridges.add(m);
 }
-function recycleChunks() {
-  for (const c of chunks) {
-    if (c.position.z > emma.position.z + 20) {
-      c.position.z = nextChunkZ;
-      nextChunkZ -= 38;
+scene.add(ridges);
+const landmarks = [];
+let nextLandmarkZ = -70;
+for (let i = 0; i < 3; i++) {
+  const c = buildLandmark(nextLandmarkZ);
+  landmarks.push(c);
+  scene.add(c);
+  nextLandmarkZ -= 150;
+}
+function recycleLandmarks() {
+  for (const c of landmarks) {
+    if (c.position.z > emma.position.z + 30) {
+      c.position.z = nextLandmarkZ;
+      nextLandmarkZ -= 150;
     }
   }
 }
@@ -156,11 +176,14 @@ function buildEmma() {
   const broom = new THREE.Group();
   const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 2.1, 6), wood);
   shaft.rotation.x = Math.PI / 2;
-  const bristle = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.48, 7), new THREE.MeshStandardMaterial({ color: 0x8a642c }));
+  const bristle = new THREE.Mesh(new THREE.ConeGeometry(0.28, 0.85, 7), new THREE.MeshStandardMaterial({ color: 0x8a642c }));
   bristle.rotation.x = -Math.PI / 2;
-  bristle.position.z = 1.15;
+  bristle.position.z = 1.25;
   broom.add(shaft, bristle);
   broom.position.y = 0.15;
+  const cape = new THREE.Mesh(new THREE.PlaneGeometry(0.85, 1.15), maroon);
+  cape.position.set(0, 0.72, 0.28);
+  cape.rotation.x = 0.45;
   const wand = new THREE.Group();
   const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.028, 0.7, 6), wood);
   stick.rotation.z = -0.8;
@@ -170,10 +193,11 @@ function buildEmma() {
   tipLight.position.copy(tip.position);
   wand.add(stick, tip, tipLight);
   wand.position.set(0.28, 0.78, 0.15);
-  g.add(cloak, torso, hair, head, brim, hat, broom, wand);
+  g.add(cloak, torso, hair, head, brim, hat, broom, wand, cape);
   g.userData.wand = wand;
   g.userData.tip = tip;
   g.userData.tipLight = tipLight;
+  g.userData.cape = cape;
   return g;
 }
 
@@ -316,7 +340,7 @@ function reset(nextLevel) {
   document.getElementById("over").classList.remove("on");
   document.getElementById("levels").classList.remove("on");
   document.getElementById("pay").classList.remove("on");
-  help.textContent = "Steer through the golden rings. Two lightning hits fell a monster.";
+  help.textContent = "Low over the lake. The castle is ahead. Thread the arches and the golden rings.";
   speedBtn.textContent = "Speed";
   track("emma_night_started", { night: level });
 }
@@ -431,13 +455,16 @@ function step(dt) {
     flashLife -= dt;
     if (flashLife <= 0) flash.visible = false;
   }
-  emma.position.y += Math.sin(t * 4.2) * dt * 0.15;
+  if (emma.userData.cape) emma.userData.cape.rotation.x = 0.4 + Math.sin(t * 6) * 0.18;
   moon.position.set(emma.position.x + 28, emma.position.y + 22, emma.position.z - 70);
 
-  const desired = new THREE.Vector3(emma.position.x * 0.65, emma.position.y + 2.15, emma.position.z + 7.2);
-  if (camera.position.z === 0 && camera.position.y === 0) camera.position.copy(desired);
-  camera.position.lerp(desired, 1 - Math.exp(-3.2 * dt));
-  camera.lookAt(emma.position.x, emma.position.y + 0.7, emma.position.z - 12);
+  lake.position.x = emma.position.x;
+  lake.position.z = emma.position.z - 20;
+  ridges.position.x = emma.position.x;
+  ridges.position.z = emma.position.z - 40;
+  const desired = new THREE.Vector3(emma.position.x * 0.35, emma.position.y + 1.15, emma.position.z + 4.4);
+  camera.position.lerp(desired, 1 - Math.exp(-3.4 * dt));
+  camera.lookAt(emma.position.x, emma.position.y + 0.35, emma.position.z - 22);
   if (hold || over) return;
 
   inv = Math.max(0, inv - dt);
@@ -464,7 +491,7 @@ function step(dt) {
     dist += speed * dt;
     elapsed += dt;
     emma.position.z -= speed * dt;
-    recycleChunks();
+    recycleLandmarks();
     recycleRings();
     rings.forEach((r) => {
       const dx = emma.position.x - r.position.x;
