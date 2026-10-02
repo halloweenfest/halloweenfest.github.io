@@ -7,155 +7,194 @@ const help = document.getElementById("help");
 const speedBtn = document.getElementById("goSpeed");
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
-renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
-renderer.setClearColor(0x070814);
+renderer.setPixelRatio(Math.min(1.6, window.devicePixelRatio || 1));
+renderer.setClearColor(0x070410);
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.12;
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog(0x0c1428, 18, 78);
-const camera = new THREE.PerspectiveCamera(72, 1, 0.1, 140);
-camera.position.set(0, 2.3, 8);
-scene.add(camera);
+scene.fog = new THREE.Fog(0x120818, 22, 95);
+const camera = new THREE.PerspectiveCamera(68, 1, 0.1, 180);
 
-scene.add(new THREE.AmbientLight(0x6a78aa, 0.55));
-const moonLight = new THREE.DirectionalLight(0xc5d4ff, 1.15);
-moonLight.position.set(20, 30, 10);
+scene.add(new THREE.HemisphereLight(0x8aa0d8, 0x1a1020, 0.55));
+const moonLight = new THREE.DirectionalLight(0xc9d6ff, 1.25);
+moonLight.position.set(30, 40, 12);
 scene.add(moonLight);
-const moon = new THREE.Mesh(
-  new THREE.SphereGeometry(3.2, 16, 12),
-  new THREE.MeshBasicMaterial({ color: 0xf4e7c1 })
-);
+const moon = new THREE.Mesh(new THREE.SphereGeometry(4.2, 16, 12), new THREE.MeshBasicMaterial({ color: 0xf6e7c4 }));
 scene.add(moon);
 
-const stone = new THREE.MeshStandardMaterial({ color: 0x7a726a, roughness: 0.95 });
-const darkStone = new THREE.MeshStandardMaterial({ color: 0x3e4550, roughness: 0.9 });
-const roofM = new THREE.MeshStandardMaterial({ color: 0x4a2430, roughness: 0.75 });
-const wood = new THREE.MeshStandardMaterial({ color: 0x6b4322, roughness: 0.65 });
-const leaf = new THREE.MeshStandardMaterial({ color: 0x1c3b2c, roughness: 1 });
-const waterM = new THREE.MeshStandardMaterial({ color: 0x16344a, metalness: 0.45, roughness: 0.22 });
-const glow = new THREE.MeshStandardMaterial({ color: 0xffd39a, emissive: 0xffb45a, emissiveIntensity: 1.1 });
-const pathM = new THREE.MeshStandardMaterial({ color: 0x2a3038, roughness: 1 });
+const stone = new THREE.MeshStandardMaterial({ color: 0x6e655c, roughness: 0.92 });
+const darkStone = new THREE.MeshStandardMaterial({ color: 0x2a242c, roughness: 0.95 });
+const roofM = new THREE.MeshStandardMaterial({ color: 0x3d1824, roughness: 0.7 });
+const wood = new THREE.MeshStandardMaterial({ color: 0x6a4120, roughness: 0.62 });
+const waterM = new THREE.MeshStandardMaterial({ color: 0x10283c, metalness: 0.55, roughness: 0.18 });
+const glow = new THREE.MeshBasicMaterial({ color: 0xffc56b });
+const gold = new THREE.MeshStandardMaterial({ color: 0xffe7a4, emissive: 0xffc24a, emissiveIntensity: 1.8, metalness: 0.65, roughness: 0.22 });
+const goldSoft = new THREE.MeshBasicMaterial({ color: 0xffe29a, transparent: true, opacity: 0.35 });
+const maroon = new THREE.MeshStandardMaterial({ color: 0x7a2432, roughness: 0.7 });
+const black = new THREE.MeshStandardMaterial({ color: 0x141414, roughness: 0.55 });
+const brown = new THREE.MeshStandardMaterial({ color: 0x6a3a28, roughness: 0.8 });
+const skin = new THREE.MeshStandardMaterial({ color: 0xf0c8a8, roughness: 0.6 });
+
+const winGeo = new THREE.PlaneGeometry(0.85, 1.35);
+const towerGeo = new THREE.CylinderGeometry(1.35, 1.6, 1, 7);
+const roofGeo = new THREE.ConeGeometry(1.9, 2.8, 7);
 
 function tower(x, z, h) {
   const g = new THREE.Group();
-  const body = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.7, h, 6), stone);
+  const body = new THREE.Mesh(towerGeo, stone);
+  body.scale.y = h;
   body.position.y = h / 2;
-  const cap = new THREE.Mesh(new THREE.ConeGeometry(2.1, 2.6, 6), roofM);
-  cap.position.y = h + 1.1;
-  g.add(body, cap);
-  for (let i = 0; i < 3; i++) {
-    const w = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.7, 0.12), glow);
-    w.position.set(1.15, 1.6 + i * (h / 3.4), 0.4);
+  const cap = new THREE.Mesh(roofGeo, roofM);
+  cap.position.y = h + 1.2;
+  const spire = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.06, 2.2, 5), black);
+  spire.position.y = h + 3.2;
+  g.add(body, cap, spire);
+  for (let i = 0; i < 4; i++) {
+    const w = new THREE.Mesh(winGeo, glow);
+    w.position.set(x > 0 ? -1.35 : 1.35, 2 + i * (h / 5), 0.2);
+    w.rotation.y = x > 0 ? Math.PI / 2 : -Math.PI / 2;
     g.add(w);
   }
-  g.position.set(x, -1.6, z);
-  return g;
-}
-
-function tree(x, z) {
-  const g = new THREE.Group();
-  const trunk = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.26, 1.6, 5), wood);
-  trunk.position.y = 0.2;
-  const top = new THREE.Mesh(new THREE.ConeGeometry(1.1, 2.4, 6), leaf);
-  top.position.y = 1.8;
-  g.add(trunk, top);
-  g.position.set(x, -1.6, z);
+  g.position.set(x, -2.2, z);
   return g;
 }
 
 function buildChunk(z) {
   const g = new THREE.Group();
   g.position.z = z;
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(70, 36), darkStone);
+  const ground = new THREE.Mesh(new THREE.PlaneGeometry(100, 40), darkStone);
   ground.rotation.x = -Math.PI / 2;
-  ground.position.y = -2;
-  const lake = new THREE.Mesh(new THREE.PlaneGeometry(70, 9), waterM);
+  ground.position.y = -3.2;
+  const lake = new THREE.Mesh(new THREE.PlaneGeometry(100, 16), waterM);
   lake.rotation.x = -Math.PI / 2;
-  lake.position.set(0, -1.96, 6);
-  const road = new THREE.Mesh(new THREE.PlaneGeometry(7, 36), pathM);
-  road.rotation.x = -Math.PI / 2;
-  road.position.y = -1.94;
-  g.add(ground, lake, road);
-  g.userData = { towers: [], trees: [] };
+  lake.position.set(0, -3.05, 0);
+  g.add(ground, lake);
   for (const side of [-1, 1]) {
-    const tw = tower(side * (9 + Math.random() * 3), (Math.random() - 0.5) * 10, 7 + Math.random() * 5);
-    g.add(tw);
-    g.userData.towers.push(tw);
-    const tr = tree(side * (5 + Math.random() * 2), (Math.random() - 0.5) * 12);
-    g.add(tr);
-    g.userData.trees.push(tr);
+    const wall = new THREE.Mesh(new THREE.BoxGeometry(5.5, 10, 36), stone);
+    wall.position.set(side * 13.5, 1.8, 0);
+    g.add(wall);
+    for (let row = 0; row < 3; row++) {
+      for (let col = 0; col < 6; col++) {
+        const w = new THREE.Mesh(winGeo, glow);
+        w.position.set(side * 10.55, -0.2 + row * 2.4, -14 + col * 5.4);
+        w.rotation.y = side > 0 ? Math.PI / 2 : -Math.PI / 2;
+        g.add(w);
+      }
+    }
+    g.add(tower(side * 18, -8, 11 + Math.random() * 7));
+    g.add(tower(side * 16.5, 9, 8 + Math.random() * 5));
   }
-  const wall = new THREE.Mesh(new THREE.BoxGeometry(16, 3.2, 1.1), stone);
-  wall.position.set(0, 0.2, -8);
-  g.add(wall);
+  const bridge = new THREE.Mesh(new THREE.BoxGeometry(20, 0.35, 2.4), stone);
+  bridge.position.set(0, -1.4, 2);
+  g.add(bridge);
   return g;
 }
 
 const chunks = [];
-let nextChunkZ = 20;
-for (let i = 0; i < 8; i++) {
+let nextChunkZ = 10;
+for (let i = 0; i < 7; i++) {
   const c = buildChunk(nextChunkZ);
   chunks.push(c);
   scene.add(c);
-  nextChunkZ -= 36;
+  nextChunkZ -= 38;
 }
 function recycleChunks() {
   for (const c of chunks) {
-    if (c.position.z > camera.position.z + 24) {
+    if (c.position.z > emma.position.z + 20) {
       c.position.z = nextChunkZ;
-      nextChunkZ -= 36;
-      c.userData.towers.forEach((tw, i) => {
-        const side = i === 0 ? -1 : 1;
-        tw.position.x = side * (9 + Math.random() * 4);
-        tw.position.z = (Math.random() - 0.5) * 10;
-      });
+      nextChunkZ -= 38;
     }
   }
 }
 
-const hand = new THREE.Group();
-hand.position.set(0.32, -0.3, -0.62);
-camera.add(hand);
-const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.012, 0.022, 0.62, 6), wood);
-stick.rotation.z = -0.95;
-stick.position.set(0.16, -0.02, 0);
-const tip = new THREE.Mesh(new THREE.SphereGeometry(0.04, 10, 8), new THREE.MeshBasicMaterial({ color: 0xe8f6ff }));
-tip.position.set(0.4, 0.2, 0.02);
-const tipLight = new THREE.PointLight(0xb7dcff, 0.3, 2.2);
-tipLight.position.copy(tip.position);
-hand.add(stick, tip, tipLight);
+const ringGeo = new THREE.TorusGeometry(2.25, 0.075, 8, 32);
+const ringGlowGeo = new THREE.TorusGeometry(2.5, 0.02, 6, 28);
+const rings = [];
+let nextRingZ = -16;
+function placeRing(r, z) {
+  r.position.set(Math.sin(z * 0.042) * 3.3, 2.2 + Math.sin(z * 0.03) * 0.85, z);
+  r.userData.taken = false;
+  r.scale.setScalar(1);
+}
+function makeRing(z) {
+  const g = new THREE.Group();
+  g.add(new THREE.Mesh(ringGeo, gold));
+  g.add(new THREE.Mesh(ringGlowGeo, goldSoft));
+  placeRing(g, z);
+  return g;
+}
+for (let i = 0; i < 14; i++) {
+  const r = makeRing(nextRingZ);
+  rings.push(r);
+  scene.add(r);
+  nextRingZ -= 22;
+}
+function recycleRings() {
+  for (const r of rings) {
+    if (r.position.z > emma.position.z + 6) {
+      placeRing(r, nextRingZ);
+      nextRingZ -= 22;
+    }
+  }
+}
 
-const broom = new THREE.Group();
-const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.045, 1.5, 6), wood);
-shaft.rotation.x = Math.PI / 2;
-const bristle = new THREE.Mesh(new THREE.ConeGeometry(0.14, 0.42, 7), new THREE.MeshStandardMaterial({ color: 0x8d6a32 }));
-bristle.rotation.x = -Math.PI / 2;
-bristle.position.z = 0.85;
-broom.add(shaft, bristle);
-broom.position.set(0, -0.46, -0.35);
-camera.add(broom);
+function buildEmma() {
+  const g = new THREE.Group();
+  const cloak = new THREE.Mesh(new THREE.ConeGeometry(0.42, 1.25, 8), maroon);
+  cloak.position.y = 0.42;
+  const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.24, 0.5, 8), maroon);
+  torso.position.y = 0.82;
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.17, 10, 8), skin);
+  head.position.y = 1.2;
+  const hair = new THREE.Mesh(new THREE.SphereGeometry(0.2, 8, 6), brown);
+  hair.scale.set(0.95, 1.35, 1.15);
+  hair.position.set(0, 1.22, -0.05);
+  const hat = new THREE.Mesh(new THREE.ConeGeometry(0.18, 0.62, 8), black);
+  hat.position.y = 1.62;
+  const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.32, 0.32, 0.035, 12), black);
+  brim.position.y = 1.34;
+  const broom = new THREE.Group();
+  const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.045, 0.055, 2.1, 6), wood);
+  shaft.rotation.x = Math.PI / 2;
+  const bristle = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.48, 7), new THREE.MeshStandardMaterial({ color: 0x8a642c }));
+  bristle.rotation.x = -Math.PI / 2;
+  bristle.position.z = 1.15;
+  broom.add(shaft, bristle);
+  broom.position.y = 0.15;
+  const wand = new THREE.Group();
+  const stick = new THREE.Mesh(new THREE.CylinderGeometry(0.018, 0.028, 0.7, 6), wood);
+  stick.rotation.z = -0.8;
+  const tip = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 8), new THREE.MeshBasicMaterial({ color: 0xeaf6ff }));
+  tip.position.set(0.28, 0.22, 0);
+  const tipLight = new THREE.PointLight(0xb7dcff, 0.4, 3);
+  tipLight.position.copy(tip.position);
+  wand.add(stick, tip, tipLight);
+  wand.position.set(0.28, 0.78, 0.15);
+  g.add(cloak, torso, hair, head, brim, hat, broom, wand);
+  g.userData.wand = wand;
+  g.userData.tip = tip;
+  g.userData.tipLight = tipLight;
+  return g;
+}
 
-const boltMat = new THREE.LineBasicMaterial({ color: 0xf5fbff });
-let flash = new THREE.Line(new THREE.BufferGeometry(), boltMat);
+const emma = buildEmma();
+const lamp = new THREE.PointLight(0xffb060, 18, 36, 2);
+lamp.position.set(0, 1.2, -1);
+emma.add(lamp);
+emma.position.set(0, 2.1, 6);
+scene.add(emma);
+
+const boltMat = new THREE.LineBasicMaterial({ color: 0xf7fbff });
+const flash = new THREE.Line(new THREE.BufferGeometry(), boltMat);
 flash.visible = false;
 scene.add(flash);
-let flashLife = 0;
-let recoil = 0;
-
-function resize() {
-  const w = canvas.clientWidth || 1;
-  const h = canvas.clientHeight || 1;
-  camera.aspect = w / h;
-  camera.updateProjectionMatrix();
-  renderer.setSize(w, h, false);
-}
-window.addEventListener("resize", resize);
-resize();
 
 const keys = {};
 let boost = false, brake = false, shootHeld = false;
-let aimX = 0, aimY = 2.3;
-let lives = 3, score = 0, level = 1, dist = 0, goal = 4200, elapsed = 0;
+let aimX = 0, aimY = 2.1;
+let lives = 3, score = 0, level = 1, dist = 0, goal = 4200, elapsed = 0, ringsHit = 0;
 let speed = 14, mode = "fly", hold = true, over = false;
-let shootCd = 0, spawnIn = 0.8, pumpIn = 2, boltCd = 1, t = 0, inv = 0;
+let shootCd = 0, spawnIn = 1, boltCd = 1, t = 0, inv = 0, recoil = 0, flashLife = 0;
 const foes = [];
 const orbs = [];
 let boss = null;
@@ -203,14 +242,14 @@ function showPay(n) {
 function end(win) {
   over = true;
   document.getElementById("endTitle").textContent = win ? "Witch beaten" : "Emma fell";
-  document.getElementById("endLine").textContent = win ? "You cleared the castle night. Score " + score : "They caught her. Score " + score;
+  document.getElementById("endLine").textContent = (win ? "You cleared the castle night. " : "They caught her. ") + "Rings " + ringsHit + " · Score " + score;
   document.getElementById("over").classList.add("on");
   track("emma_ended", { result: win ? "win" : "fell", night: level, score: score });
 }
 function hurt() {
   if (inv > 0 || over) return;
   lives--;
-  inv = 1.2;
+  inv = 1.15;
   if (lives <= 0) end(false);
 }
 function clearActors() {
@@ -223,45 +262,45 @@ function makeFoe(kind) {
   const g = new THREE.Group();
   g.userData = { hp: 2, max: 2, kind, r: 1.15 };
   if (kind === "ghost") {
-    const body = new THREE.Mesh(new THREE.SphereGeometry(0.7, 10, 8), new THREE.MeshStandardMaterial({ color: 0xd5e7ff, transparent: true, opacity: 0.72, emissive: 0x6688aa, emissiveIntensity: 0.35 }));
-    g.add(body);
+    g.add(new THREE.Mesh(new THREE.SphereGeometry(0.75, 10, 8), new THREE.MeshStandardMaterial({ color: 0xd5e7ff, transparent: true, opacity: 0.72, emissive: 0x88aacc, emissiveIntensity: 0.4 })));
   } else if (kind === "bat") {
     const body = new THREE.Mesh(new THREE.SphereGeometry(0.28, 8, 6), new THREE.MeshStandardMaterial({ color: 0x222228 }));
-    const wings = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.08, 0.45), new THREE.MeshStandardMaterial({ color: 0x3a3048 }));
+    const wings = new THREE.Mesh(new THREE.BoxGeometry(1.6, 0.08, 0.5), new THREE.MeshStandardMaterial({ color: 0x3a3048 }));
     g.add(body, wings);
     g.userData.wings = wings;
     g.userData.r = 0.9;
   } else if (kind === "wolf") {
-    const body = new THREE.Mesh(new THREE.BoxGeometry(1.3, 0.7, 0.55), new THREE.MeshStandardMaterial({ color: 0x4a4038 }));
-    const head = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.4, 0.4), new THREE.MeshStandardMaterial({ color: 0x5c5148 }));
-    head.position.set(0, 0.15, 0.45);
+    const body = new THREE.Mesh(new THREE.BoxGeometry(1.35, 0.7, 0.55), new THREE.MeshStandardMaterial({ color: 0x4a4038 }));
+    const head = new THREE.Mesh(new THREE.BoxGeometry(0.48, 0.4, 0.4), new THREE.MeshStandardMaterial({ color: 0x5c5148 }));
+    head.position.set(0, 0.15, 0.48);
     g.add(body, head);
   } else {
-    const body = new THREE.Mesh(new THREE.BoxGeometry(0.45, 1.3, 0.3), new THREE.MeshStandardMaterial({ color: 0xe6e0d2 }));
+    const body = new THREE.Mesh(new THREE.BoxGeometry(0.45, 1.35, 0.3), new THREE.MeshStandardMaterial({ color: 0xe6e0d2 }));
     const skull = new THREE.Mesh(new THREE.SphereGeometry(0.28, 8, 6), new THREE.MeshStandardMaterial({ color: 0xf3efe4 }));
-    skull.position.y = 0.85;
+    skull.position.y = 0.9;
     g.add(body, skull);
   }
   return g;
 }
-
 function makeBoss() {
   const g = new THREE.Group();
-  const dress = new THREE.Mesh(new THREE.ConeGeometry(1.15, 2.5, 8), new THREE.MeshStandardMaterial({ color: 0x2a1028 }));
-  const hat = new THREE.Mesh(new THREE.ConeGeometry(0.55, 1.5, 8), new THREE.MeshStandardMaterial({ color: 0x111111 }));
-  hat.position.y = 1.9;
-  const brim = new THREE.Mesh(new THREE.CylinderGeometry(0.95, 0.95, 0.08, 12), new THREE.MeshStandardMaterial({ color: 0x161616 }));
-  brim.position.y = 1.15;
-  g.add(dress, hat, brim);
+  const dress = new THREE.Mesh(new THREE.ConeGeometry(1.35, 2.8, 8), new THREE.MeshStandardMaterial({ color: 0x241028 }));
+  const hat = new THREE.Mesh(new THREE.ConeGeometry(0.7, 1.7, 8), black);
+  hat.position.y = 2.15;
+  const brim = new THREE.Mesh(new THREE.CylinderGeometry(1.15, 1.15, 0.08, 12), black);
+  brim.position.y = 1.3;
+  const face = new THREE.Mesh(new THREE.SphereGeometry(0.38, 10, 8), new THREE.MeshStandardMaterial({ color: 0x8d9a62, roughness: 0.7 }));
+  face.position.y = 1.15;
+  g.add(dress, hat, brim, face);
   const hp = level === 1 ? 20 : 20 + level * 8;
-  g.userData = { hp, max: hp, kind: "witch", r: 1.8, boss: true };
+  g.userData = { hp, max: hp, kind: "witch", r: 2, boss: true };
   return g;
 }
 
 function reset(nextLevel) {
   level = nextLevel || 1;
   lives = 3;
-  if (!nextLevel || nextLevel === 1) score = 0;
+  if (!nextLevel || nextLevel === 1) { score = 0; ringsHit = 0; }
   dist = 0;
   goal = level === 1 ? 4200 : 2800;
   elapsed = 0;
@@ -271,30 +310,32 @@ function reset(nextLevel) {
   hold = false;
   inv = 1;
   shootCd = 0;
-  spawnIn = 0.6;
-  pumpIn = 3;
+  spawnIn = 0.8;
   clearActors();
-  camera.position.set(0, 2.3, 8);
+  emma.position.set(0, 2.1, 6);
   document.getElementById("over").classList.remove("on");
   document.getElementById("levels").classList.remove("on");
   document.getElementById("pay").classList.remove("on");
-  help.textContent = "Drag to fly the castle. Shoot lightning. Two hits fell a villain.";
+  help.textContent = "Steer through the golden rings. Two lightning hits fell a monster.";
   speedBtn.textContent = "Speed";
   track("emma_night_started", { night: level });
 }
-
 function startBoss() {
   mode = "boss";
   clearActors();
   boss = makeBoss();
-  boss.position.set(camera.position.x, camera.position.y, camera.position.z - 14);
+  boss.position.set(emma.position.x, emma.position.y + 0.4, emma.position.z - 12);
   scene.add(boss);
   foes.push(boss);
-  help.textContent = "The castle witch. Night " + level + " needs " + boss.userData.max + " lightning hits.";
+  help.textContent = "Ugly witch. Night " + level + " needs " + boss.userData.max + " lightning hits.";
   modeEl.textContent = "WITCH " + boss.userData.max;
-  boltCd = 0.8;
+  boltCd = 0.7;
 }
-
+function ding() {
+  const a = new Audio("jingle.mp3");
+  a.volume = 0.35;
+  a.play().catch(() => {});
+}
 function zap() {
   const a = new Audio("lightning.wav");
   a.volume = 0.7;
@@ -305,8 +346,8 @@ function showFlash(from, to) {
   for (let i = 1; i < 7; i++) {
     const p = from.clone().lerp(to, i / 7);
     if (i < 6) {
-      p.x += (Math.random() - 0.5) * 0.55;
-      p.y += (Math.random() - 0.5) * 0.55;
+      p.x += (Math.random() - 0.5) * 0.45;
+      p.y += (Math.random() - 0.5) * 0.45;
     }
     pts.push(p);
   }
@@ -316,29 +357,26 @@ function showFlash(from, to) {
   flashLife = 0.16;
 }
 function aimTarget() {
-  const forward = new THREE.Vector3();
-  camera.getWorldDirection(forward);
-  let best = null, bestD = 30;
+  const forward = new THREE.Vector3(0, 0, -1);
+  let best = null, bestD = 32;
   foes.forEach((f) => {
-    const to = f.position.clone().sub(camera.position);
+    const to = f.position.clone().sub(emma.position);
     const distF = to.length();
-    if (distF < 1 || distF > 32) return;
-    if (to.normalize().dot(forward) < 0.72) return;
+    if (distF < 1 || distF > 34) return;
+    if (to.normalize().dot(forward) < 0.45) return;
     if (distF < bestD) { best = f; bestD = distF; }
   });
   return best;
 }
 function wound(f) {
   f.userData.hp--;
-  f.scale.setScalar(f.userData.hp > 0 ? 0.92 : 1);
   if (f.userData.hp <= 0) {
-    score += f.userData.boss ? 0 : 20;
+    score += f.userData.boss ? 200 : 20;
     scene.remove(f);
     const i = foes.indexOf(f);
     if (i >= 0) foes.splice(i, 1);
     if (f === boss) {
       boss = null;
-      score += 200;
       if (level >= 3) end(true);
       else if (paidNow()) showLevels("Night " + level + " cleared. The next night is open.");
       else showPay(level + 1);
@@ -351,152 +389,142 @@ function fire() {
   recoil = 1;
   zap();
   const from = new THREE.Vector3();
-  tip.getWorldPosition(from);
+  emma.userData.tip.getWorldPosition(from);
   const target = aimTarget();
-  const dir = new THREE.Vector3();
-  camera.getWorldDirection(dir);
-  const to = target ? target.position.clone() : from.clone().add(dir.multiplyScalar(16));
+  const to = target ? target.position.clone() : from.clone().add(new THREE.Vector3(0, 0.1, -16));
   showFlash(from, to);
   if (target) wound(target);
 }
-
 function spawnFoe(kind) {
   const f = makeFoe(kind || KINDS[Math.floor(Math.random() * (level === 1 ? 3 : 4))]);
   f.position.set(
-    camera.position.x + (Math.random() - 0.5) * 12,
-    camera.position.y + (Math.random() - 0.5) * 3.5,
-    camera.position.z - (16 + Math.random() * 18)
+    emma.position.x + (Math.random() - 0.5) * 10,
+    emma.position.y + (Math.random() - 0.5) * 3,
+    emma.position.z - (18 + Math.random() * 16)
   );
   foes.push(f);
   scene.add(f);
   return f;
 }
 
-const pumpkins = [];
-const pumpGeo = new THREE.SphereGeometry(0.38, 8, 6);
-const pumpMat = new THREE.MeshStandardMaterial({ color: 0xe07a1f, emissive: 0xcc5510, emissiveIntensity: 0.35 });
-function spawnPumpkin() {
-  const p = new THREE.Mesh(pumpGeo, pumpMat);
-  p.position.set(camera.position.x + (Math.random() - 0.5) * 6, camera.position.y + (Math.random() - 0.5) * 2, camera.position.z - 22);
-  pumpkins.push(p);
-  scene.add(p);
+function resize() {
+  const w = canvas.clientWidth || 1;
+  const h = canvas.clientHeight || 1;
+  camera.aspect = w / h;
+  camera.updateProjectionMatrix();
+  renderer.setSize(w, h, false);
 }
+window.addEventListener("resize", resize);
+resize();
 
 function step(dt) {
   t += dt;
-  const bob = Math.sin(t * 4.4);
-  hand.position.y = -0.3 + bob * 0.03 + Math.sin(t * 1.6) * 0.012;
-  hand.position.x = 0.32 + Math.sin(t * 2.2) * 0.02;
-  hand.rotation.z = Math.sin(t * 3.2) * 0.16;
-  hand.rotation.x = Math.sin(t * 2.5) * 0.1 - recoil * 0.45;
-  hand.position.z = -0.62 + recoil * 0.1 + Math.sin(t * 5.5) * 0.012;
-  tipLight.intensity = 0.2 + Math.sin(t * 9) * 0.12 + recoil * 2.4;
-  tip.scale.setScalar(1 + recoil * 0.8 + Math.sin(t * 8) * 0.08);
-  broom.position.y = -0.46 + bob * 0.02;
-  broom.rotation.z = Math.sin(t * 3) * 0.04;
+  const wand = emma.userData.wand;
+  wand.rotation.z = Math.sin(t * 3.1) * 0.35;
+  wand.rotation.x = Math.sin(t * 2.2) * 0.22 - recoil * 0.6;
+  wand.position.y = 0.78 + Math.sin(t * 4.4) * 0.05;
+  wand.position.x = 0.28 + Math.sin(t * 1.7) * 0.03;
+  emma.userData.tip.scale.setScalar(1 + recoil * 0.9 + Math.sin(t * 9) * 0.08);
+  emma.userData.tipLight.intensity = 0.35 + Math.sin(t * 8) * 0.15 + recoil * 2.6;
   if (recoil > 0) recoil = Math.max(0, recoil - dt * 3.2);
   if (flashLife > 0) {
     flashLife -= dt;
     if (flashLife <= 0) flash.visible = false;
   }
-  moon.position.set(camera.position.x + 26, camera.position.y + 18, camera.position.z - 60);
+  emma.position.y += Math.sin(t * 4.2) * dt * 0.15;
+  moon.position.set(emma.position.x + 28, emma.position.y + 22, emma.position.z - 70);
+
+  const desired = new THREE.Vector3(emma.position.x * 0.65, emma.position.y + 2.15, emma.position.z + 7.2);
+  if (camera.position.z === 0 && camera.position.y === 0) camera.position.copy(desired);
+  camera.position.lerp(desired, 1 - Math.exp(-3.2 * dt));
+  camera.lookAt(emma.position.x, emma.position.y + 0.7, emma.position.z - 12);
   if (hold || over) return;
 
   inv = Math.max(0, inv - dt);
   shootCd = Math.max(0, shootCd - dt);
   if (shootHeld) fire();
 
-  const up = keys.ArrowUp || keys.KeyW;
-  const down = keys.ArrowDown || keys.KeyS;
-  const left = keys.ArrowLeft || keys.KeyA;
-  const right = keys.ArrowRight || keys.KeyD;
-  if (left) aimX -= dt * 7;
-  if (right) aimX += dt * 7;
-  if (up) aimY += dt * 5;
-  if (down) aimY -= dt * 5;
-  aimX = Math.max(-8, Math.min(8, aimX));
-  aimY = Math.max(0.8, Math.min(5.2, aimY));
-  camera.position.x += (aimX - camera.position.x) * Math.min(1, dt * 3);
-  camera.position.y += (aimY - camera.position.y) * Math.min(1, dt * 3);
-  camera.rotation.z = (camera.position.x - aimX) * 0.08;
-  camera.rotation.y = (camera.position.x - aimX) * 0.03;
-  camera.rotation.x = (aimY - camera.position.y) * 0.12;
+  if (keys.ArrowLeft || keys.KeyA) aimX -= dt * 8;
+  if (keys.ArrowRight || keys.KeyD) aimX += dt * 8;
+  if (keys.ArrowUp || keys.KeyW) aimY += dt * 6;
+  if (keys.ArrowDown || keys.KeyS) aimY -= dt * 6;
+  aimX = Math.max(-7.5, Math.min(7.5, aimX));
+  aimY = Math.max(0.7, Math.min(5.4, aimY));
+  emma.position.x += (aimX - emma.position.x) * Math.min(1, dt * 3.4);
+  const yTarget = aimY + Math.sin(t * 4.2) * 0.08;
+  emma.position.y += (yTarget - emma.position.y) * Math.min(1, dt * 3.4);
+  emma.rotation.z = THREE.MathUtils.lerp(emma.rotation.z, (emma.position.x - aimX) * 0.18, Math.min(1, dt * 4));
 
-  const want = brake ? 5 : (boost && mode === "fly" ? 26 : 14);
+  const want = brake ? 6 : (boost && mode === "fly" ? 28 : 16);
   speed += (want - speed) * Math.min(1, dt * 2);
+  camera.fov = THREE.MathUtils.lerp(camera.fov, boost ? 78 : 68, Math.min(1, dt * 2));
+  camera.updateProjectionMatrix();
+
   if (mode === "fly") {
     dist += speed * dt;
     elapsed += dt;
-    camera.position.z -= speed * dt;
+    emma.position.z -= speed * dt;
     recycleChunks();
+    recycleRings();
+    rings.forEach((r) => {
+      const dx = emma.position.x - r.position.x;
+      const dy = emma.position.y - r.position.y;
+      const dz = emma.position.z - r.position.z;
+      if (!r.userData.taken && dz < 1.3 && dz > -1.6 && dx * dx + dy * dy < 6.8) {
+        r.userData.taken = true;
+        r.scale.setScalar(1.35);
+        ringsHit++;
+        score += 15;
+        ding();
+      }
+    });
     spawnIn -= dt;
-    pumpIn -= dt;
     if (spawnIn <= 0) {
-      spawnIn = level === 1 ? 2.1 : level === 2 ? 1.3 : 0.9;
+      spawnIn = level === 1 ? 2.2 : level === 2 ? 1.35 : 0.9;
       spawnFoe();
     }
-    if (pumpIn <= 0) { pumpIn = 11; spawnPumpkin(); }
     if (dist >= goal) startBoss();
   }
 
-  const chase = 0.55 + level * 0.18;
+  const chase = 0.6 + level * 0.18;
   foes.forEach((f) => {
     if (f.userData.boss) return;
-    f.position.x += (camera.position.x - f.position.x) * dt * chase;
-    f.position.y += (camera.position.y - f.position.y) * dt * chase;
-    f.position.z += (camera.position.z - f.position.z) * dt * (0.25 + level * 0.05);
-    if (f.userData.wings) f.userData.wings.rotation.z = Math.sin(t * 14) * 0.7;
-    if (f.userData.kind === "ghost") f.position.y += Math.sin(t * 3 + f.position.x) * dt * 0.4;
-    if (f.position.distanceTo(camera.position) < f.userData.r + 0.7) {
+    f.position.x += (emma.position.x - f.position.x) * dt * chase;
+    f.position.y += (emma.position.y - f.position.y) * dt * chase;
+    f.position.z += (emma.position.z - f.position.z) * dt * (0.28 + level * 0.05);
+    if (f.userData.wings) f.userData.wings.rotation.z = Math.sin(t * 14) * 0.75;
+    if (f.position.distanceTo(emma.position) < f.userData.r + 0.55) {
       hurt();
-      scene.remove(f);
       f.userData.hp = 0;
+      scene.remove(f);
     }
   });
-  for (let i = foes.length - 1; i >= 0; i--) {
-    if (!foes[i].userData.boss && foes[i].userData.hp <= 0) foes.splice(i, 1);
-  }
-  pumpkins.forEach((p) => {
-    if (p.position.distanceTo(camera.position) < 1.5) {
-      lives = Math.min(6, lives + 1);
-      score += 25;
-      scene.remove(p);
-      p.userData.got = true;
-    }
-  });
-  for (let i = pumpkins.length - 1; i >= 0; i--) if (pumpkins[i].userData.got) pumpkins.splice(i, 1);
+  for (let i = foes.length - 1; i >= 0; i--) if (!foes[i].userData.boss && foes[i].userData.hp <= 0) foes.splice(i, 1);
 
   if (boss) {
-    boss.position.x += (camera.position.x - boss.position.x) * dt * 0.6;
-    boss.position.y += (camera.position.y - 0.2 - boss.position.y) * dt * 0.6;
-    boss.position.z = camera.position.z - 13;
-    boss.rotation.y = Math.sin(t) * 0.2;
+    boss.position.x += (emma.position.x - boss.position.x) * dt * 0.7;
+    boss.position.y += (emma.position.y + 0.3 - boss.position.y) * dt * 0.7;
+    boss.position.z = emma.position.z - 12;
+    boss.rotation.y = Math.sin(t * 0.8) * 0.25;
     boltCd -= dt;
     if (boltCd <= 0) {
-      boltCd = Math.max(0.55, 1.3 - level * 0.15);
-      const orb = new THREE.Mesh(new THREE.SphereGeometry(0.28, 8, 8), new THREE.MeshBasicMaterial({ color: 0xb388ff }));
+      boltCd = Math.max(0.55, 1.25 - level * 0.15);
+      const orb = new THREE.Mesh(new THREE.SphereGeometry(0.32, 8, 8), new THREE.MeshBasicMaterial({ color: 0xb388ff }));
       orb.position.copy(boss.position);
       orbs.push(orb);
       scene.add(orb);
     }
-    if (boss.position.distanceTo(camera.position) < 2.2) hurt();
+    if (boss.position.distanceTo(emma.position) < 2.3) hurt();
     modeEl.textContent = "WITCH " + Math.max(0, boss.userData.hp);
   }
   orbs.forEach((o) => {
-    o.position.z += 16 * dt;
-    if (o.position.distanceTo(camera.position) < 1.15) {
-      hurt();
-      scene.remove(o);
-      o.userData.dead = true;
-    }
-    if (o.position.z > camera.position.z + 4) {
-      scene.remove(o);
-      o.userData.dead = true;
-    }
+    o.position.z += 18 * dt;
+    if (o.position.distanceTo(emma.position) < 1.05) { hurt(); o.userData.dead = true; scene.remove(o); }
+    else if (o.position.z > emma.position.z + 3) { o.userData.dead = true; scene.remove(o); }
   });
   for (let i = orbs.length - 1; i >= 0; i--) if (orbs[i].userData.dead) orbs.splice(i, 1);
 
-  hud.textContent = "♥".repeat(Math.max(0, lives)) + (lives > 5 ? " " + lives : "");
+  hud.textContent = "♥".repeat(Math.max(0, lives)) + "  " + ringsHit + " rings";
   if (mode === "fly") {
     const mins = Math.floor(elapsed / 60);
     const secs = String(Math.floor(elapsed % 60)).padStart(2, "0");
@@ -517,10 +545,8 @@ function frame(now) {
 
 function setAim(e) {
   const r = canvas.getBoundingClientRect();
-  const x = (e.clientX - r.left) / r.width;
-  const y = (e.clientY - r.top) / r.height;
-  aimX = (x - 0.5) * 14;
-  aimY = 2.3 + (0.5 - y) * 4.2;
+  aimX = ((e.clientX - r.left) / r.width - 0.5) * 14;
+  aimY = 2.1 + (0.5 - (e.clientY - r.top) / r.height) * 4.4;
 }
 canvas.addEventListener("pointerdown", (e) => {
   if (e.pointerType === "mouse" && e.button === 2) { brake = true; e.preventDefault(); return; }
@@ -532,14 +558,11 @@ canvas.addEventListener("pointerdown", (e) => {
   }
   setAim(e);
 });
-canvas.addEventListener("pointermove", (e) => {
-  if (e.pointerType === "mouse" || e.buttons) setAim(e);
-});
+canvas.addEventListener("pointermove", (e) => { if (e.pointerType === "mouse" || e.buttons) setAim(e); });
 canvas.addEventListener("pointerup", (e) => {
   if (e.button === 0) { boost = false; shootHeld = false; }
   if (e.button === 2) brake = false;
 });
-canvas.addEventListener("pointerleave", () => {});
 canvas.addEventListener("contextmenu", (e) => e.preventDefault());
 window.addEventListener("keydown", (e) => {
   keys[e.code] = true;
@@ -566,7 +589,7 @@ function bindHold(btn, fnDown) {
 bindHold(speedBtn, (v) => { boost = v; });
 bindHold(document.getElementById("goShoot"), (v) => { shootHeld = v; if (v) fire(); });
 bindHold(document.getElementById("goBrake"), (v) => { brake = v; });
-document.getElementById("again").onclick = () => showLevels("Night 1 is free. Fly the castle grounds.");
+document.getElementById("again").onclick = () => showLevels("Night 1 is free. Fly the golden rings.");
 document.getElementById("night1").onclick = () => reset(1);
 document.getElementById("night2").onclick = () => paidNow() ? reset(2) : showPay(2);
 document.getElementById("night3").onclick = () => paidNow() ? reset(3) : showPay(3);
@@ -582,22 +605,21 @@ document.getElementById("emmaContact").onclick = () => {
 document.getElementById("contactNo").onclick = () => document.getElementById("contact").classList.remove("on");
 if (paidNow() && window.posthog) posthog.setPersonProperties({ hollyhaunt_paid: true, site: "halloweenfest" });
 paintNights();
+camera.position.set(0, 4.2, 14);
 window.__emmaTest = {
   paidNow, showPay, reset, showLevels, fire, startBoss,
   spawnInFront() {
     const f = makeFoe("ghost");
-    const dir = new THREE.Vector3();
-    camera.getWorldDirection(dir);
-    f.position.copy(camera.position).add(dir.multiplyScalar(8));
+    f.position.set(emma.position.x, emma.position.y, emma.position.z - 8);
     foes.push(f);
     scene.add(f);
     return f.userData.hp;
   },
   state: () => ({
-    level, mode, hold, lives, over,
-    z: camera.position.z,
-    wandY: hand.position.y,
-    wandRot: hand.rotation.z,
+    level, mode, hold, lives, over, ringsHit,
+    z: emma.position.z,
+    wandY: emma.userData.wand.position.y,
+    wandRot: emma.userData.wand.rotation.z,
     foes: foes.map((f) => ({ hp: f.userData.hp, kind: f.userData.kind })),
     witch: boss && boss.userData.hp
   })
