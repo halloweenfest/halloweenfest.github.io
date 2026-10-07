@@ -159,8 +159,12 @@
     #gate.on { display: flex; }
     .games {
       display: grid;
-      grid-template-columns: repeat(2, minmax(0, 280px));
-      gap: 14px; margin-top: 4px;
+      grid-template-columns: repeat(2, minmax(0, 220px));
+      gap: 12px; margin-top: 4px;
+      max-height: 72vh; overflow: auto;
+    }
+    @media (min-width: 860px) {
+      .games { grid-template-columns: repeat(3, minmax(0, 220px)); }
     }
     #gate button, #gate a {
       position: relative; aspect-ratio: 3 / 4; max-height: 58vh;
@@ -226,8 +230,9 @@
     <p style="color:#e8c36a;letter-spacing:.16em;font-size:11px">HOLLY HAUNT</p>
     <h1>Pick a game</h1>
     <div class="games">
-      <button id="playFind" type="button" style="background-image:url('tile-find.jpg?v=6')"><span>Find the objects</span></button>
-      <a id="playBroom" href="fly.html" style="background-image:url('tile-emma.jpg?v=6')"><span>Emma on a broom</span></a>
+      <button id="playFind" type="button" style="background-image:url('tile-find.jpg?v=7')"><span>Find the objects</span></button>
+      <a id="playBroom" href="fly.html" style="background-image:url('tile-emma.jpg?v=7')"><span>Emma on a broom</span></a>
+      <a id="playStack" href="tetris.html" style="background-image:url('tile-tetris.jpg?v=1')"><span>Holly Stack</span></a>
     </div>
   </div>
 <script>
@@ -512,6 +517,9 @@ document.getElementById("playFind").onclick = () => {
 };
 document.getElementById("playBroom").addEventListener("click", () => {
   track("game_chosen", { game: "emma_broom" });
+});
+document.getElementById("playStack").addEventListener("click", () => {
+  track("game_chosen", { game: "holly_stack" });
 });
 document.getElementById("gamesBtn").onclick = () => {
   document.getElementById("pick").classList.remove("on");
