@@ -104,7 +104,7 @@
     #gate {
       position: fixed; inset: 0; z-index: 10;
       display: none;
-      overflow-y: auto;
+      overflow-x: hidden; overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       background:
         radial-gradient(60% 40% at 85% 0%, rgba(139, 108, 255, .22), transparent 70%),
@@ -191,7 +191,7 @@
       .hero { padding: 30px 0 28px; }
     }
     @media (max-width: 759px) {
-      .moon { top: calc(6px + var(--sat)); right: -14px; width: 92px; height: 92px; opacity: .55; }
+      .moon { top: calc(6px + var(--sat)); right: 4px; width: 92px; height: 92px; opacity: .55; }
       .bats { display: none; }
     }
     @media (max-width: 380px) {
@@ -608,9 +608,15 @@ musicBtn.onclick = () => {
   if (musicOn) flute.play().catch(() => {});
   else flute.pause();
 };
+/* While the picker covers the page, the find game behind it must not take keyboard focus. */
+function setGate(on) {
+  document.getElementById("gate").classList.toggle("on", on);
+  document.querySelectorAll("body > header, #stage, #list, #bar").forEach((el) => { el.inert = on; });
+}
+setGate(true);
 document.getElementById("playFind").onclick = () => {
   track("game_chosen", { game: "find_objects" });
-  document.getElementById("gate").classList.remove("on");
+  setGate(false);
   openScene(SCENES[0]);
 };
 document.getElementById("playBroom").addEventListener("click", () => {
@@ -625,7 +631,8 @@ document.getElementById("gamesBtn").onclick = () => {
   document.getElementById("pick").classList.remove("on");
   document.getElementById("pay").classList.remove("on");
   document.getElementById("contact").classList.remove("on");
-  document.getElementById("gate").classList.add("on");
+  setGate(true);
+  document.getElementById("playFind").focus({ preventScroll: true });
   track("game_picker_view");
 };
 document.addEventListener("keydown", (e) => {
