@@ -3,160 +3,184 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Emma on a Broom · Holly Haunt Halloween game</title>
+  <meta name="description" content="Fly Emma the witch on her broom through a Halloween night. Zap ghosts, bats, wolves and skeletons with her lightning wand, then beat the ugly witch. Free on phone and desktop." />
+  <meta name="theme-color" content="#0c0710" />
+  <link rel="canonical" href="https://halloweenfest.github.io/fly.html" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Holly Haunt" />
+  <meta property="og:title" content="Emma on a Broom · Halloween flying game" />
+  <meta property="og:description" content="Zap ghosts, bats and wolves with Emma's lightning wand, then face the ugly witch." />
+  <meta property="og:url" content="https://halloweenfest.github.io/fly.html" />
+  <meta property="og:image" content="https://halloweenfest.github.io/tile-emma.jpg" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="favicon.ico" sizes="any" />
   <link rel="icon" href="favicon.png?v=1" type="image/png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=1" />
-  <title>Emma on a broom</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800&display=swap" />
+  <link rel="stylesheet" href="site.css?v=1" />
   <script>
     !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_session_id get_session_replay_url createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
     posthog.init('phc_z6kQXd5am8uAvdXVkFVNWkbPxMuJ7vJc547HLKTxLLtp',{api_host:'https://us.i.posthog.com',person_profiles:'identified_only'});
     posthog.register({ site: 'halloweenfest' });
   </script>
   <style>
-    :root { --gold:#e8c36a; --ink:#140a0c; --cream:#fff3dc; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; background: #140a0c; color: var(--cream); font-family: "Trebuchet MS", "Segoe UI", sans-serif; }
-    body { display: flex; flex-direction: column; height: 100dvh; padding-top: env(safe-area-inset-top); padding-bottom: env(safe-area-inset-bottom); }
-    header { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 8px 12px; background: #1a1024; }
-    header b { color: var(--gold); letter-spacing: .12em; font-size: 12px; }
-    #hud { font-weight: 800; color: #ffb4b4; }
-    a.back, button.act {
-      border: 0; border-radius: 999px; background: #3a241c; color: var(--cream);
-      font: 800 13px "Trebuchet MS", sans-serif; padding: 8px 12px; text-decoration: none;
+    html, body { height: 100%; }
+    body { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; overscroll-behavior: none; }
+    #hud {
+      font: 800 15px/1 var(--sans); color: #ff9a9a; letter-spacing: 1px;
+      padding: 8px 10px; border-radius: 999px;
+      background: rgba(255, 122, 122, .1); border: 1px solid rgba(255, 122, 122, .3);
+      white-space: nowrap;
     }
-    #wrap { position: relative; flex: 1; min-height: 0; }
-    canvas { width: 100%; height: 100%; display: block; background: #1b1030; touch-action: none; }
+    #mode { font-variant-numeric: tabular-nums; }
+    #wrap { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+    canvas { width: 100%; height: 100%; display: block; background: #1b1030; touch-action: none; user-select: none; -webkit-user-select: none; }
     #help {
-      position: absolute; left: 50%; top: 10px; transform: translateX(-50%);
-      max-width: 92%;
-      background: #140a0ccc; border: 1px solid #e8c36a55; border-radius: 999px;
-      padding: 7px 12px; font-size: 13px; text-align: center; pointer-events: none;
+      position: absolute; left: 50%; top: 12px; transform: translateX(-50%);
+      width: max-content; max-width: calc(100% - 24px);
+      background: rgba(12, 7, 16, .78); border: 1px solid var(--line); border-radius: 16px;
+      padding: 8px 14px; font-size: 13px; line-height: 1.35; text-align: center; pointer-events: none;
+      transition: opacity .5s;
     }
+    #help.fade { opacity: 0; }
     #barTrack {
-      position: absolute; left: 12px; right: 12px; bottom: 74px; height: 8px;
-      background: #0008; border-radius: 999px; overflow: hidden;
+      position: absolute; left: calc(14px + var(--sal)); right: calc(14px + var(--sar)); bottom: calc(80px + var(--sab)); height: 8px;
+      background: rgba(0, 0, 0, .45); border: 1px solid rgba(255, 255, 255, .08); border-radius: 999px; overflow: hidden;
     }
-    #barFill { height: 100%; width: 0; background: linear-gradient(90deg, #e8c36a, #ff8a2a); }
+    #barFill { height: 100%; width: 0; background: linear-gradient(90deg, var(--gold), var(--ember)); box-shadow: 0 0 10px var(--ember); border-radius: 999px; }
     #touch {
-      position: absolute; left: 10px; right: 10px; bottom: 10px;
-      display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 8px;
+      position: absolute; left: calc(10px + var(--sal)); right: calc(10px + var(--sar)); bottom: calc(10px + var(--sab));
+      display: grid; grid-template-columns: 1fr 1.3fr 1fr; gap: 8px;
     }
     #touch button {
-      height: 52px; border: 0; border-radius: 14px;
-      font: 800 16px "Trebuchet MS", sans-serif;
+      min-height: 56px; border-radius: 16px;
+      touch-action: none;
+      -webkit-user-select: none; user-select: none;
     }
-    #goSpeed { background: var(--gold); color: #1a1208; }
-    #goShoot { background: #d7ecff; color: #102033; }
-    #goBrake { background: #3a241c; color: var(--cream); border: 1px solid #e8c36a44; }
-    #over {
-      position: absolute; inset: 0; background: #140a0ce6;
-      display: none; flex-direction: column; justify-content: flex-end; padding: 18px;
+    #goShoot {
+      background: linear-gradient(180deg, #f2f9ff, #a9d4ff);
+      color: #0f2340; border: 0;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, .5) inset, 0 8px 22px rgba(120, 180, 255, .35);
     }
-    #over.on { display: flex; }
-    #over button, #over a {
-      height: 52px; border: 0; border-radius: 14px; margin-top: 8px;
-      font: 800 16px "Trebuchet MS", sans-serif;
-      display: flex; align-items: center; justify-content: center; text-decoration: none;
+    #goShoot svg { width: 18px; height: 18px; }
+    #goBrake { background: rgba(12, 7, 16, .7); }
+    #goSpeed { color: #24140a; }
+    @media (hover: hover) and (pointer: fine) and (min-width: 900px) {
+      #touch { left: 50%; right: auto; transform: translateX(-50%); width: 520px; opacity: .92; }
+      #barTrack { left: 50%; right: auto; transform: translateX(-50%); width: min(720px, calc(100% - 28px)); }
     }
-    #again { background: var(--gold); color: #1a1208; }
-    #home { background: #3a241c; color: var(--cream); }
-    #levels, #pay {
-      position: absolute; inset: 0; background: #140a0cf2;
-      display: none; flex-direction: column; justify-content: flex-end; padding: 18px; z-index: 4;
+    .nights { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+    .keys { font-size: 12px; color: rgba(255, 243, 220, .55); text-align: center; margin-top: 10px; }
+    .keys kbd {
+      font: 700 11px var(--sans); padding: 2px 6px; border-radius: 6px;
+      border: 1px solid var(--line); background: rgba(255, 243, 220, .06); color: var(--cream);
     }
-    #levels.on, #pay.on { display: flex; }
-    #levels button, #pay a, #pay button {
-      height: 52px; border: 0; border-radius: 14px; margin-top: 8px;
-      font: 800 16px "Trebuchet MS", sans-serif;
-      display: flex; align-items: center; justify-content: center; text-decoration: none;
-    }
-    .nights {
-      display: grid; grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 10px; margin-top: 8px;
-    }
-    #levels .nights button {
-      position: relative; height: auto; aspect-ratio: 3 / 4; max-height: 48vh;
-      margin: 0; padding: 10px 6px; border-radius: 16px; overflow: hidden;
-      background-size: cover; background-position: center;
-      color: var(--cream); text-shadow: 0 2px 8px #000;
-      align-items: flex-end;
-    }
-    #levels .nights button::after {
-      content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 46%;
-      background: linear-gradient(transparent, #140a0ce6);
-    }
-    #levels .nights .label { position: relative; z-index: 1; text-align: center; line-height: 1.1; }
-    #payGo { background: var(--gold); color: #1a1208; }
-    #payNo { background: #3a241c; color: var(--cream); }
-    #night2.lock, #night3.lock { filter: grayscale(.5) brightness(.7); }
-    .tag { display: block; font-size: 11px; letter-spacing: .12em; color: #e8c36a; margin-top: 4px; }
-    #emmaContact {
-      margin-top: 10px; height: 44px; border: 0; border-radius: 14px;
-      background: transparent; color: var(--gold);
-      font: 800 15px "Trebuchet MS", sans-serif;
-    }
-    #contact {
-      position: absolute; inset: 0; background: #140a0cf2; z-index: 6;
-      display: none; flex-direction: column; justify-content: flex-end; padding: 18px;
-    }
-    #contact.on { display: flex; }
-    #contact a, #contact button {
-      height: 48px; border: 0; border-radius: 14px; margin-top: 8px;
-      font: 800 16px "Trebuchet MS", sans-serif;
-      display: flex; align-items: center; justify-content: center; text-decoration: none;
-    }
-    #igGo, #mailGo { background: var(--gold); color: #1a1208; }
-    #contactNo { background: #3a241c; color: var(--cream); }
+    @media (hover: none) { .keys { display: none; } }
+    #flash { position: absolute; inset: 0; pointer-events: none; box-shadow: inset 0 0 120px 30px rgba(255, 40, 40, .55); opacity: 0; transition: opacity .25s; }
+    #flash.on { opacity: 1; transition: none; }
   </style>
 </head>
 <body>
-  <header>
-    <a class="back" href="index.html">Main game</a>
-    <b id="mode">EMMA'S FLIGHT</b>
-    <div id="hud">3 lives</div>
+  <header class="topbar">
+    <div class="left">
+      <a class="chip-btn back" href="index.html" aria-label="Back to all games">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Games
+      </a>
+    </div>
+    <div class="mid">
+      <div class="kicker" id="mode">EMMA'S FLIGHT</div>
+      <div class="sub">Emma on a broom</div>
+    </div>
+    <div class="right">
+      <div id="hud" aria-label="Lives">♥♥♥</div>
+      <button id="pauseBtn" class="chip-btn icon" type="button" aria-label="Pause" title="Pause (P)">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><rect x="6" y="5" width="4" height="14" rx="1.2"/><rect x="14" y="5" width="4" height="14" rx="1.2"/></svg>
+      </button>
+    </div>
   </header>
   <div id="wrap">
-    <canvas id="c"></canvas>
-    <div id="help">Move, then tap Shoot. Lightning from the wand. Two hits fell a villain.</div>
-    <div id="barTrack"><div id="barFill"></div></div>
+    <canvas id="c" aria-label="Emma flying through the Halloween night"></canvas>
+    <div id="flash"></div>
+    <div id="help">Drag to steer. Tap Shoot. Two hits fell a villain.</div>
+    <div id="barTrack" aria-hidden="true"><div id="barFill"></div></div>
     <div id="touch">
-      <button id="goSpeed" type="button">Speed</button>
-      <button id="goShoot" type="button">Shoot</button>
-      <button id="goBrake" type="button">Brake</button>
+      <button id="goSpeed" class="btn btn-primary" type="button">Speed</button>
+      <button id="goShoot" class="btn" type="button">
+        <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"/></svg>Shoot
+      </button>
+      <button id="goBrake" class="btn btn-ghost" type="button">Brake</button>
     </div>
-    <div id="over">
-      <h1 id="endTitle" style="font-size:32px;line-height:.95;margin-bottom:8px">Emma fell</h1>
-      <p id="endLine" style="opacity:.9;margin-bottom:8px"></p>
-      <button id="again" type="button">Play again</button>
-      <a id="home" href="index.html">Pick a game</a>
-    </div>
-    <div id="levels" class="on">
-      <p style="color:#e8c36a;letter-spacing:.16em;font-size:11px">EMMA'S FLIGHT</p>
-      <h1 style="font-size:32px;line-height:.95;margin:6px 0 8px">Pick a night</h1>
-      <p id="levelLine" style="opacity:.9">Night 1 is free. Villains chase her. Nights 2 and 3 unlock together.</p>
-      <div class="nights">
-        <button id="night1" type="button" style="background-image:url('night1.jpg?v=1')"><span class="label">Night 1<span class="tag">FREE</span></span></button>
-        <button id="night2" type="button" style="background-image:url('night2.jpg?v=1')"><span class="label">Night 2<span class="tag">LOCKED · PAY</span></span></button>
-        <button id="night3" type="button" style="background-image:url('night3.jpg?v=1')"><span class="label">Night 3<span class="tag">LOCKED · PAY</span></span></button>
+  </div>
+
+  <div id="over" class="sheet-wrap" role="dialog" aria-modal="true" aria-labelledby="endTitle">
+    <div class="sheet">
+      <p class="kicker">Emma's flight</p>
+      <h2 id="endTitle">Emma fell</h2>
+      <p id="endLine" class="lead"></p>
+      <div class="actions two">
+        <a id="home" class="btn btn-ghost" href="index.html">Pick a game</a>
+        <button id="again" class="btn btn-primary" type="button">Play again</button>
       </div>
-      <button id="emmaContact" type="button">Contact us</button>
     </div>
-    <div id="contact">
-      <p style="color:#e8c36a;letter-spacing:.16em;font-size:11px">CONTACT</p>
-      <h1 style="font-size:32px;line-height:.95;margin:6px 0 8px">Emma</h1>
-      <p style="opacity:.9">Instagram</p>
-      <p style="font-weight:800;margin-bottom:8px">@emma.goodwitch</p>
-      <a id="igGo" href="https://instagram.com/emma.goodwitch" target="_blank" rel="noopener">Open Instagram</a>
-      <p style="opacity:.9;margin-top:8px">Email</p>
-      <p style="margin-bottom:4px">info@merahissa.co.in</p>
-      <a id="mailGo" href="mailto:info@merahissa.co.in?subject=Holly%20Haunt">Open mail app</a>
-      <button id="contactNo" type="button">Close</button>
+  </div>
+  <div id="paused" class="sheet-wrap" role="dialog" aria-modal="true" aria-labelledby="pauseTitle">
+    <div class="sheet">
+      <p class="kicker">Paused</p>
+      <h2 id="pauseTitle">Catch your breath</h2>
+      <p class="lead">Emma is hovering. Pick up where you left off.</p>
+      <div class="actions">
+        <button id="resume" class="btn btn-primary" type="button">Resume</button>
+        <div class="actions two" style="margin-top:0">
+          <button id="toNights" class="btn btn-ghost" type="button">Nights</button>
+          <a class="btn btn-ghost" href="index.html">All games</a>
+        </div>
+      </div>
     </div>
-    <div id="pay">
-      <p style="color:#e8c36a;letter-spacing:.16em;font-size:11px">LOCKED</p>
-      <h1 style="font-size:32px;line-height:.95;margin:6px 0 8px">Unlock nights 2 and 3</h1>
-      <p id="payLine" style="opacity:.9;margin-bottom:8px">Night 1 stays free. Pay $1 on this phone. Razorpay opens. Come back and both nights open here.</p>
-      <a id="payGo" href="https://rzp.io/rzp/hollyhaunt-unlock">Pay $1 to unlock</a>
-      <button id="payNo" type="button">Not now</button>
+  </div>
+  <div id="levels" class="sheet-wrap on" role="dialog" aria-modal="true" aria-labelledby="levelsTitle">
+    <div class="sheet">
+      <p class="kicker">Emma's flight</p>
+      <h2 id="levelsTitle">Pick a night</h2>
+      <p id="levelLine">Night 1 is free. Villains chase her. Nights 2 and 3 unlock together.</p>
+      <div class="nights">
+        <button id="night1" class="pic-tile" type="button" style="background-image:url('night1.jpg?v=1')"><span class="label">Night 1<br><span class="tag">FREE</span></span></button>
+        <button id="night2" class="pic-tile" type="button" style="background-image:url('night2.jpg?v=1')"><span class="label">Night 2<br><span class="tag">LOCKED · PAY</span></span></button>
+        <button id="night3" class="pic-tile" type="button" style="background-image:url('night3.jpg?v=1')"><span class="label">Night 3<br><span class="tag">LOCKED · PAY</span></span></button>
+      </div>
+      <p class="keys">Desktop: <kbd>↑</kbd><kbd>↓</kbd><kbd>←</kbd><kbd>→</kbd> or mouse to fly · <kbd>F</kbd> shoot · <kbd>Space</kbd> speed · <kbd>Shift</kbd> brake · <kbd>P</kbd> pause</p>
+      <div class="actions two">
+        <a class="btn btn-ghost" href="index.html">All games</a>
+        <button id="emmaContact" class="btn btn-quiet" type="button">Contact us</button>
+      </div>
+    </div>
+  </div>
+  <div id="contact" class="sheet-wrap" role="dialog" aria-modal="true" aria-labelledby="contactTitle" style="z-index:30">
+    <div class="sheet">
+      <p class="kicker">Contact</p>
+      <h2 id="contactTitle">Emma</h2>
+      <p>Instagram</p>
+      <p style="font-weight:800;color:var(--cream);margin-bottom:6px">@emma.goodwitch</p>
+      <a id="igGo" class="btn btn-primary btn-block" href="https://instagram.com/emma.goodwitch" target="_blank" rel="noopener">Open Instagram</a>
+      <p style="margin-top:14px">Email</p>
+      <p style="font-weight:800;color:var(--cream);margin-bottom:6px">info@merahissa.co.in</p>
+      <div class="actions two" style="margin-top:0">
+        <a id="mailGo" class="btn btn-primary" href="mailto:info@merahissa.co.in?subject=Holly%20Haunt">Open mail app</a>
+        <button id="contactNo" class="btn btn-ghost" type="button">Close</button>
+      </div>
+    </div>
+  </div>
+  <div id="pay" class="sheet-wrap" role="dialog" aria-modal="true" aria-labelledby="payTitle">
+    <div class="sheet">
+      <p class="kicker">Locked</p>
+      <h2 id="payTitle">Unlock nights 2 and 3</h2>
+      <p id="payLine" class="lead">Night 1 stays free. Pay $1 on this phone. Razorpay opens. Come back and both nights open here.</p>
+      <div class="actions">
+        <a id="payGo" class="btn btn-primary" href="https://rzp.io/rzp/hollyhaunt-unlock">Pay $1 to unlock</a>
+        <button id="payNo" class="btn btn-ghost" type="button">Not now</button>
+      </div>
     </div>
   </div>
 <script>
@@ -166,6 +190,8 @@ const hud = document.getElementById("hud");
 const modeEl = document.getElementById("mode");
 const help = document.getElementById("help");
 const speedBtn = document.getElementById("goSpeed");
+const flashEl = document.getElementById("flash");
+const reduceMotion = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
 const imgs = {};
 ["emma","pumpkin","witch","ghost","skeleton","bat","wolf","zombie"].forEach((n) => {
   const i = new Image();
@@ -173,7 +199,8 @@ const imgs = {};
   imgs[n] = i;
 });
 
-let W = 1, H = 1, dpr = 1;
+let W = 1, H = 1, dpr = 1, SC = 1;
+let stars = [];
 function resize() {
   dpr = Math.min(2, window.devicePixelRatio || 1);
   W = canvas.clientWidth;
@@ -181,6 +208,13 @@ function resize() {
   canvas.width = Math.max(1, Math.floor(W * dpr));
   canvas.height = Math.max(1, Math.floor(H * dpr));
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  /* Sprites, hit circles and the wand all scale with the play area so a phone shows the same game as a laptop. */
+  SC = Math.max(0.62, Math.min(1.15, Math.min(W / 640, H / 560)));
+  stars = [];
+  let seed = 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const n = Math.round(W * H / 9000) + 30;
+  for (let i = 0; i < n; i++) stars.push({ x: rnd() * W, y: rnd() * H * 0.62, r: rnd() * 1.4 + 0.4, p: rnd() * 6.28 });
 }
 window.addEventListener("resize", resize);
 resize();
@@ -202,7 +236,7 @@ let speed = 180;
 let foes = [], treats = [], shots = [], bolts = [];
 let witch = null;
 let spawnZ = 0, spawnP = 0, shootCd = 0, boltCd = 0;
-let over = false, won = false, hold = true;
+let over = false, won = false, hold = true, paused = false, soundOn = true;
 let scroll = 0, t = 0;
 let last = performance.now();
 const UNLOCK_URL = "https://rzp.io/rzp/hollyhaunt-unlock";
@@ -230,19 +264,30 @@ function paintNights() {
     b.querySelector(".tag").textContent = open ? "OPEN" : "LOCKED · PAY";
   });
 }
+function sheet(id, on) { document.getElementById(id).classList.toggle("on", on); }
 function showLevels(line) {
   hold = true;
+  setPaused(false);
   paintNights();
   if (line) document.getElementById("levelLine").textContent = line;
-  document.getElementById("pay").classList.remove("on");
-  document.getElementById("over").classList.remove("on");
-  document.getElementById("levels").classList.add("on");
+  sheet("pay", false);
+  sheet("over", false);
+  sheet("levels", true);
+  document.getElementById("night1").focus({ preventScroll: true });
 }
 function showPay(n) {
   hold = true;
   document.getElementById("payLine").textContent = "Night " + n + " is locked. Night 1 stays free. Pay $1 and both later nights open on this phone.";
-  document.getElementById("levels").classList.remove("on");
-  document.getElementById("pay").classList.add("on");
+  sheet("levels", false);
+  sheet("pay", true);
+}
+function setPaused(v) {
+  if (v && (hold || over)) return;
+  paused = v;
+  boost = brake = shootHeld = false;
+  sheet("paused", v);
+  if (v) document.getElementById("resume").focus({ preventScroll: true });
+  last = performance.now();
 }
 
 function reset(nextLevel) {
@@ -260,22 +305,32 @@ function reset(nextLevel) {
   spawnZ = 0.4; spawnP = 1.2; shootCd = 0; boltCd = 1;
   over = false; won = false;
   hold = false;
-  document.getElementById("over").classList.remove("on");
-  document.getElementById("levels").classList.remove("on");
-  document.getElementById("pay").classList.remove("on");
-  help.textContent = "Shoot lightning with the wand. Two hits fell a villain. Left click still speeds up.";
+  paused = false;
+  ["over", "levels", "pay", "paused"].forEach((id) => sheet(id, false));
+  showHelp(matchMedia("(hover: none)").matches
+    ? "Drag to steer. Tap Shoot for lightning. Two hits fell a villain."
+    : "Mouse or arrows to steer. F or Shoot for lightning. Two hits fell a villain.");
   speedBtn.textContent = "Speed";
   track("emma_night_started", { night: level });
+}
+function showHelp(text) {
+  help.textContent = text;
+  help.classList.remove("fade");
+  clearTimeout(showHelp.tid);
+  showHelp.tid = setTimeout(() => help.classList.add("fade"), 5000);
 }
 
 function hit(a, b, ra, rb) {
   const dx = (a.x - b.x) * W, dy = (a.y - b.y) * H;
-  return Math.hypot(dx, dy) < ra + rb;
+  return Math.hypot(dx, dy) < (ra + rb) * SC;
 }
 function hurt() {
   if (emma.inv > 0 || over) return;
   lives--;
   emma.inv = 1.3;
+  flashEl.classList.add("on");
+  setTimeout(() => flashEl.classList.remove("on"), 60);
+  if (navigator.vibrate) { try { navigator.vibrate(60); } catch (e) {} }
   if (lives <= 0) end(false);
 }
 function end(win) {
@@ -283,9 +338,10 @@ function end(win) {
   won = win;
   document.getElementById("endTitle").textContent = win ? "Witch beaten" : "Emma fell";
   document.getElementById("endLine").textContent = win
-    ? "You cleared the night. Score " + score
-    : "The zombies got her. Score " + score;
-  document.getElementById("over").classList.add("on");
+    ? "You cleared the night. Score " + score + "."
+    : "The villains got her on night " + level + ". Score " + score + ".";
+  sheet("over", true);
+  document.getElementById("again").focus({ preventScroll: true });
   track("emma_ended", { result: win ? "win" : "fell", night: level, score: score });
 }
 function startBoss() {
@@ -293,20 +349,26 @@ function startBoss() {
   foes = []; treats = [];
   const bossHp = level === 1 ? 20 : 20 + level * 8;
   witch = { x: 1.15, y: 0.45, hp: bossHp, max: bossHp };
-  help.textContent = "Lightning wand. Night " + level + " witch needs " + bossHp + " hits.";
+  showHelp("The ugly witch is here. Night " + level + " witch needs " + bossHp + " hits.");
   modeEl.textContent = "WITCH " + bossHp;
 }
 
 function zap() {
+  if (!soundOn) return;
   const a = new Audio("lightning.wav");
   a.volume = 0.7;
   a.play().catch(() => {});
 }
+function wandTip() {
+  return { x: (emma.x * W + 70 * SC) / W, y: (emma.y * H - 22 * SC) / H };
+}
 function fire() {
-  if (shootCd > 0 || over || hold) return;
+  if (shootCd > 0 || over || hold || paused) return;
   if (mode !== "fly" && mode !== "boss") return;
   shootCd = 0.34;
-  shots.push({ x: emma.x + 0.12, y: emma.y - 0.06, vx: 0.85, vy: 0, life: 0.45 });
+  const tip = wandTip();
+  /* Shots start at the wand tip (in pixels), not a fixed fraction of the screen width. */
+  shots.push({ x: tip.x, y: tip.y, vx: 0.85, vy: 0, life: 0.45 });
   zap();
 }
 function wound(z) {
@@ -319,7 +381,7 @@ function wound(z) {
 }
 
 function step(dt) {
-  if (over || hold) return;
+  if (over || hold || paused) return;
   if (shootHeld) fire();
   t += dt;
   emma.inv = Math.max(0, emma.inv - dt);
@@ -393,8 +455,9 @@ function step(dt) {
     shots.forEach((s) => {
       s.x += s.vx * dt;
       s.life -= dt;
-      if (hit(s, witch, 16, 46)) { witch.hp--; s.x = 9; score += 10; }
+      if (hit(s, witch, 16, 46)) { witch.hp--; witch.flash = 0.12; s.x = 9; score += 10; }
     });
+    witch.flash = Math.max(0, (witch.flash || 0) - dt);
     bolts.forEach((b) => {
       b.x += b.vx * dt;
       b.y += b.vy * dt;
@@ -410,115 +473,169 @@ function step(dt) {
       else showPay(level + 1);
     }
   }
-  hud.textContent = "♥".repeat(Math.max(0, lives)) + (lives > 5 ? " " + lives : "");
+  hud.textContent = "♥".repeat(Math.max(0, Math.min(lives, 5))) + (lives > 5 ? "+" : "");
+  hud.setAttribute("aria-label", lives + " lives");
   const mins = Math.floor(elapsed / 60);
   const secs = String(Math.floor(elapsed % 60)).padStart(2, "0");
-  if (mode === "fly") modeEl.textContent = "NIGHT " + level + "  " + mins + ":" + secs;
-  if (mode === "boss" && witch) modeEl.textContent = "WITCH " + Math.max(0, witch.hp);
+  if (mode === "fly") modeEl.textContent = "NIGHT " + level + " · " + mins + ":" + secs;
+  if (mode === "boss" && witch) modeEl.textContent = "WITCH " + Math.max(0, witch.hp) + " HP";
   const fill = document.getElementById("barFill");
-  if (fill) fill.style.width = Math.min(100, dist / goal * 100) + "%";
+  if (fill) fill.style.width = (mode === "boss" ? 100 : Math.min(100, dist / goal * 100)) + "%";
+}
+
+function drawBackdrop() {
+  const sky = ctx.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, "#120a2a");
+  sky.addColorStop(0.5, "#33205a");
+  sky.addColorStop(0.8, "#5a2a3a");
+  sky.addColorStop(1, "#6a3020");
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, W, H);
+  for (const s of stars) {
+    ctx.globalAlpha = reduceMotion ? 0.7 : 0.45 + 0.4 * Math.sin(t * 2 + s.p);
+    ctx.fillStyle = "#fff7e0";
+    ctx.fillRect(s.x, s.y, s.r, s.r);
+  }
+  ctx.globalAlpha = 1;
+  const mxp = W * 0.82, myp = H * 0.16, mr = 30 * SC + 6;
+  const glow = ctx.createRadialGradient(mxp, myp, mr * 0.6, mxp, myp, mr * 4);
+  glow.addColorStop(0, "rgba(255,236,170,.35)");
+  glow.addColorStop(1, "rgba(255,236,170,0)");
+  ctx.fillStyle = glow;
+  ctx.fillRect(mxp - mr * 4, myp - mr * 4, mr * 8, mr * 8);
+  const mg = ctx.createRadialGradient(mxp - mr * 0.3, myp - mr * 0.3, 2, mxp, myp, mr);
+  mg.addColorStop(0, "#fffbe6");
+  mg.addColorStop(1, "#e9d08a");
+  ctx.fillStyle = mg;
+  ctx.beginPath(); ctx.arc(mxp, myp, mr, 0, Math.PI * 2); ctx.fill();
+  /* far hills */
+  ctx.fillStyle = "#2a1630";
+  ctx.beginPath(); ctx.moveTo(0, H);
+  const off1 = scroll * 0.015;
+  for (let x = 0; x <= W + 20; x += 20) ctx.lineTo(x, H * 0.78 - Math.sin((x + off1) / 140) * 18 - Math.sin((x + off1) / 57) * 7);
+  ctx.lineTo(W, H); ctx.fill();
+  /* spires and a castle silhouette, nearer layer */
+  ctx.fillStyle = "#140a14";
+  const span = 230;
+  const off = scroll * 0.04;
+  for (let i = -1; i < W / span + 2; i++) {
+    const x = i * span - (off % span);
+    const k = ((Math.floor((off) / span) + i) % 5 + 5) % 5;
+    if (k === 2) {
+      const bw = 90, bh = H * 0.2;
+      ctx.fillRect(x, H - bh, bw, bh);
+      ctx.fillRect(x - 14, H - bh - 30, 26, bh + 30);
+      ctx.fillRect(x + bw - 12, H - bh - 46, 26, bh + 46);
+      ctx.beginPath(); ctx.moveTo(x - 18, H - bh - 30); ctx.lineTo(x - 1, H - bh - 66); ctx.lineTo(x + 16, H - bh - 30); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(x + bw - 16, H - bh - 46); ctx.lineTo(x + bw + 1, H - bh - 90); ctx.lineTo(x + bw + 18, H - bh - 46); ctx.fill();
+      ctx.fillStyle = "#ffcf6a";
+      ctx.fillRect(x + 30, H - bh + 20, 7, 11); ctx.fillRect(x + 55, H - bh + 20, 7, 11); ctx.fillRect(x + bw - 4, H - bh - 20, 6, 10);
+      ctx.fillStyle = "#140a14";
+    } else {
+      for (let j = 0; j < 3; j++) {
+        const px = x + j * 62 + (k * 13) % 30;
+        const ph = H * (0.2 + ((k + j) % 3) * 0.05);
+        ctx.beginPath(); ctx.moveTo(px, H); ctx.lineTo(px + 26, H - ph); ctx.lineTo(px + 52, H); ctx.fill();
+      }
+    }
+  }
 }
 
 function draw() {
   ctx.clearRect(0, 0, W, H);
-  const sky = ctx.createLinearGradient(0, 0, 0, H);
-  sky.addColorStop(0, "#1a1038");
-  sky.addColorStop(0.55, "#3a2158");
-  sky.addColorStop(1, "#5a2a22");
-  ctx.fillStyle = sky;
-  ctx.fillRect(0, 0, W, H);
-  ctx.fillStyle = "#fff8";
-  for (let i = 0; i < 28; i++) {
-    const sx = (i * 97 + 20) % W;
-    const sy = (i * 53) % (H * 0.55);
-    ctx.fillRect(sx, sy, 2, 2);
-  }
-  ctx.fillStyle = "#f6e7b2";
-  ctx.beginPath();
-  ctx.arc(W * 0.82, H * 0.16, 26, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.fillStyle = "#140c12";
-  for (let i = 0; i < 7; i++) {
-    const x = ((i * 210 - scroll * 0.04) % (W + 180)) - 50;
-    ctx.beginPath();
-    ctx.moveTo(x, H);
-    ctx.lineTo(x + 28, H * 0.72);
-    ctx.lineTo(x + 56, H);
-    ctx.fill();
-  }
+  drawBackdrop();
   function sprite(img, x, y, w) {
     if (!img.complete || !img.naturalWidth) return;
+    w *= SC;
     const h = w * img.naturalHeight / img.naturalWidth;
     ctx.drawImage(img, x - w / 2, y - h / 2, w, h);
   }
-  treats.forEach((p) => sprite(imgs.pumpkin, p.x * W, p.y * H, 52));
+  function bar(cx, y, w, h, frac, color) {
+    ctx.fillStyle = "rgba(12,7,16,.75)";
+    ctx.fillRect(cx - w / 2 - 1, y - 1, w + 2, h + 2);
+    ctx.fillStyle = color;
+    ctx.fillRect(cx - w / 2, y, w * Math.max(0, frac), h);
+  }
+  treats.forEach((p) => {
+    const bob = reduceMotion ? 0 : Math.sin(t * 3 + p.y * 10) * 4;
+    sprite(imgs.pumpkin, p.x * W, p.y * H + bob, 52);
+  });
   foes.forEach((z) => {
     ctx.save();
     if (z.flash > 0) ctx.globalAlpha = 0.55;
-    sprite(imgs[z.kind.img], z.x * W, z.y * H, z.kind.w);
+    const bob = reduceMotion ? 0 : Math.sin(t * 4 + z.bob) * 5;
+    sprite(imgs[z.kind.img], z.x * W, z.y * H + bob, z.kind.w);
     ctx.restore();
-    if (z.hp < z.max) {
-      ctx.fillStyle = "#3a241c";
-      ctx.fillRect(z.x * W - 16, z.y * H - 46, 32, 5);
-      ctx.fillStyle = "#9fd0ff";
-      ctx.fillRect(z.x * W - 16, z.y * H - 46, 32 * Math.max(0, z.hp / z.max), 5);
-    }
+    if (z.hp < z.max) bar(z.x * W, z.y * H - 46 * SC, 34 * SC, 5, z.hp / z.max, "#9fd0ff");
   });
   bolts.forEach((b) => {
-    ctx.fillStyle = "#b388ff";
+    const g = ctx.createRadialGradient(b.x * W, b.y * H, 1, b.x * W, b.y * H, 14 * SC);
+    g.addColorStop(0, "#f3e8ff");
+    g.addColorStop(0.4, "#b388ff");
+    g.addColorStop(1, "rgba(120,70,255,0)");
+    ctx.fillStyle = g;
     ctx.beginPath();
-    ctx.arc(b.x * W, b.y * H, 8, 0, Math.PI * 2);
+    ctx.arc(b.x * W, b.y * H, 14 * SC, 0, Math.PI * 2);
     ctx.fill();
   });
+  const tip = wandTip();
   shots.forEach((s) => {
-    const x1 = emma.x * W + 54;
-    const y1 = emma.y * H - 18;
+    const x1 = tip.x * W;
+    const y1 = tip.y * H;
     const x2 = s.x * W;
     const y2 = s.y * H;
     ctx.save();
     ctx.lineJoin = "round";
     ctx.strokeStyle = "#8ec8ff";
-    ctx.lineWidth = 5;
-    ctx.globalAlpha = 0.45;
+    ctx.lineWidth = 6;
+    ctx.shadowColor = "#8ec8ff";
+    ctx.shadowBlur = 12;
+    ctx.globalAlpha = 0.5;
     ctx.beginPath();
     ctx.moveTo(x1, y1);
-    const steps = 5;
+    const steps = 6;
     for (let i = 1; i <= steps; i++) {
       const p = i / steps;
-      const jx = i === steps ? 0 : (Math.sin(t * 40 + i * 3 + s.x * 20) * 14);
-      const jy = i === steps ? 0 : (Math.cos(t * 36 + i * 2) * 12);
+      const jx = i === steps ? 0 : (Math.sin(t * 40 + i * 3 + s.x * 20) * 12);
+      const jy = i === steps ? 0 : (Math.cos(t * 36 + i * 2) * 11);
       ctx.lineTo(x1 + (x2 - x1) * p + jx, y1 + (y2 - y1) * p + jy);
     }
     ctx.stroke();
     ctx.globalAlpha = 1;
+    ctx.shadowBlur = 0;
     ctx.strokeStyle = "#f7fbff";
     ctx.lineWidth = 2;
     ctx.stroke();
     ctx.restore();
   });
   if (witch) {
+    ctx.save();
+    if (witch.flash > 0) ctx.globalAlpha = 0.6;
     sprite(imgs.witch, witch.x * W, witch.y * H, 130);
-    ctx.fillStyle = "#3a241c";
-    ctx.fillRect(witch.x * W - 40, witch.y * H - 78, 80, 8);
-    ctx.fillStyle = "#e24b4b";
-    ctx.fillRect(witch.x * W - 40, witch.y * H - 78, 80 * Math.max(0, witch.hp / witch.max), 8);
+    ctx.restore();
+    bar(witch.x * W, witch.y * H - 84 * SC, 90 * SC, 8, witch.hp / witch.max, "#e24b4b");
   }
   ctx.save();
   if (emma.inv > 0 && Math.floor(t * 12) % 2 === 0) ctx.globalAlpha = 0.45;
   sprite(imgs.emma, emma.x * W, emma.y * H, 150);
   ctx.restore();
-  const wx = emma.x * W + 36;
-  const wy = emma.y * H + 8;
+  const wx = emma.x * W + 36 * SC;
+  const wy = emma.y * H + 8 * SC;
   ctx.strokeStyle = "#c9a36a";
-  ctx.lineWidth = 4;
+  ctx.lineWidth = 4 * SC;
+  ctx.lineCap = "round";
   ctx.beginPath();
   ctx.moveTo(wx, wy);
-  ctx.lineTo(wx + 34, wy - 28);
+  ctx.lineTo(tip.x * W - 2 * SC, tip.y * H + 2 * SC);
   ctx.stroke();
-  ctx.fillStyle = shootCd > 0.2 ? "#f4fbff" : "#e8c36a";
+  const hot = shootCd > 0.2;
+  ctx.fillStyle = hot ? "#f4fbff" : "#e8c36a";
+  ctx.shadowColor = hot ? "#9fd0ff" : "#e8c36a";
+  ctx.shadowBlur = hot ? 16 : 8;
   ctx.beginPath();
-  ctx.arc(wx + 36, wy - 30, shootCd > 0.2 ? 6 : 4, 0, Math.PI * 2);
+  ctx.arc(tip.x * W, tip.y * H, (hot ? 6 : 4) * SC + 1, 0, Math.PI * 2);
   ctx.fill();
+  ctx.shadowBlur = 0;
 }
 
 function frame(now) {
@@ -554,8 +671,18 @@ canvas.addEventListener("pointerup", (e) => {
 });
 canvas.addEventListener("pointerleave", () => { pointer = false; });
 canvas.addEventListener("contextmenu", (e) => e.preventDefault());
+function playing() { return !hold && !over && !paused; }
 window.addEventListener("keydown", (e) => {
+  if (e.code === "KeyP" || e.code === "Escape") {
+    if (paused) { setPaused(false); e.preventDefault(); return; }
+    if (playing()) { setPaused(true); e.preventDefault(); return; }
+    if (e.code === "Escape") ["contact", "pay"].forEach((id) => sheet(id, false));
+    if (e.code === "Escape" && !document.getElementById("levels").classList.contains("on") && hold && !over) showLevels();
+    return;
+  }
+  if (!playing()) return;
   keys[e.code] = true;
+  if (e.code.startsWith("Arrow")) e.preventDefault();
   if (e.code === "Space" || e.code === "KeyF") {
     e.preventDefault();
     if (e.code === "KeyF" || mode === "boss") { shootHeld = true; fire(); }
@@ -568,6 +695,8 @@ window.addEventListener("keyup", (e) => {
   if (e.code === "Space" || e.code === "KeyF") { boost = false; shootHeld = false; }
   if (e.code === "ShiftLeft" || e.code === "ShiftRight") brake = false;
 });
+window.addEventListener("blur", () => { for (const k in keys) keys[k] = false; boost = brake = shootHeld = false; if (playing()) setPaused(true); });
+document.addEventListener("visibilitychange", () => { if (document.hidden && playing()) setPaused(true); });
 function bindHold(btn, fnDown) {
   const on = (e) => { e.preventDefault(); fnDown(true); };
   const off = (e) => { e.preventDefault(); fnDown(false); };
@@ -575,6 +704,7 @@ function bindHold(btn, fnDown) {
   btn.addEventListener("pointerup", off);
   btn.addEventListener("pointerleave", off);
   btn.addEventListener("pointercancel", off);
+  btn.addEventListener("contextmenu", (e) => e.preventDefault());
 }
 bindHold(speedBtn, (v) => { boost = v; });
 bindHold(document.getElementById("goShoot"), (v) => { shootHeld = v; if (v) fire(); });
@@ -589,19 +719,22 @@ document.getElementById("payGo").addEventListener("click", () => {
   track("pay_clicked", { source: "emma" });
 });
 document.getElementById("emmaContact").onclick = () => {
-  document.getElementById("contact").classList.add("on");
+  sheet("contact", true);
   track("contact_clicked");
 };
-document.getElementById("contactNo").onclick = () => document.getElementById("contact").classList.remove("on");
+document.getElementById("contactNo").onclick = () => sheet("contact", false);
+document.getElementById("pauseBtn").onclick = () => setPaused(!paused);
+document.getElementById("resume").onclick = () => setPaused(false);
+document.getElementById("toNights").onclick = () => { setPaused(false); showLevels(); };
 if (paidNow() && window.posthog) posthog.setPersonProperties({ hollyhaunt_paid: true, site: "halloweenfest" });
 paintNights();
 window.__emmaTest = {
-  paidNow, showPay, reset, showLevels, fire, startBoss,
+  paidNow, showPay, reset, showLevels, fire, startBoss, setPaused,
   spawnAbove() {
     foes.push({ x: emma.x + 0.25, y: emma.y, kind: KINDS[0], bob: 1, hp: 2, max: 2, flash: 0 });
   },
   state: () => ({
-    level, lives, mode, hold, over,
+    level, lives, mode, hold, over, paused, score,
     witch: witch && { hp: witch.hp, max: witch.max },
     foes: foes.map((z) => ({ x: z.x, y: z.y, hp: z.hp, img: z.kind.img }))
   })
