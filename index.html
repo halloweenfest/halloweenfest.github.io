@@ -3,236 +3,313 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Holly Haunt · Spooky Halloween games to play in your browser</title>
+  <meta name="description" content="Three free Halloween games for phone and desktop: find hidden objects in a haunted hall, fly Emma the witch on her broom, and stack pumpkins, ghosts and bats in Holly Stack." />
+  <meta name="theme-color" content="#0c0710" />
+  <link rel="canonical" href="https://halloweenfest.github.io/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Holly Haunt" />
+  <meta property="og:title" content="Holly Haunt · Spooky Halloween games" />
+  <meta property="og:description" content="Find hidden objects, fly Emma the witch on her broom, or stack the haunt. Free to play in your browser." />
+  <meta property="og:url" content="https://halloweenfest.github.io/" />
+  <meta property="og:image" content="https://halloweenfest.github.io/og.jpg" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="favicon.ico" sizes="any" />
   <link rel="icon" href="favicon.png?v=1" type="image/png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=1" />
-  <title>Holly Haunt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800&display=swap" />
+  <link rel="stylesheet" href="site.css?v=1" />
   <script>
     !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_session_id get_session_replay_url createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
     posthog.init('phc_z6kQXd5am8uAvdXVkFVNWkbPxMuJ7vJc547HLKTxLLtp',{api_host:'https://us.i.posthog.com',person_profiles:'identified_only'});
     posthog.register({ site: 'halloweenfest' });
   </script>
   <style>
-    :root { --gold:#e8c36a; --ink:#140a0c; --cream:#fff3dc; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html, body { height: 100%; background: #140a0c; color: var(--cream); font-family: "Trebuchet MS", "Segoe UI", sans-serif; }
+    html, body { height: 100%; }
     body {
       display: flex; flex-direction: column;
       height: 100dvh;
-      padding-top: env(safe-area-inset-top);
-      padding-bottom: env(safe-area-inset-bottom);
+      overflow: hidden;
     }
-    header {
-      display: flex; justify-content: space-between; align-items: flex-end;
-      padding: 8px 12px 6px;
-    }
-    header b { color: var(--gold); letter-spacing: .14em; font-size: 11px; }
-    #sub { font-size: 13px; opacity: .85; }
-    #score { font-weight: 800; font-size: 18px; }
-    #musicBtn, #gamesBtn {
-      border: 0; border-radius: 999px; background: #3a241c; color: var(--cream);
-      font: 800 12px "Trebuchet MS", sans-serif; padding: 8px 10px;
+    #score {
+      font: 800 15px/1 var(--sans); font-variant-numeric: tabular-nums;
+      padding: 8px 12px; border-radius: 999px;
+      background: rgba(232, 195, 106, .14); color: var(--gold); border: 1px solid var(--line);
     }
     #stage {
       position: relative;
       flex: 1;
       min-height: 0;
-      background: #070405;
+      background: radial-gradient(80% 60% at 50% 40%, #1d1018, #070405);
       touch-action: none;
+      overflow: hidden;
     }
     #pic {
       position: absolute; inset: 0;
       width: 100%; height: 100%;
       object-fit: contain;
       pointer-events: none;
+      user-select: none; -webkit-user-select: none;
     }
     .ring {
       position: absolute; border-radius: 50%;
       transform: translate(-50%,-50%);
       pointer-events: none;
       border: 3px solid #3ecf8e;
-      box-shadow: 0 0 12px #3ecf8e99;
+      box-shadow: 0 0 12px #3ecf8e99, inset 0 0 12px #3ecf8e55;
     }
     .ring.hint {
-      border: 3px dashed #e8c36a;
-      box-shadow: 0 0 16px #e8c36a;
+      border: 3px dashed var(--gold);
+      box-shadow: 0 0 16px var(--gold);
       animation: pulse .8s ease-in-out 4;
     }
     @keyframes pulse { 50% { transform: translate(-50%,-50%) scale(1.15); } }
-    #toast {
-      position: absolute; left: 50%; bottom: 10px; transform: translateX(-50%);
-      background: #000c; padding: 8px 14px; border-radius: 999px;
-      font-size: 14px; opacity: 0; transition: opacity .2s; pointer-events: none;
-      white-space: nowrap;
-    }
     .pop {
       position: absolute; transform: translate(-50%, -80%);
-      font: 800 22px "Trebuchet MS", sans-serif; color: #fff6d8;
+      font: 800 22px var(--sans); color: #fff6d8;
       text-shadow: 0 2px 10px #000; pointer-events: none; z-index: 4;
       animation: floaty .9s ease-out forwards;
     }
     @keyframes floaty { to { transform: translate(-50%, -160%); opacity: 0; } }
     #list {
       display: flex; gap: 6px; overflow-x: auto;
-      padding: 7px 10px; background: #1c1010;
+      padding: 8px calc(10px + var(--sar)) 8px calc(10px + var(--sal));
+      background: var(--bg-2);
+      border-top: 1px solid var(--line);
+      scrollbar-width: none;
     }
+    #list::-webkit-scrollbar { display: none; }
     .chip {
-      flex: 0 0 auto; border: 0; border-radius: 999px;
-      padding: 7px 10px; background: #fff2; color: var(--cream); font-size: 12px;
+      flex: 0 0 auto; border: 1px solid var(--line); border-radius: 999px;
+      padding: 7px 12px; background: rgba(255, 243, 220, .07); color: var(--cream);
+      font: 600 13px var(--sans);
     }
-    .chip.got { text-decoration: line-through; opacity: .4; }
-    #toast.on { opacity: 1; }
+    .chip.got { text-decoration: line-through; opacity: .45; border-color: rgba(62, 207, 142, .5); }
     #bar {
-      display: grid; grid-template-columns: 1fr 1fr;
-      gap: 8px; padding: 8px 10px 10px; background: #1c1010;
+      display: grid; grid-template-columns: 1fr 1fr auto;
+      gap: 8px;
+      padding: 8px calc(10px + var(--sar)) calc(10px + var(--sab)) calc(10px + var(--sal));
+      background: var(--bg-2);
     }
-    #contactBtn {
-      grid-column: 1 / -1; height: 40px; border: 0; border-radius: 12px;
-      background: transparent; color: var(--gold);
-      font: 800 14px "Trebuchet MS", sans-serif;
-      display: flex; align-items: center; justify-content: center;
-      text-decoration: none;
-    }
-    #bar button {
-      height: 48px; border: 0; border-radius: 14px;
-      font: 800 16px "Trebuchet MS", sans-serif;
-    }
-    #roomsBtn { background: #3a241c; color: var(--cream); }
-    #hintBtn { background: var(--gold); color: #1a1208; }
-    #pick {
-      position: fixed; inset: 0; background: #140a0cee;
-      display: none; flex-direction: column; justify-content: flex-end;
-      padding: 18px; z-index: 5;
-    }
-    #pick.on { display: flex; }
-    h1 { font-size: 32px; line-height: .95; margin: 6px 0 12px; }
-    .rooms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-    .room {
-      position: relative; aspect-ratio: 3 / 4; min-height: 148px;
-      border: 0; border-radius: 16px; overflow: hidden;
-      background-size: cover; background-position: center;
-      color: var(--cream); font: 800 15px "Trebuchet MS", sans-serif;
-      text-shadow: 0 2px 8px #000;
-      display: flex; align-items: flex-end; justify-content: center;
-      padding: 10px 8px 12px;
-    }
-    .room::after {
-      content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 48%;
-      background: linear-gradient(transparent, #140a0ce8);
-    }
-    .room .label { position: relative; z-index: 1; text-align: center; }
-    .room.lock { filter: grayscale(.55) brightness(.7); }
-    .room .tag { display:block; font-size:11px; letter-spacing:.12em; color:#e8c36a; margin-top:4px; }
-    #pay {
-      position: fixed; inset: 0; background: #140a0cf2;
-      display: none; flex-direction: column; justify-content: flex-end;
-      padding: 18px; z-index: 6;
-    }
-    #pay.on { display: flex; }
-    #pay button, #pay a {
-      height: 48px; border: 0; border-radius: 14px;
-      font: 800 16px "Trebuchet MS", sans-serif; margin-top: 8px;
-      display: flex; align-items: center; justify-content: center;
-      text-decoration: none;
-    }
-    #payGo { background: var(--gold); color: #1a1208; }
-    #payNo { background: #3a241c; color: var(--cream); }
-    #contact {
-      position: fixed; inset: 0; background: #140a0cf2;
-      display: none; flex-direction: column; justify-content: flex-end;
-      padding: 18px; z-index: 7;
-    }
-    #contact.on { display: flex; }
-    #contact a, #contact button {
-      height: 48px; border: 0; border-radius: 14px;
-      font: 800 16px "Trebuchet MS", sans-serif; margin-top: 8px;
-      display: flex; align-items: center; justify-content: center;
-      text-decoration: none;
-    }
-    #mailGo, #igGo { background: var(--gold); color: #1a1208; }
-    #copyMail, #contactNo { background: #3a241c; color: var(--cream); }
+    #contactBtn { padding: 0 12px; font-size: 14px; }
+
+    /* rooms sheet */
+    .rooms { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 8px; }
+
+    /* ---------- game picker ---------- */
     #gate {
-      position: fixed; inset: 0; z-index: 9;
-      background: #140a0c;
-      display: none; flex-direction: column; justify-content: flex-end;
-      padding: 22px 18px 28px;
+      position: fixed; inset: 0; z-index: 10;
+      display: none;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      background:
+        radial-gradient(60% 40% at 85% 0%, rgba(139, 108, 255, .22), transparent 70%),
+        radial-gradient(70% 45% at 0% 100%, rgba(255, 138, 42, .18), transparent 70%),
+        linear-gradient(180deg, #120a1a 0%, #0c0710 55%, #0a0509 100%);
     }
-    #gate.on { display: flex; }
-    .games {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 220px));
-      gap: 12px; margin-top: 4px;
-      max-height: 72vh; overflow: auto;
+    #gate.on { display: block; }
+    .gate-inner {
+      position: relative;
+      max-width: 1080px; margin: 0 auto;
+      padding: calc(22px + var(--sat)) calc(18px + var(--sar)) calc(24px + var(--sab)) calc(18px + var(--sal));
+      min-height: 100%;
+      display: flex; flex-direction: column;
     }
-    @media (min-width: 860px) {
-      .games { grid-template-columns: repeat(3, minmax(0, 220px)); }
+    .moon {
+      position: absolute; top: calc(18px + var(--sat)); right: 22px;
+      width: 84px; height: 84px; border-radius: 50%;
+      background: radial-gradient(circle at 38% 36%, #fff8dc, #f1dc9c 55%, #c9a75a);
+      box-shadow: 0 0 40px 10px rgba(246, 225, 160, .25), 0 0 120px 40px rgba(246, 225, 160, .08);
+      opacity: .9;
+      pointer-events: none;
     }
-    #gate button, #gate a {
-      position: relative; aspect-ratio: 3 / 4; max-height: 58vh;
-      border: 0; border-radius: 18px; overflow: hidden;
-      background-size: cover; background-position: center;
-      color: var(--cream); font: 800 18px "Trebuchet MS", sans-serif;
-      text-decoration: none; text-shadow: 0 2px 8px #000;
-      display: flex; align-items: flex-end; justify-content: center;
-      padding: 14px;
+    .bats { position: absolute; top: calc(70px + var(--sat)); right: 70px; width: 120px; pointer-events: none; opacity: .8; }
+    .bats path { fill: #0c0710; }
+    .bats g { animation: flap 1.6s ease-in-out infinite alternate; transform-origin: center; }
+    .bats g:nth-child(2) { animation-delay: -.6s; }
+    @keyframes flap { from { transform: translateY(0) scaleY(1); } to { transform: translateY(-6px) scaleY(.75); } }
+    .hero { position: relative; padding: 20px 0 22px; max-width: 640px; }
+    .hero h1 {
+      font-family: var(--display); font-weight: 800;
+      font-size: clamp(40px, 11vw, 76px); line-height: .95;
+      margin: 10px 0 12px;
+      background: linear-gradient(180deg, #fff3dc 20%, #e8c36a 75%, #c8813a);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      text-shadow: 0 0 30px rgba(232, 195, 106, .12);
     }
-    #gate button::after, #gate a::after {
-      content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 42%;
-      background: linear-gradient(transparent, #140a0ce8);
+    .hero p { color: var(--muted); font-size: clamp(15px, 3.8vw, 18px); line-height: 1.45; max-width: 34ch; }
+    .games { display: grid; gap: 14px; grid-template-columns: 1fr; }
+    .game-card {
+      position: relative;
+      display: grid; grid-template-columns: 112px minmax(0, 1fr);
+      gap: 14px; align-items: center;
+      padding: 10px 14px 10px 10px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      background: linear-gradient(180deg, rgba(43, 26, 34, .9), rgba(23, 13, 20, .9));
+      color: var(--cream); text-decoration: none; text-align: left;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, .35);
+      transition: transform .18s, border-color .18s, box-shadow .18s;
     }
-    #gate button span, #gate a span { position: relative; z-index: 1; }
+    .game-card:hover { transform: translateY(-3px); border-color: var(--line-strong); box-shadow: 0 18px 36px rgba(0, 0, 0, .5), 0 0 0 1px rgba(232, 195, 106, .15); }
+    .game-card .art {
+      aspect-ratio: 3 / 4; border-radius: 14px; overflow: hidden; background: #120a10;
+      box-shadow: 0 0 0 1px rgba(255, 255, 255, .06) inset;
+    }
+    .game-card .art img { width: 100%; height: 100%; object-fit: cover; transition: transform .4s; }
+    .game-card:hover .art img { transform: scale(1.04); }
+    .game-card .badge {
+      display: inline-block; font: 800 10px/1 var(--sans); letter-spacing: .16em; text-transform: uppercase;
+      color: var(--gold); padding: 5px 8px; border-radius: 999px; border: 1px solid var(--line);
+      background: rgba(232, 195, 106, .08);
+    }
+    .game-card h2 { font-family: var(--display); font-size: 21px; line-height: 1.1; margin: 8px 0 6px; }
+    .game-card p { color: var(--muted); font-size: 14px; line-height: 1.4; }
+    .game-card .play {
+      display: inline-flex; align-items: center; gap: 6px; margin-top: 10px;
+      font: 800 14px var(--sans); color: var(--gold);
+    }
+    .game-card .play svg { width: 16px; height: 16px; transition: transform .2s; }
+    .game-card:hover .play svg { transform: translateX(3px); }
+    .gate-foot {
+      margin-top: auto; padding-top: 26px;
+      display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between;
+      color: rgba(255, 243, 220, .5); font-size: 13px;
+    }
+    @media (min-width: 760px) {
+      .games { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+      .game-card { grid-template-columns: 1fr; align-items: stretch; padding: 10px 10px 18px; }
+      .game-card .art { aspect-ratio: 1 / 1; }
+      .game-card .art img { object-position: center 30%; }
+      .game-card .body { padding: 4px 8px 0; }
+      .moon { width: 130px; height: 130px; right: 40px; top: calc(36px + var(--sat)); }
+      .bats { right: 150px; top: calc(110px + var(--sat)); width: 160px; }
+      .hero { padding: 30px 0 28px; }
+    }
+    @media (max-width: 759px) {
+      .moon { top: calc(6px + var(--sat)); right: -14px; width: 92px; height: 92px; opacity: .55; }
+      .bats { display: none; }
+    }
+    @media (max-width: 380px) {
+      .game-card { grid-template-columns: 92px minmax(0, 1fr); }
+    }
+    @media (prefers-reduced-motion: reduce) { .bats g { animation: none; } }
   </style>
 </head>
 <body>
-  <header>
-    <div>
-      <b id="roomName">GREAT HALL</b>
-      <div id="sub">Tap the objects in the picture</div>
+  <header class="topbar">
+    <div class="left">
+      <button id="gamesBtn" class="chip-btn" type="button" aria-label="Back to all games">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>Games
+      </button>
     </div>
-    <div id="score">0/12</div>
-    <button id="gamesBtn" type="button">Main game</button>
-    <button id="musicBtn" type="button">Music on</button>
+    <div class="mid">
+      <div class="kicker" id="roomName">GREAT HALL</div>
+      <div class="sub" id="sub">Tap the objects in the picture</div>
+    </div>
+    <div class="right">
+      <div id="score" aria-live="polite">0/12</div>
+      <button id="musicBtn" class="chip-btn icon" type="button" aria-pressed="true" aria-label="Music on" title="Music">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+      </button>
+    </div>
   </header>
-  <div id="stage">
-    <img id="pic" alt="room" />
-    <div id="toast">Tap the picture</div>
-  </div>
-  <div id="list"></div>
+  <main id="stage">
+    <img id="pic" alt="Haunted room full of hidden objects" />
+    <div id="toast" class="toast" role="status">Tap the picture</div>
+  </main>
+  <div id="list" aria-label="Objects to find"></div>
   <div id="bar">
-    <button id="roomsBtn" type="button">Rooms</button>
-    <button id="hintBtn" type="button">Hint</button>
-    <a id="contactBtn" href="mailto:info@merahissa.co.in?subject=Holly%20Haunt">Contact us</a>
+    <button id="roomsBtn" class="btn btn-ghost" type="button">Rooms</button>
+    <button id="hintBtn" class="btn btn-primary" type="button">Hint</button>
+    <a id="contactBtn" class="btn btn-quiet" href="mailto:info@merahissa.co.in?subject=Holly%20Haunt">Contact</a>
   </div>
-  <div id="pick">
-    <p style="color:#e8c36a;letter-spacing:.16em;font-size:11px">HOLLY HAUNT</p>
-    <h1>Pick a room</h1>
-    <div class="rooms" id="rooms"></div>
+
+  <div id="pick" class="sheet-wrap" role="dialog" aria-modal="true" aria-labelledby="pickTitle">
+    <div class="sheet wide">
+      <p class="kicker">Holly Haunt</p>
+      <h2 id="pickTitle">Pick a room</h2>
+      <div class="rooms" id="rooms"></div>
+      <div class="actions"><button id="pickNo" class="btn btn-ghost" type="button">Back to the room</button></div>
+    </div>
   </div>
-  <div id="pay">
-    <p style="color:#e8c36a;letter-spacing:.16em;font-size:11px">LOCKED</p>
-    <h1>Unlock the other rooms</h1>
-    <p id="payLine" style="margin-bottom:12px;opacity:.9">Pay $1 on this phone. This opens Razorpay. After you pay, come back to this page. Kitchen and Bedroom then open here.</p>
-    <a id="payGo" href="https://rzp.io/rzp/hollyhaunt-unlock">Pay $1 to unlock</a>
-    <button id="payNo" type="button">Not now</button>
+  <div id="pay" class="sheet-wrap" role="dialog" aria-modal="true" aria-labelledby="payTitle">
+    <div class="sheet">
+      <p class="kicker">Locked</p>
+      <h2 id="payTitle">Unlock the other rooms</h2>
+      <p id="payLine" class="lead">Pay $1 on this phone. This opens Razorpay. After you pay, come back to this page. Kitchen and Bedroom then open here.</p>
+      <div class="actions">
+        <a id="payGo" class="btn btn-primary" href="https://rzp.io/rzp/hollyhaunt-unlock">Pay $1 to unlock</a>
+        <button id="payNo" class="btn btn-ghost" type="button">Not now</button>
+      </div>
+    </div>
   </div>
-  <div id="contact">
-    <p style="color:#e8c36a;letter-spacing:.16em;font-size:11px">CONTACT</p>
-    <h1>Contact</h1>
-    <p style="opacity:.9">Instagram</p>
-    <p id="igAddr" style="font-weight:800">@emma.goodwitch</p>
-    <a id="igGo" href="https://instagram.com/emma.goodwitch" target="_blank" rel="noopener">Open Instagram</a>
-    <p style="opacity:.9;margin-top:10px">Email</p>
-    <p id="mailAddr">info@merahissa.co.in</p>
-    <a id="mailGo" href="mailto:info@merahissa.co.in?subject=Holly%20Haunt">Open mail app</a>
-    <button id="copyMail" type="button">Copy email</button>
-    <button id="contactNo" type="button">Close</button>
+  <div id="contact" class="sheet-wrap" role="dialog" aria-modal="true" aria-labelledby="contactTitle">
+    <div class="sheet">
+      <p class="kicker">Contact</p>
+      <h2 id="contactTitle">Say hello</h2>
+      <p>Instagram</p>
+      <p id="igAddr" style="font-weight:800;color:var(--cream);margin-bottom:6px">@emma.goodwitch</p>
+      <a id="igGo" class="btn btn-primary btn-block" href="https://instagram.com/emma.goodwitch" target="_blank" rel="noopener">Open Instagram</a>
+      <p style="margin-top:14px">Email</p>
+      <p id="mailAddr" style="font-weight:800;color:var(--cream);margin-bottom:6px">info@merahissa.co.in</p>
+      <div class="actions two" style="margin-top:0">
+        <a id="mailGo" class="btn btn-primary" href="mailto:info@merahissa.co.in?subject=Holly%20Haunt">Open mail app</a>
+        <button id="copyMail" class="btn btn-ghost" type="button">Copy email</button>
+      </div>
+      <div class="actions"><button id="contactNo" class="btn btn-ghost" type="button">Close</button></div>
+    </div>
   </div>
+
   <div id="gate" class="on">
-    <p style="color:#e8c36a;letter-spacing:.16em;font-size:11px">HOLLY HAUNT</p>
-    <h1>Pick a game</h1>
-    <div class="games">
-      <button id="playFind" type="button" style="background-image:url('tile-find.jpg?v=7')"><span>Find the objects</span></button>
-      <a id="playBroom" href="fly.html" style="background-image:url('tile-emma.jpg?v=7')"><span>Emma on a broom</span></a>
-      <a id="playStack" href="tetris.html" style="background-image:url('tile-tetris.jpg?v=1')"><span>Holly Stack</span></a>
+    <div class="gate-inner">
+      <div class="moon" aria-hidden="true"></div>
+      <svg class="bats" viewBox="0 0 160 70" aria-hidden="true">
+        <g><path d="M40 30c-6-8-16-10-24-6 5 1 8 5 8 9-4-2-9-2-12 1 6 0 10 3 12 7 3-4 9-6 16-5 7-1 13 1 16 5 2-4 6-7 12-7-3-3-8-3-12-1 0-4 3-8 8-9-8-4-18-2-24 6z" transform="translate(-10 0) scale(.9)"/></g>
+        <g><path d="M40 30c-6-8-16-10-24-6 5 1 8 5 8 9-4-2-9-2-12 1 6 0 10 3 12 7 3-4 9-6 16-5 7-1 13 1 16 5 2-4 6-7 12-7-3-3-8-3-12-1 0-4 3-8 8-9-8-4-18-2-24 6z" transform="translate(90 18) scale(.6)"/></g>
+      </svg>
+      <section class="hero">
+        <p class="kicker">Halloween Fest</p>
+        <h1>Holly Haunt</h1>
+        <p>Three spooky little games. Free to play on your phone or computer, no download needed.</p>
+      </section>
+      <nav class="games" aria-label="Games">
+        <button id="playFind" class="game-card" type="button">
+          <span class="art"><img src="tile-find.jpg?v=7" alt="" width="720" height="960" decoding="async" /></span>
+          <span class="body">
+            <span class="badge">Hidden objects</span>
+            <h2>Find the objects</h2>
+            <p>Search the haunted Great Hall for twelve hidden treasures.</p>
+            <span class="play">Play now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </span>
+        </button>
+        <a id="playBroom" class="game-card" href="fly.html">
+          <span class="art"><img src="tile-emma.jpg?v=7" alt="" width="720" height="960" decoding="async" /></span>
+          <span class="body">
+            <span class="badge">Arcade flight</span>
+            <h2>Emma on a broom</h2>
+            <p>Zap ghosts, bats and wolves with her lightning wand, then face the ugly witch.</p>
+            <span class="play">Play now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </span>
+        </a>
+        <a id="playStack" class="game-card" href="tetris.html">
+          <span class="art"><img src="tile-tetris.jpg?v=1" alt="" width="784" height="1168" decoding="async" /></span>
+          <span class="body">
+            <span class="badge">Puzzle</span>
+            <h2>Holly Stack</h2>
+            <p>Falling blocks with pumpkins, ghosts, bats and black cats. Clear the rows.</p>
+            <span class="play">Play now <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+          </span>
+        </a>
+      </nav>
+      <footer class="gate-foot">
+        <span>Holly Haunt · Happy Halloween</span>
+        <button id="gateContact" class="btn btn-quiet" type="button">Contact us</button>
+      </footer>
     </div>
   </div>
 <script>
@@ -311,10 +388,11 @@ let found = new Set();
 let hintsReady = true;
 let findN = 0;
 let musicOn = true;
+let clearTimers = [];
 const flute = new Audio("flute.mp3");
 flute.loop = true;
 flute.volume = 0.16;
-flute.preload = "auto";
+flute.preload = "none";
 
 function startBed(){
   if (!musicOn) return;
@@ -322,6 +400,7 @@ function startBed(){
 }
 function playFile(src, vol){
   startBed();
+  if (!musicOn) return;
   const a = new Audio(src);
   a.volume = vol == null ? 1 : vol;
   a.play().catch(() => {});
@@ -374,7 +453,7 @@ function pctToScreen(x, y){
 }
 
 function clearRings(){
-  stage.querySelectorAll(".ring").forEach(n => n.remove());
+  stage.querySelectorAll(".ring:not(.hint)").forEach(n => n.remove());
 }
 function placeRing(it, cls){
   const p = pctToScreen(it.x, it.y);
@@ -390,11 +469,18 @@ function placeRing(it, cls){
   stage.appendChild(el);
   return el;
 }
+/* Green rings mark every object already found; redrawn on resize so they stay on the picture. */
+function drawFoundRings(){
+  clearRings();
+  if (!pic.naturalWidth) return;
+  found.forEach((i) => placeRing(scene.items[i]));
+}
 
 function renderList(){
   list.innerHTML = "";
   scene.items.forEach((it, i) => {
     const b = document.createElement("button");
+    b.type = "button";
     b.className = "chip" + (found.has(i) ? " got" : "");
     b.textContent = it.n;
     b.onclick = () => { say("Find the " + it.n); };
@@ -402,6 +488,7 @@ function renderList(){
   });
   document.getElementById("score").textContent = found.size + "/" + scene.items.length;
   document.getElementById("roomName").textContent = scene.name.toUpperCase();
+  drawFoundRings();
 }
 
 function openScene(sc){
@@ -412,8 +499,11 @@ function openScene(sc){
     document.getElementById("pay").classList.add("on");
     return;
   }
+  clearTimers.forEach(clearTimeout); clearTimers = [];
   scene = sc; found = new Set(); hintsReady = true;
+  stage.querySelectorAll(".ring").forEach(n => n.remove());
   pic.src = sc.file;
+  pic.alt = sc.name + " full of hidden objects";
   pick.classList.remove("on");
   document.getElementById("pay").classList.remove("on");
   renderList();
@@ -450,9 +540,9 @@ function hit(clientX, clientY){
   renderList();
   if (found.size === scene.items.length) {
     say("Room cleared");
-    setTimeout(jingle, 400);
-    setTimeout(hoho, 2200);
-    setTimeout(() => pick.classList.add("on"), 2800);
+    clearTimers.push(setTimeout(jingle, 400));
+    clearTimers.push(setTimeout(hoho, 2200));
+    clearTimers.push(setTimeout(() => pick.classList.add("on"), 2800));
   }
 }
 
@@ -460,8 +550,11 @@ stage.addEventListener("pointerdown", (e) => {
   e.preventDefault();
   hit(e.clientX, e.clientY);
 });
+pic.addEventListener("load", drawFoundRings);
+window.addEventListener("resize", drawFoundRings);
 
 document.getElementById("roomsBtn").onclick = () => pick.classList.add("on");
+document.getElementById("pickNo").onclick = () => pick.classList.remove("on");
 document.getElementById("hintBtn").onclick = () => {
   if (!hintsReady) return;
   const i = scene.items.findIndex((_, k) => !found.has(k));
@@ -479,9 +572,10 @@ document.getElementById("hintBtn").onclick = () => {
 const roomsEl = document.getElementById("rooms");
 SCENES.forEach((sc) => {
   const b = document.createElement("button");
-  b.className = "room" + ((sc.free || paid) ? "" : " lock");
+  b.type = "button";
+  b.className = "pic-tile room" + ((sc.free || paid) ? "" : " lock");
   b.style.backgroundImage = "url('" + sc.file + "')";
-  b.innerHTML = '<span class="label">' + sc.name + '<span class="tag">' + ((sc.free || paid) ? "FREE" : "LOCKED · PAY") + "</span></span>";
+  b.innerHTML = '<span class="label">' + sc.name + '<br><span class="tag">' + ((sc.free || paid) ? "FREE" : "LOCKED · PAY") + "</span></span>";
   b.onclick = () => openScene(sc);
   roomsEl.appendChild(b);
 });
@@ -490,11 +584,13 @@ document.getElementById("payGo").addEventListener("click", () => {
   sessionStorage.setItem("holly.payStarted", String(Date.now()));
   track("pay_clicked", { source: "rooms" });
 });
-document.getElementById("contactBtn").addEventListener("click", (e) => {
-  e.preventDefault();
+function openContact(e) {
+  if (e) e.preventDefault();
   track("contact_clicked");
   document.getElementById("contact").classList.add("on");
-});
+}
+document.getElementById("contactBtn").addEventListener("click", openContact);
+document.getElementById("gateContact").addEventListener("click", openContact);
 document.getElementById("contactNo").onclick = () => document.getElementById("contact").classList.remove("on");
 document.getElementById("copyMail").onclick = () => {
   const addr = "info@merahissa.co.in";
@@ -504,9 +600,11 @@ document.getElementById("copyMail").onclick = () => {
     say(addr);
   }
 };
-document.getElementById("musicBtn").onclick = () => {
+const musicBtn = document.getElementById("musicBtn");
+musicBtn.onclick = () => {
   musicOn = !musicOn;
-  document.getElementById("musicBtn").textContent = musicOn ? "Music on" : "Music off";
+  musicBtn.setAttribute("aria-pressed", String(musicOn));
+  musicBtn.setAttribute("aria-label", musicOn ? "Music on" : "Music off");
   if (musicOn) flute.play().catch(() => {});
   else flute.pause();
 };
@@ -522,12 +620,23 @@ document.getElementById("playStack").addEventListener("click", () => {
   track("game_chosen", { game: "holly_stack" });
 });
 document.getElementById("gamesBtn").onclick = () => {
+  clearTimers.forEach(clearTimeout); clearTimers = [];
+  flute.pause();
   document.getElementById("pick").classList.remove("on");
   document.getElementById("pay").classList.remove("on");
   document.getElementById("contact").classList.remove("on");
   document.getElementById("gate").classList.add("on");
   track("game_picker_view");
 };
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Escape") return;
+  ["contact", "pay", "pick"].some((id) => {
+    const el = document.getElementById(id);
+    if (el.classList.contains("on")) { el.classList.remove("on"); return true; }
+    return false;
+  });
+});
+document.addEventListener("visibilitychange", () => { if (document.hidden) flute.pause(); });
 track("game_picker_view");
 if (paid && window.posthog) posthog.setPersonProperties({ hollyhaunt_paid: true, site: "halloweenfest" });
 </script>
