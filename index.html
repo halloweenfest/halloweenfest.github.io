@@ -938,6 +938,7 @@
       </footer>
     </div>
   </div>
+<script src="pay.js?v=1"></script>
 <script>
 const UNLOCK_URL = "https://rzp.io/rzp/hollyhaunt-unlock";
 const PAY_PAGE = "pl_TgjuQk5VyMgvwz";
@@ -946,19 +947,8 @@ const KEYLESS = "nocodeapps_10000:JELfVpX8LqF1reNtFfHTO2Z6PuTUjj125rEFYSmyOtgdDW
 function track(name, props) {
   if (window.posthog) posthog.capture(name, props || {});
 }
-function rememberPayment(id) {
-  if (!id || !/^pay_[A-Za-z0-9]+$/.test(id)) return false;
-  localStorage.setItem("hollyHaunt.paid", "1");
-  localStorage.setItem("hollyHaunt.paymentId", id);
-  track("payment_returned", { has_payment_id: true, source: "rooms" });
-  if (window.posthog) posthog.setPersonProperties({ hollyhaunt_paid: true, site: "halloweenfest" });
-  return true;
-}
-(function () {
-  const q = new URLSearchParams(location.search);
-  if (rememberPayment(q.get("razorpay_payment_id"))) history.replaceState({}, "", location.pathname);
-})();
-const paid = localStorage.getItem("hollyHaunt.paid") === "1";
+// Unlock state comes from pay.js, which confirms the payment with Razorpay on the server.
+let paid = HollyPay.isPaid();
 /* Hotspots are % of the picture (x, y = centre, s = size as % of width). Names match what is drawn at that spot. */
 const SCENES = [
   { id:"hall", name:"Great Hall", file:"hall.jpg", free:true, items:[
@@ -1276,8 +1266,17 @@ function markRooms(){
 
 function openScene(sc){
   const locked = !sc.free && !paid;
+  if (locked && HollyPay.hasPaymentId() && HollyPay.state.checking) {
+    HollyPay.ensure().then(() => openScene(sc)); // payment check still running: wait, then decide
+    return;
+  }
   track("room_opened", { room: sc.id, locked: locked });
   if (locked) {
+    if (HollyPay.state.error) {
+      document.getElementById("payLine").textContent = HollyPay.state.error;
+      document.getElementById("pay").classList.add("on");
+      return;
+    }
     document.getElementById("payLine").textContent = sc.name + " opens on this phone after the $1 payment succeeds. Great Hall stays free.";
     document.getElementById("pay").classList.add("on");
     return;
@@ -1412,13 +1411,24 @@ const roomsEl = document.getElementById("rooms");
 SCENES.forEach((sc) => {
   const b = document.createElement("button");
   b.type = "button";
-  b.className = "pic-tile room" + ((sc.free || paid) ? "" : " lock");
   b.dataset.id = sc.id;
   b.style.backgroundImage = "url('" + sc.file + "')";
-  b.innerHTML = '<span class="label">' + sc.name + '<span class="meta">' + sc.items.length + ' objects</span><span class="tag">' + (sc.free ? "FREE" : paid ? "UNLOCKED" : "LOCKED · $1") + "</span></span>";
   b.onclick = () => openScene(sc);
   roomsEl.appendChild(b);
 });
+function paintRooms() {
+  SCENES.forEach((sc) => {
+    const b = roomsEl.querySelector('[data-id="' + sc.id + '"]');
+    const tag = sc.free ? "FREE" : paid ? "UNLOCKED" : HollyPay.state.checking ? "CHECKING…" : "LOCKED · $1";
+    b.className = "pic-tile room" + ((sc.free || paid) ? "" : " lock") + (scene && scene.id === sc.id ? " cur" : "");
+    b.innerHTML = '<span class="label">' + sc.name + '<span class="meta">' + sc.items.length + ' objects</span><span class="tag">' + tag + "</span></span>";
+  });
+  ["findLock", "flyLock"].forEach((id) => {
+    const p = document.getElementById(id);
+    if (p && paid) { p.className = "pill open"; p.textContent = "All unlocked"; }
+  });
+}
+HollyPay.onChange((s) => { paid = s.paid; paintRooms(); });
 document.getElementById("payNo").onclick = () => document.getElementById("pay").classList.remove("on");
 document.getElementById("payGo").addEventListener("click", () => {
   sessionStorage.setItem("holly.payStarted", String(Date.now()));
@@ -1494,12 +1504,6 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) flute
 /* ---------- picker scene: stars, bats, embers, parallax, card tilt ---------- */
 (function picker(){
   const gate = document.getElementById("gate");
-  if (paid) {
-    ["findLock", "flyLock"].forEach((id) => {
-      const p = document.getElementById(id);
-      if (p) { p.className = "pill open"; p.textContent = "All unlocked"; }
-    });
-  }
   function starField(id, n, maxR, alpha){
     const parts = [];
     for (let i = 0; i < n; i++) {
@@ -1550,7 +1554,6 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) flute
   }
 })();
 track("game_picker_view");
-if (paid && window.posthog) posthog.setPersonProperties({ hollyhaunt_paid: true, site: "halloweenfest" });
 </script>
 </body>
 </html>

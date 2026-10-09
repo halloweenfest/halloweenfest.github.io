@@ -246,6 +246,7 @@
       </div>
     </div>
   </div>
+<script src="pay.js?v=1"></script>
 <script>
 "use strict";
 const canvas = document.getElementById("c");
@@ -826,27 +827,27 @@ const UNLOCK_URL = "https://rzp.io/rzp/hollyhaunt-unlock";
 function track(name, props) {
   if (window.posthog) posthog.capture(name, props || {});
 }
-function rememberPayment(id) {
-  if (!id || !/^pay_[A-Za-z0-9]+$/.test(id)) return false;
-  localStorage.setItem("hollyHaunt.paid", "1");
-  localStorage.setItem("hollyHaunt.paymentId", id);
-  track("payment_returned", { has_payment_id: true, source: "emma" });
-  if (window.posthog) posthog.setPersonProperties({ hollyhaunt_paid: true, site: "halloweenfest" });
-  return true;
-}
-(function () {
-  const q = new URLSearchParams(location.search);
-  if (rememberPayment(q.get("razorpay_payment_id"))) history.replaceState({}, "", location.pathname);
-})();
-function paidNow() { return localStorage.getItem("hollyHaunt.paid") === "1"; }
+// Unlock state comes from pay.js, which confirms the payment with Razorpay on the server.
+function paidNow() { return HollyPay.isPaid(); }
 function paintNights() {
-  const open = paidNow();
-  ["night2", "night3"].forEach((id, i) => {
+  const s = HollyPay.state;
+  ["night2", "night3"].forEach((id) => {
     const b = document.getElementById(id);
-    b.classList.toggle("lock", !open);
-    b.querySelector(".tag").textContent = open ? "OPEN" : "LOCKED · PAY";
+    b.classList.toggle("lock", !s.paid);
+    b.querySelector(".tag").textContent = s.paid ? "OPEN" : s.checking ? "CHECKING…" : "LOCKED · PAY";
   });
 }
+// Locked night clicked: wait for a payment check in flight, then play or show the pay card.
+function openNight(n) {
+  if (HollyPay.isPaid()) return reset(n);
+  if (!HollyPay.hasPaymentId()) return showPay(n);
+  HollyPay.ensure().then((ok) => {
+    if (ok) return reset(n);
+    showPay(n);
+    if (HollyPay.state.error) document.getElementById("payLine").textContent = HollyPay.state.error;
+  });
+}
+HollyPay.onChange(() => { if (document.getElementById("night2")) paintNights(); });
 function sheet(id, on) { document.getElementById(id).classList.toggle("on", on); }
 function showLevels(line) {
   hold = true;
@@ -879,6 +880,7 @@ function setPaused(v) {
 }
 
 function reset(nextLevel) {
+  if (nextLevel > 1 && !paidNow()) return showPay(nextLevel);
   level = nextLevel || 1;
   lives = 3; lastLives = 3;
   if (!nextLevel || nextLevel === 1) score = 0;
@@ -1911,8 +1913,8 @@ bindHold(document.getElementById("goShoot"), (v) => { inp.shootT = v; if (v) fir
 bindHold(document.getElementById("goBrake"), (v) => { inp.brakeT = v; });
 document.getElementById("again").onclick = () => showLevels("Night 1 is free. Villains chase her.");
 document.getElementById("night1").onclick = () => reset(1);
-document.getElementById("night2").onclick = () => paidNow() ? reset(2) : showPay(2);
-document.getElementById("night3").onclick = () => paidNow() ? reset(3) : showPay(3);
+document.getElementById("night2").onclick = () => openNight(2);
+document.getElementById("night3").onclick = () => openNight(3);
 document.getElementById("payNo").onclick = () => showLevels("Night 1 is free. Nights 2 and 3 stay locked until you pay.");
 document.getElementById("payGo").addEventListener("click", () => {
   sessionStorage.setItem("holly.payStarted", String(Date.now()));
@@ -1926,7 +1928,6 @@ document.getElementById("contactNo").onclick = () => sheet("contact", false);
 document.getElementById("pauseBtn").onclick = () => setPaused(!paused);
 document.getElementById("resume").onclick = () => setPaused(false);
 document.getElementById("toNights").onclick = () => { setPaused(false); showLevels(); };
-if (paidNow() && window.posthog) posthog.setPersonProperties({ hollyhaunt_paid: true, site: "halloweenfest" });
 paintNights();
 resize();
 if (document.fonts && document.fonts.load) document.fonts.load("800 40px Cinzel").catch(() => {});
