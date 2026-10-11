@@ -779,11 +779,11 @@ const aim = { x: 0, y: 0, inside: false };
 let touchDrag = null;
 let lives = 3, score = 0, dist = 0, goal = 24000, elapsed = 0;
 const KINDS = [
-  { img: "ghost", speed: 0.1, r: 26, flip: true, col: GL.teal, pc: "200,255,250" },
-  { img: "skeleton", speed: 0.14, r: 24, flip: true, col: GL.bone, pc: "255,240,210" },
-  { img: "bat", speed: 0.2, r: 24, flip: false, col: GL.violet, pc: "190,120,255" },
-  { img: "wolf", speed: 0.16, r: 30, flip: false, col: GL.blue, pc: "190,200,230" },
-  { img: "zombie", speed: 0.12, r: 28, flip: false, col: GL.green, pc: "150,255,120" }
+  { img: "ghost", speed: 0.18, r: 26, flip: true, col: GL.teal, pc: "200,255,250" },
+  { img: "skeleton", speed: 0.24, r: 24, flip: true, col: GL.bone, pc: "255,240,210" },
+  { img: "bat", speed: 0.34, r: 24, flip: false, col: GL.violet, pc: "190,120,255" },
+  { img: "wolf", speed: 0.28, r: 30, flip: false, col: GL.blue, pc: "190,200,230" },
+  { img: "zombie", speed: 0.22, r: 28, flip: false, col: GL.green, pc: "150,255,120" }
 ];
 let mode = "fly";
 let emma = { x: 0.22, y: 0.5, inv: 0, tilt: 0, vys: 0, hurtT: 0 };
@@ -892,7 +892,7 @@ function reset(nextLevel) {
   foes = []; treats = []; shots = []; arcs = []; orbs = []; popups = [];
   witch = null;
   /* 2 s grace: nothing spawns while the player gets their bearings */
-  grace = 2; spawnZ = 0; spawnP = 7; shootCd = 0; boltCd = 1;
+  grace = 0.6; spawnZ = 0; spawnP = 12; shootCd = 0; boltCd = 1;
   combo = 0; comboT = 0; bestCombo = 0; shake = 0; hurtFx = 0; flashFx = 0; slow = 0; endT = 0; bossShown = 0;
   over = false; won = false;
   hold = false;
@@ -927,7 +927,7 @@ function addShake(v) { if (!reduceMotion) shake = Math.max(shake, v); }
 function hurt() {
   if (emma.inv > 0 || over || mode === "dying" || mode === "victory") return;
   lives--;
-  emma.inv = 1.6; emma.hurtT = 0.25;
+  emma.inv = 0.85; emma.hurtT = 0.25;
   hurtFx = 1;
   addShake(16);
   combo = 0; comboT = 0;
@@ -1198,26 +1198,26 @@ function step(dt) {
     spawnZ -= dt;
     spawnP -= dt;
     if (spawnZ <= 0 && grace <= 0) {
-      spawnZ = level === 1 ? 1.7 : level === 2 ? 1.05 : 0.72;
-      const kind = KINDS[Math.floor(Math.random() * (level === 1 ? 4 : KINDS.length))];
-      let y = 0.5;
-      for (let k = 0; k < 8; k++) {
-        y = 0.18 + Math.random() * 0.62;
-        if (foes.every((f) => f.x < 0.85 || Math.abs(f.y - y) > 0.17)) break;
+      spawnZ = level === 1 ? 0.92 : level === 2 ? 0.58 : 0.4;
+      const count = level === 1 ? (Math.random() < 0.28 ? 2 : 1) : (Math.random() < 0.5 ? 2 : 1);
+      for (let i = 0; i < count; i++) {
+        const kind = KINDS[Math.floor(Math.random() * KINDS.length)];
+        let y = Math.max(0.12, Math.min(0.84, emma.y + (Math.random() - 0.5) * (level === 1 ? 0.36 : 0.22)));
+        foes.push({ x: 1.08 + i * 0.14, y, kind, ph: Math.random() * 6, hp: 2, max: 2, flash: 0, kx: 0, born: t });
       }
-      foes.push({ x: 1.12, y, kind, ph: Math.random() * 6, hp: 2, max: 2, flash: 0, kx: 0, born: t });
     }
     if (spawnP <= 0) {
-      spawnP = 9 + Math.random() * 4;
+      spawnP = 18 + Math.random() * 10;
       treats.push({ x: 1.12, y: 0.2 + Math.random() * 0.55, ph: Math.random() * 6 });
     }
-    const chase = 0.22 + level * 0.16;
+    const chase = 0.72 + level * 0.3;
     for (const z of foes) {
       z.flash = Math.max(0, z.flash - dt);
-      z.x += z.kx * dt - dt * (z.kind.speed + level * 0.045);
+      z.x += z.kx * dt - dt * (z.kind.speed + level * 0.08);
       z.kx *= Math.exp(-dt * 6);
       z.y += (emma.y - z.y) * dt * chase;
-      if (emma.inv <= 0 && hit(emma, z, 34, z.kind.r)) { hurt(); z.hp = 0; poof(z); }
+      z.y = Math.max(0.08, Math.min(0.9, z.y));
+      if (emma.inv <= 0 && hit(emma, z, 34, z.kind.r)) { hurt(); z.x = Math.min(1.05, z.x + 0.42); z.kx = 0.2; }
     }
     /* keep villains from stacking on top of each other */
     for (let i = 0; i < foes.length; i++) for (let j = i + 1; j < foes.length; j++) {
@@ -1230,7 +1230,7 @@ function step(dt) {
     for (const q of treats) {
       q.x -= dt * 0.12;
       if (hit(emma, q, 32, 24)) {
-        lives = Math.min(6, lives + 1); score += 25;
+        lives = Math.min(4, lives + 1); score += 25;
         burst(q.x * W, q.y * H, 18, GL.orange, 220 * SC, 9 * SC, 0.6);
         q.x = -1;
         const pp = emmaPose();
@@ -1246,15 +1246,15 @@ function step(dt) {
     bossIntro = Math.max(0, bossIntro - dt);
     witch.x += (0.78 - witch.x) * Math.min(1, dt * (bossIntro > 0 ? 1.2 : 2)) + witch.kx * dt;
     witch.kx *= Math.exp(-dt * 6);
-    witch.y += (emma.y - witch.y) * dt * (0.55 + level * 0.2);
+    witch.y += (emma.y - witch.y) * dt * (1.25 + level * 0.4);
     witch.flash = Math.max(0, witch.flash - dt);
     witch.cast = Math.max(0, witch.cast - dt);
     witch.lag += (witch.hp - witch.lag) * Math.min(1, dt * 2.5);
     if (bossIntro <= 0) boltCd -= dt;
     if (boltCd <= 0) {
-      boltCd = Math.max(0.45, 1.35 - level * 0.22);
+      boltCd = Math.max(0.26, 0.78 - level * 0.14);
       witch.cast = 0.35;
-      orbs.push({ x: witch.x - 0.06, y: witch.y, vx: -0.38, vy: (emma.y - witch.y) * 0.35, ph: Math.random() * 6 });
+      orbs.push({ x: witch.x - 0.06, y: witch.y, vx: -0.62, vy: (emma.y - witch.y) * 0.8, ph: Math.random() * 6 });
     }
     for (const b of orbs) {
       b.x += b.vx * dt;
