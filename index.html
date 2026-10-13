@@ -412,6 +412,61 @@
     .stars-row svg.on { color: var(--gold); filter: drop-shadow(0 0 8px rgba(255, 190, 80, .7)); animation: starPop .5s cubic-bezier(.2, 1.6, .4, 1) both; }
     .stars-row svg.on:nth-child(2) { animation-delay: .15s; } .stars-row svg.on:nth-child(3) { animation-delay: .3s; }
     @keyframes starPop { from { transform: scale(0) rotate(-40deg); } }
+    #done .stat-row b { font-size: 22px; }
+
+    /* ---------- challenge layer: countdown, penalties, curse, limited tray ---------- */
+    body > header .mid .sub#sub {
+      position: relative; margin-top: 3px; padding: 4px 11px; border-radius: 999px;
+      font: 800 19px/1 var(--display); font-variant-numeric: tabular-nums; color: #ffe7a8; letter-spacing: .02em;
+      background: rgba(232, 195, 106, .1); border: 1px solid rgba(232, 195, 106, .32);
+      transition: color .25s, background .25s, border-color .25s;
+    }
+    body > header .mid .sub#sub svg { width: 15px; height: 15px; }
+    #sub.low { color: #ffab95; background: rgba(190, 40, 30, .2); border-color: rgba(255, 110, 90, .6); animation: lowPulse 1s ease-in-out infinite; }
+    #sub.hurt { animation: hurt .45s ease-out; }
+    @keyframes lowPulse { 50% { box-shadow: 0 0 18px rgba(255, 80, 60, .65); } }
+    @keyframes hurt { 15% { transform: translateX(-5px) scale(1.12); color: #ff6b57; } 35% { transform: translateX(5px); } 60% { transform: translateX(-2px); } }
+    .clockpen {
+      position: absolute; left: 100%; top: 50%; margin-left: 6px; pointer-events: none; white-space: nowrap;
+      font: 900 15px/1 var(--display); color: #ff8d78; text-shadow: 0 0 10px rgba(255, 60, 40, .8);
+      animation: penUp 1s ease-out forwards;
+    }
+    @keyframes penUp { from { transform: translateY(-50%); opacity: 1; } to { transform: translateY(-160%); opacity: 0; } }
+    .pop.pen { color: #ff8d78; font-size: 22px; text-shadow: 0 0 14px rgba(255, 60, 40, .9), 0 3px 10px #000; }
+    #curse {
+      position: absolute; inset: 0; z-index: 9; display: none; place-items: center; text-align: center; pointer-events: none;
+      background: radial-gradient(circle, rgba(90, 40, 170, .35), rgba(16, 4, 26, .6));
+    }
+    #stage.cursed #curse { display: grid; animation: curseIn .25s ease-out; }
+    #curse b { display: block; font: 900 clamp(36px, 10vw, 60px)/1 var(--display); color: #e2d2ff; letter-spacing: .04em; text-shadow: 0 0 26px rgba(160, 110, 255, .95), 0 4px 14px #000; }
+    #curse span { display: block; margin-top: 8px; font: 700 13px/1.3 var(--sans); color: #d6c8f5; letter-spacing: .08em; text-transform: uppercase; }
+    @keyframes curseIn { from { opacity: 0; transform: scale(1.08); } }
+    #hintBtn.empty { filter: grayscale(.8) brightness(.65); }
+    #hintBtn.empty::after, #hintBtn.cool::after { display: none; }
+    .chip.riddle .th {
+      display: grid; place-items: center; background: radial-gradient(circle at 40% 35%, #3a2246, #150b1a);
+      font: 900 20px/1 var(--display); color: var(--gold);
+    }
+    .chip.riddle .nm { font-style: italic; color: #e9dcff; white-space: normal; max-width: 128px; font-size: 12.5px; }
+    .chip.fresh { animation: chipWin .9s ease-out; }
+    .chip.more {
+      cursor: default; opacity: .7; border-style: dashed; padding: 5px 14px;
+      font: 700 12px/1.2 var(--sans); letter-spacing: .04em; color: var(--muted);
+    }
+    .chip.more:hover, .chip.more:active { background: inherit; transform: none; border-color: rgba(255, 236, 190, .14); }
+    @media (min-width: 980px) { .chip.more { grid-column: 1 / -1; min-height: 44px; justify-content: center; } }
+    #fail .sheet { text-align: center; }
+    #fail .sheet h2 { background: linear-gradient(180deg, #ffe4dc 30%, #ff8a6a 85%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+    #fail .emblem svg { color: #ff9c80; }
+    .diff { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+    .diff button {
+      min-height: 48px; padding: 8px 10px; border-radius: 14px; cursor: pointer;
+      border: 1px solid rgba(255, 236, 190, .18); background: rgba(255, 243, 220, .04);
+      color: var(--cream); font: 800 15px/1.1 var(--display); letter-spacing: .02em;
+    }
+    .diff button small { display: block; margin-top: 4px; font: 600 11px/1.2 var(--sans); color: var(--muted); letter-spacing: .02em; }
+    .diff button[aria-checked="true"] { border-color: var(--gold); background: rgba(232, 195, 106, .14); box-shadow: 0 0 0 1px rgba(232, 195, 106, .5), 0 0 18px rgba(255, 170, 70, .2); }
+    #rooms .room .best { display: block; margin-top: 3px; font: 800 10.5px/1.2 var(--sans); color: #ffe7a8; letter-spacing: .04em; }
 
     /* contact sheet */
     .contact-row {
@@ -728,6 +783,7 @@
     <div class="fx-candle" aria-hidden="true"></div>
     <div class="fx-vignette" aria-hidden="true"></div>
     <div id="cursor" aria-hidden="true"></div>
+    <div id="curse" aria-hidden="true"><div><b>Cursed!</b><span>Too many wild clicks</span></div></div>
     <div id="toast" class="toast" role="status">Tap the picture</div>
   </main>
   <div id="list" aria-label="Objects to find"></div>
@@ -747,7 +803,11 @@
     <div class="sheet wide">
       <p class="kicker">Holly Haunt</p>
       <h2 id="pickTitle">Pick a room</h2>
-      <p>Every room hides twelve objects. Find them all as fast as you can.</p>
+      <p>Every room hides twelve objects. Find them before the candle burns out. Wrong clicks cost time.</p>
+      <div class="diff" id="diff" role="radiogroup" aria-label="Difficulty">
+        <button type="button" role="radio" data-d="normal" aria-checked="true">Normal<small id="diffNormal"></small></button>
+        <button type="button" role="radio" data-d="hard" aria-checked="false">Hard<small id="diffHard"></small></button>
+      </div>
       <div class="rooms" id="rooms"></div>
       <div class="actions"><button id="pickNo" class="btn btn-ghost" type="button">Back to the room</button></div>
     </div>
@@ -780,7 +840,8 @@
       <p id="doneLine">Every hidden object found.</p>
       <div class="stat-row">
         <div><b id="doneTime">0:00</b><span>TIME</span></div>
-        <div><b id="doneFound">12</b><span>FOUND</span></div>
+        <div><b id="doneLeft">0:00</b><span>LEFT</span></div>
+        <div><b id="doneBest">0:00</b><span>BEST</span></div>
         <div><b id="doneHints">0</b><span>HINTS</span></div>
       </div>
       <div class="actions">
@@ -788,6 +849,21 @@
         <div class="actions two" style="margin-top:0">
           <button id="doneAgain" class="btn btn-ghost" type="button">Play again</button>
           <button id="doneGames" class="btn btn-ghost" type="button">All games</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="fail" class="sheet-wrap" role="dialog" aria-modal="true" aria-labelledby="failTitle">
+    <div class="sheet">
+      <div class="emblem" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12M6 22h12M7 2c0 5 10 7 10 10S7 17 7 22M17 2c0 5-10 7-10 10s10 5 10 10"/></svg></div>
+      <p class="kicker">Time is up</p>
+      <h2 id="failTitle">The haunt wins</h2>
+      <p id="failLine" class="lead">The candle burned out.</p>
+      <div class="actions">
+        <button id="failAgain" class="btn btn-primary" type="button">Try again</button>
+        <div class="actions two" style="margin-top:0">
+          <button id="failRooms" class="btn btn-ghost" type="button">Rooms</button>
+          <button id="failGames" class="btn btn-ghost" type="button">All games</button>
         </div>
       </div>
     </div>
@@ -905,7 +981,7 @@
           <span class="body">
             <span class="tag">Hidden objects</span>
             <span class="title" role="heading" aria-level="3">The Haunted Hall</span>
-            <span class="desc">Search Emma's candlelit manor for twelve hidden treasures. Hints glow when you're stuck.</span>
+            <span class="desc">Find twelve hidden treasures before the candle burns out. Wild clicks cost time, and hints are scarce.</span>
             <span class="foot"><span class="meta">3 rooms · 12 objects each</span><span class="play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>Play</span></span>
           </span>
         </button>
@@ -1005,11 +1081,36 @@ const cursorEl = document.getElementById("cursor");
 const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 let scene = SCENES[0];
 let found = new Set();
-let hintsReady = true;
 let hintsUsed = 0;
 let musicOn = true;
 let clearTimers = [];
-let startedAt = 0, clockTid = 0, finalMs = 0;
+let clockTid = 0, finalMs = 0, finalLeft = 0;
+
+/* ---------- challenge rules ---------- */
+const DIFFS = {
+  normal: { label: "Normal", perItem: 8, base: 10, hints: 2, miss: 5, hintCost: 10, riddles: 3 },
+  hard:   { label: "Hard",   perItem: 6, base: 5,  hints: 1, miss: 8, hintCost: 15, riddles: 5 }
+};
+const HINT_COOLDOWN = 12000;   /* ms between hints */
+const SPAM_WINDOW = 2000, SPAM_MISSES = 3, CURSE_MS = 1500;
+/* Riddles only for names with one clear meaning in their room. */
+const RIDDLES = {
+  hall: { "Hourglass": "Sand that counts the seconds", "Skeleton key": "It opens what was locked", "Spectacles": "Glass eyes for tired readers", "Thimble": "A tiny cap for a sewing finger", "Treasure chest": "A box of pirate riches" },
+  kitchen: { "Rolling pin": "It flattens the dough", "Wall clock": "Hands that tick on the wall", "Hanging lantern": "It hangs high and lights the way", "Black cat": "It purrs and has nine lives" },
+  bedroom: { "Grandfather clock": "Tall, it ticks and chimes", "Hourglass": "Sand that counts the seconds", "Spectacles": "Glass eyes for tired readers", "Spell book": "Pages full of magic words", "Toy train": "It chugs along on little wheels" }
+};
+function store(k, v){ try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) {} return null; }
+let diff = store("holly.find.diff") === "hard" ? "hard" : "normal";
+let cfg = DIFFS[diff];
+function limitFor(sc, d){ const c = DIFFS[d]; return Math.round((sc.items.length * c.perItem + c.base) / 5) * 5 * 1000; }
+function bestKey(id){ return "holly.find.best." + diff + "." + id; }
+function getBest(id){ const v = parseInt(store(bestKey(id)), 10); return v > 0 ? v : 0; }
+let playing = false, limitMs = 0, deadline = 0, pausedAt = 0;
+let order = [], riddled = new Set(), revealed = new Set(), shownActive = [];
+let hintsLeft = 0, hintReadyAt = 0, misses = [], cursedUntil = 0;
+function shuffle(a){ for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+function traySize(){ return window.matchMedia("(min-width: 980px)").matches ? 5 : 4; }
+function activeItems(){ return order.filter((i) => !found.has(i)).slice(0, traySize()); }
 const flute = new Audio("flute.mp3");
 flute.loop = true;
 flute.volume = 0.16;
@@ -1113,10 +1214,10 @@ function stageXY(clientX, clientY){
   const sr = stage.getBoundingClientRect();
   return { x: clientX - sr.left, y: clientY - sr.top };
 }
-function popAt(clientX, clientY, text){
+function popAt(clientX, clientY, text, cls){
   const p = stageXY(clientX, clientY);
   const el = document.createElement("div");
-  el.className = "pop";
+  el.className = "pop" + (cls ? " " + cls : "");
   el.textContent = text;
   el.style.left = p.x + "px";
   el.style.top = p.y + "px";
@@ -1186,9 +1287,46 @@ function fmt(ms){
   const s = Math.max(0, Math.floor(ms / 1000));
   return Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
 }
-function tick(){ document.getElementById("clock").textContent = fmt(Date.now() - startedAt); }
-function startClock(){ stopClock(); startedAt = Date.now(); tick(); clockTid = setInterval(tick, 1000); }
+/* Countdown: time left = deadline - now. Penalties pull the deadline closer; pauses push it back. */
+function remaining(){ return Math.max(0, deadline - (pausedAt || Date.now())); }
+function tick(){
+  const r = remaining();
+  document.getElementById("clock").textContent = fmt(Math.ceil(r / 1000) * 1000);
+  document.getElementById("sub").classList.toggle("low", playing && r <= 15000);
+  updateHintCount();
+  if (playing && r <= 0) timeUp();
+}
+function startClock(ms){ stopClock(); limitMs = ms; deadline = Date.now() + ms; pausedAt = 0; tick(); clockTid = setInterval(tick, 250); }
 function stopClock(){ clearInterval(clockTid); clockTid = 0; }
+function pauseClock(){ if (playing && !pausedAt) pausedAt = Date.now(); }
+function resumeClock(){ if (pausedAt) { deadline += Date.now() - pausedAt; pausedAt = 0; tick(); } }
+function penalty(sec, clientX, clientY){
+  deadline -= sec * 1000;
+  const sub = document.getElementById("sub");
+  sub.classList.remove("hurt"); void sub.offsetWidth; sub.classList.add("hurt");
+  const pen = document.createElement("span");
+  pen.className = "clockpen"; pen.textContent = "−" + sec + "s";
+  sub.appendChild(pen); setTimeout(() => pen.remove(), 1000);
+  if (clientX != null) popAt(clientX, clientY, "−" + sec + "s", "pen");
+  tick();
+}
+function timeUp(){
+  if (!playing) return;
+  playing = false; stopClock();
+  document.getElementById("clock").textContent = "0:00";
+  stage.classList.remove("cursed");
+  stage.querySelectorAll(".ring.hint").forEach((n) => n.remove());
+  sfxMiss();
+  document.getElementById("failLine").textContent = "The candle burned out with " + found.size + " of " + scene.items.length + " objects found in the " + scene.name + ". Wrong clicks cost " + cfg.miss + "s each, so look before you tap.";
+  document.getElementById("fail").classList.add("on");
+  document.getElementById("failAgain").focus({ preventScroll: true });
+  track("room_failed", { room: scene.id, found: found.size, difficulty: diff });
+}
+/* Pause the countdown while a sheet, the game picker or another tab covers the room. */
+function syncPause(){
+  const covered = document.hidden || ["pick", "pay", "contact", "gate"].some((id) => document.getElementById(id).classList.contains("on"));
+  if (covered) pauseClock(); else resumeClock();
+}
 
 function imageBox(){
   const r = stage.getBoundingClientRect();
@@ -1237,23 +1375,35 @@ function drawFoundRings(fresh){
 
 function renderList(justFound){
   list.innerHTML = '<div class="tray-head"><b>Objects to find</b><span>' + found.size + " / " + scene.items.length + "</span></div>";
-  const order = scene.items.map((_, i) => i).sort((a, b) => (found.has(a) - found.has(b)) || a - b);
-  order.forEach((i) => {
+  /* Only the next few objects are shown; the rest appear as these are found. */
+  const act = activeItems();
+  const rid = RIDDLES[scene.id] || {};
+  act.forEach((i) => {
     const it = scene.items[i];
+    const isRiddle = riddled.has(i) && !revealed.has(i);
+    const label = isRiddle ? rid[it.n] : it.n;
     const b = document.createElement("button");
     b.type = "button";
-    b.className = "chip" + (found.has(i) ? " got" : "") + (i === justFound ? " just" : "");
+    b.className = "chip" + (isRiddle ? " riddle" : "") + (shownActive.length && shownActive.indexOf(i) < 0 ? " fresh" : "");
     b.dataset.i = i;
     const th = document.createElement("span");
     th.className = "th"; th.setAttribute("aria-hidden", "true");
-    cropStyle(it, th);
+    if (isRiddle) th.textContent = "?"; else cropStyle(it, th);
     const nm = document.createElement("span");
-    nm.className = "nm"; nm.textContent = it.n;
+    nm.className = "nm"; nm.textContent = label;
     b.append(th, nm);
-    b.setAttribute("aria-label", it.n + (found.has(i) ? ", found" : ", not found yet"));
-    b.onclick = () => { say(found.has(i) ? it.n + " is found" : "Find the " + it.n); };
+    b.setAttribute("aria-label", (isRiddle ? "Riddle: " : "") + label + ", not found yet");
+    b.onclick = () => { say(isRiddle ? "Riddle: " + label : "Find the " + it.n); };
     list.appendChild(b);
   });
+  shownActive = act;
+  const hiddenLeft = scene.items.length - found.size - act.length;
+  if (hiddenLeft > 0) {
+    const m = document.createElement("div");
+    m.className = "chip more";
+    m.textContent = "+" + hiddenLeft + " more hidden";
+    list.appendChild(m);
+  }
   document.getElementById("score").textContent = found.size + "/" + scene.items.length;
   document.querySelector("#progress i").style.width = (found.size / scene.items.length * 100) + "%";
   document.getElementById("roomName").textContent = scene.name.toUpperCase();
@@ -1282,7 +1432,16 @@ function openScene(sc){
     return;
   }
   clearTimers.forEach(clearTimeout); clearTimers = [];
-  scene = sc; found = new Set(); hintsReady = true; hintsUsed = 0;
+  scene = sc; found = new Set(); hintsUsed = 0;
+  cfg = DIFFS[diff];
+  hintsLeft = cfg.hints; hintReadyAt = 0; misses = []; cursedUntil = 0;
+  stage.classList.remove("cursed");
+  order = shuffle(sc.items.map((_, i) => i));
+  const ridNames = Object.keys(RIDDLES[sc.id] || {});
+  riddled = new Set(shuffle(sc.items.map((it, i) => ridNames.indexOf(it.n) >= 0 ? i : -1).filter((i) => i >= 0)).slice(0, cfg.riddles));
+  revealed = new Set(); shownActive = [];
+  document.getElementById("fail").classList.remove("on");
+  playing = true;
   updateHintCount();
   stage.querySelectorAll(".ring").forEach(n => n.remove());
   if (!pic.src || pic.src.indexOf(sc.file) < 0) pic.classList.remove("ready");
@@ -1295,8 +1454,8 @@ function openScene(sc){
   list.scrollLeft = 0; list.scrollTop = 0;
   renderList();
   markRooms();
-  startClock();
-  say(window.matchMedia("(pointer: fine)").matches ? "Click the hidden objects" : "Tap the hidden objects");
+  startClock(limitFor(sc, diff));
+  say(fmt(limitMs) + " on the clock. " + (window.matchMedia("(pointer: fine)").matches ? "Click" : "Tap") + " only what's on your list");
   startBed();
 }
 
@@ -1308,19 +1467,40 @@ function hit(clientX, clientY){
   const x = (clientX - b.left) / b.w * 100;
   const y = (clientY - b.top) / b.h * 100;
   if (x < -4 || y < -4 || x > 104 || y > 104) { say("Tap the picture"); return; }
-  let best = -1, bestD = 1e9;
-  let open = -1, openD = 1e9;
+  if (!playing) return;
+  const now = Date.now();
+  if (now < cursedUntil) return;
+  const act = activeItems();
+  let best = -1, bestD = 1e9;      /* nearest object of any kind */
+  let open = -1, openD = 1e9;      /* nearest object on the current list */
+  let other = -1;                  /* an unfound object that is not listed yet */
   scene.items.forEach((it, i) => {
     const dx = (x - it.x) / 100 * b.w;
     const dy = (y - it.y) / 100 * b.h;
     const d = Math.hypot(dx, dy);
     const rad = Math.max(48, (it.s || 12) / 100 * b.w * 1.3);
-    if (d < rad && d < bestD) { bestD = d; best = i; }
-    if (!found.has(i) && d < rad && d < openD) { openD = d; open = i; }
+    if (d >= rad) return;
+    if (d < bestD) { bestD = d; best = i; }
+    if (act.indexOf(i) >= 0 && d < openD) { openD = d; open = i; }
+    if (!found.has(i) && act.indexOf(i) < 0) other = i;
   });
-  const chosen = open >= 0 ? open : best;
-  if (chosen < 0) { missAt(clientX, clientY); sfxMiss(); say("Nothing there"); return; }
-  if (found.has(chosen)) { say("Already found"); return; }
+  if (open < 0) {
+    if (other >= 0 && !found.has(best)) { say("Not on your list yet"); return; }
+    if (best >= 0 && found.has(best)) { say("Already found"); return; }
+    /* a real miss: costs time, and wild clicking curses the cursor */
+    missAt(clientX, clientY); sfxMiss();
+    penalty(cfg.miss, clientX, clientY);
+    misses = misses.filter((t) => now - t < SPAM_WINDOW); misses.push(now);
+    if (misses.length >= SPAM_MISSES && playing) {
+      misses = []; cursedUntil = now + CURSE_MS;
+      stage.classList.add("cursed");
+      clearTimers.push(setTimeout(() => stage.classList.remove("cursed"), CURSE_MS));
+      say("Cursed! Slow down");
+      track("cursed", { room: scene.id });
+    } else if (playing) say("Nothing there");
+    return;
+  }
+  const chosen = open;
   found.add(chosen);
   const it = scene.items[chosen];
   track("object_found", { room: scene.id, object: it.n });
@@ -1332,8 +1512,10 @@ function hit(clientX, clientY){
   stage.querySelectorAll(".ring.hint").forEach((n) => n.remove());
   renderList(chosen);
   if (found.size === scene.items.length) {
-    finalMs = Date.now() - startedAt;
-    stopClock();
+    finalLeft = remaining();
+    finalMs = limitMs - finalLeft;
+    playing = false;
+    stopClock(); tick();
     say("Room cleared!");
     clearTimers.push(setTimeout(sfxClear, 350));
     clearTimers.push(setTimeout(showDone, 1500));
@@ -1342,19 +1524,24 @@ function hit(clientX, clientY){
 
 function showDone(){
   const t = finalMs;
-  const per = t / 1000 / scene.items.length;
-  let stars = 1;
-  if (hintsUsed <= 3 && per < 15) stars = 2;
-  if (hintsUsed === 0 && per < 9) stars = 3;
+  /* Stars come from the time left on the clock (penalties included). Three stars also needs no hints. */
+  const frac = finalLeft / Math.max(1, limitMs);
+  let stars = frac >= 0.4 ? 3 : frac >= 0.2 ? 2 : 1;
+  if (hintsUsed > 0) stars = Math.min(stars, 2);
+  const prev = getBest(scene.id);
+  const isNew = !prev || t < prev;
+  if (isNew) { store(bestKey(scene.id), String(t)); paintBest(); }
   document.querySelectorAll("#doneStars svg").forEach((s, i) => s.classList.toggle("on", i < stars));
   document.getElementById("doneTitle").textContent = "The " + scene.name + " is yours";
   document.getElementById("doneTime").textContent = fmt(t);
-  document.getElementById("doneFound").textContent = scene.items.length;
+  document.getElementById("doneLeft").textContent = fmt(finalLeft);
+  document.getElementById("doneBest").textContent = fmt(isNew ? t : prev);
   document.getElementById("doneHints").textContent = hintsUsed;
-  document.getElementById("doneLine").textContent = hintsUsed === 0 ? "Every hidden object found, and not a single hint." : "Every hidden object found.";
+  const tip = stars < 3 ? (hintsUsed > 0 ? " Clear it with no hints and 40% of the clock left for three stars." : " Keep 40% of the clock for three stars.") : "";
+  document.getElementById("doneLine").textContent = (isNew ? (prev ? "New best time on " : "First clear on ") + cfg.label + "!" : "Best on " + cfg.label + ": " + fmt(prev) + ".") + tip;
   document.getElementById("done").classList.add("on");
   document.getElementById("doneNext").focus({ preventScroll: true });
-  track("room_cleared", { room: scene.id, seconds: Math.round(t / 1000), hints: hintsUsed });
+  track("room_cleared", { room: scene.id, seconds: Math.round(t / 1000), hints: hintsUsed, stars: stars, difficulty: diff });
 }
 
 stage.addEventListener("pointerdown", (e) => {
@@ -1376,23 +1563,34 @@ stage.addEventListener("pointermove", (e) => {
 });
 stage.addEventListener("pointerleave", () => cursorEl.classList.remove("on"));
 pic.addEventListener("load", () => { pic.classList.add("ready"); drawFoundRings(); });
-window.addEventListener("resize", () => drawFoundRings());
+window.addEventListener("resize", () => { if (shownActive.length && activeItems().length !== shownActive.length) renderList(); else drawFoundRings(); });
 
 function updateHintCount(){
   const c = document.getElementById("hintCount");
-  c.textContent = hintsUsed;
-  c.hidden = hintsUsed === 0;
+  const hb = document.getElementById("hintBtn");
+  const wait = Math.max(0, hintReadyAt - Date.now());
+  const txt = hintsLeft <= 0 ? "0 left" : wait > 0 ? Math.ceil(wait / 1000) + "s" : hintsLeft + " left";
+  if (c.textContent !== txt) c.textContent = txt;
+  c.hidden = false;
+  hb.classList.toggle("empty", hintsLeft <= 0);
+  hb.classList.toggle("cool", hintsLeft > 0 && wait > 0);
+  hb.setAttribute("aria-label", "Hint, " + (hintsLeft <= 0 ? "none left" : hintsLeft + " left, costs " + cfg.hintCost + " seconds"));
 }
 document.getElementById("roomsBtn").onclick = () => pick.classList.add("on");
-document.getElementById("pickNo").onclick = () => pick.classList.remove("on");
+document.getElementById("pickNo").onclick = () => { pick.classList.remove("on"); if (!playing && !document.getElementById("done").classList.contains("on")) openScene(scene); };
 document.getElementById("hintBtn").onclick = () => {
-  if (!hintsReady) return;
-  const i = scene.items.findIndex((_, k) => !found.has(k));
-  if (i < 0) { say("Everything is found"); return; }
-  hintsReady = false;
-  const hb = document.getElementById("hintBtn");
-  hb.classList.add("cool");
-  setTimeout(() => { hintsReady = true; hb.classList.remove("cool"); }, 900);
+  if (!playing) return;
+  if (hintsLeft <= 0) { say("No hints left in this room"); return; }
+  const wait = hintReadyAt - Date.now();
+  if (wait > 0) { say("Hint recharging: " + Math.ceil(wait / 1000) + "s"); return; }
+  const i = activeItems()[0];
+  if (i === undefined) { say("Everything is found"); return; }
+  hintsLeft--;
+  hintReadyAt = Date.now() + HINT_COOLDOWN;
+  revealed.add(i);
+  renderList();
+  penalty(cfg.hintCost);
+  if (!playing) return;
   stage.querySelectorAll(".ring.hint").forEach((n) => n.remove());
   const el = placeRing(scene.items[i], "hint");
   setTimeout(() => { if (el.isConnected) el.classList.add("fade"); }, 3200);
@@ -1402,7 +1600,7 @@ document.getElementById("hintBtn").onclick = () => {
   list.querySelectorAll(".chip.hinted").forEach((c) => c.classList.remove("hinted"));
   const chip = list.querySelector('.chip[data-i="' + i + '"]');
   if (chip) chip.classList.add("hinted");
-  say("Look here: " + scene.items[i].n);
+  say("Look here: " + scene.items[i].n + " (−" + cfg.hintCost + "s)");
   track("hint_used", { room: scene.id, object: scene.items[i].n });
   sfxHint();
 };
@@ -1429,6 +1627,44 @@ function paintRooms() {
   });
 }
 HollyPay.onChange((s) => { paid = s.paid; paintRooms(); });
+/* Best clear time per room (current difficulty), added after paintRooms draws the cards. */
+function paintBest(){
+  SCENES.forEach((sc) => {
+    const lab = roomsEl.querySelector('[data-id="' + sc.id + '"] .label');
+    if (!lab) return;
+    let s = lab.querySelector(".best");
+    const v = getBest(sc.id);
+    if (!v) { if (s) s.remove(); return; }
+    if (!s) { s = document.createElement("span"); s.className = "best"; lab.insertBefore(s, lab.querySelector(".tag")); }
+    s.textContent = "Best " + fmt(v);
+  });
+}
+HollyPay.onChange(() => paintBest());
+function paintDiff(){
+  document.querySelectorAll("#diff button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.d === diff)));
+  ["normal", "hard"].forEach((d) => {
+    const c = DIFFS[d];
+    document.getElementById(d === "hard" ? "diffHard" : "diffNormal").textContent = fmt(limitFor(SCENES[0], d)) + " · " + c.hints + (c.hints === 1 ? " hint" : " hints") + " · −" + c.miss + "s miss";
+  });
+}
+document.querySelectorAll("#diff button").forEach((b) => {
+  b.onclick = () => {
+    if (diff === b.dataset.d) return;
+    diff = b.dataset.d;
+    store("holly.find.diff", diff);
+    paintDiff(); paintBest();
+    say(DIFFS[diff].label + " mode: starts with the next room you open");
+    track("difficulty_set", { difficulty: diff });
+  };
+});
+paintDiff();
+["pick", "pay", "contact", "gate"].forEach((id) => {
+  new MutationObserver(syncPause).observe(document.getElementById(id), { attributes: true, attributeFilter: ["class"] });
+});
+document.addEventListener("visibilitychange", syncPause);
+document.getElementById("failAgain").onclick = () => openScene(scene);
+document.getElementById("failRooms").onclick = () => { document.getElementById("fail").classList.remove("on"); pick.classList.add("on"); };
+document.getElementById("failGames").onclick = () => backToGames();
 document.getElementById("payNo").onclick = () => document.getElementById("pay").classList.remove("on");
 document.getElementById("payGo").addEventListener("click", () => {
   sessionStorage.setItem("holly.payStarted", String(Date.now()));
@@ -1480,9 +1716,11 @@ document.getElementById("playStack").addEventListener("click", () => {
 });
 function backToGames(){
   clearTimers.forEach(clearTimeout); clearTimers = [];
+  playing = false;
   stopClock();
+  stage.classList.remove("cursed");
   flute.pause();
-  ["pick", "pay", "contact", "done"].forEach((id) => document.getElementById(id).classList.remove("on"));
+  ["pick", "pay", "contact", "done", "fail"].forEach((id) => document.getElementById(id).classList.remove("on"));
   setGate(true);
   document.getElementById("playFind").focus({ preventScroll: true });
   track("game_picker_view");
@@ -1495,7 +1733,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
   ["contact", "pay", "done", "pick"].some((id) => {
     const el = document.getElementById(id);
-    if (el.classList.contains("on")) { el.classList.remove("on"); return true; }
+    if (el.classList.contains("on")) { if (id === "pick") document.getElementById("pickNo").click(); else el.classList.remove("on"); return true; }
     return false;
   });
 });
