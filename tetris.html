@@ -129,6 +129,38 @@
     .bar { margin-top: 12px; height: 8px; border-radius: 99px; background: rgba(0, 0, 0, .4); box-shadow: inset 0 1px 2px rgba(0, 0, 0, .6); overflow: hidden; }
     .bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #a46bff, #ff6fb0 60%, #ffb347); box-shadow: 0 0 10px rgba(255, 120, 180, .7); transition: width .4s cubic-bezier(.3, 1.3, .5, 1); }
     .bar-cap { margin-top: 6px; font: 500 11px/1 var(--hs-ui); color: rgba(255, 238, 214, .55); }
+    .haunt-row { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, .09); }
+    .haunt-row .lbl span:last-child { letter-spacing: .04em; text-transform: none; color: rgba(255, 238, 214, .7); font-weight: 500; }
+    .haunt-row .bar { margin-top: 7px; }
+    .haunt-row .bar i { background: linear-gradient(90deg, #6c5a8e, #b7a8ff 55%, #ff4f6a); box-shadow: 0 0 10px rgba(183, 168, 255, .6); transition: width .25s linear; }
+    .haunt-row.off { opacity: .5; }
+    .haunt-row.hot .bar i { animation: hotBar .5s ease-in-out infinite alternate; }
+    .haunt-strip {
+      position: absolute; z-index: 2; left: 16%; right: 16%; bottom: -4px; height: 7px;
+      border-radius: 99px; background: rgba(10, 4, 18, .85); border: 1px solid rgba(183, 168, 255, .35);
+      overflow: hidden; opacity: 0; transition: opacity .3s; pointer-events: none;
+    }
+    .haunt-strip.on { opacity: 1; }
+    .haunt-strip i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #7a68a0, #b7a8ff 55%, #ff4f6a); box-shadow: 0 0 8px rgba(183, 168, 255, .8); }
+    .haunt-strip.hot { border-color: #ff4f6a; box-shadow: 0 0 14px rgba(255, 79, 106, .8); animation: hotBar .45s ease-in-out infinite alternate; }
+    .notice {
+      position: absolute; left: 50%; bottom: 9%; transform: translateX(-50%);
+      max-width: 94%; padding: 7px 13px; border-radius: 999px; opacity: 0;
+      font: 700 13px/1.15 var(--hs-ui); color: #f3e9ff; text-align: center; width: max-content; text-wrap: balance;
+      background: linear-gradient(180deg, rgba(90, 40, 150, .92), rgba(40, 14, 70, .92));
+      border: 1px solid rgba(200, 170, 255, .55); box-shadow: 0 0 22px rgba(160, 90, 255, .55), 0 8px 18px rgba(0, 0, 0, .5);
+    }
+    .notice.warn { background: linear-gradient(180deg, rgba(150, 30, 60, .94), rgba(70, 10, 30, .94)); border-color: rgba(255, 160, 170, .6); box-shadow: 0 0 22px rgba(255, 60, 90, .6), 0 8px 18px rgba(0, 0, 0, .5); }
+    .notice.show { animation: noticePop 2.4s ease-out forwards; }
+    .diff { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 14px 0 0; padding: 4px; border-radius: 16px; background: rgba(0, 0, 0, .3); border: 1px solid rgba(255, 255, 255, .1); }
+    .diff-btn {
+      min-height: 40px; border: 0; border-radius: 12px; background: transparent; cursor: pointer;
+      font: 700 15px/1 var(--hs-ui); color: rgba(255, 238, 214, .7); letter-spacing: .02em;
+    }
+    .diff-btn[aria-checked="true"] { color: #2a0b00; background: linear-gradient(180deg, #ffe08a, #ff9a3a); box-shadow: 0 2px 0 #8a2e00, inset 0 1px 0 rgba(255, 255, 255, .6); }
+    .diff-btn[data-diff="nightmare"][aria-checked="true"] { color: #fff; background: linear-gradient(180deg, #c06bff, #6a1fb0); box-shadow: 0 2px 0 #2e0f6b, 0 0 16px rgba(170, 90, 255, .6), inset 0 1px 0 rgba(255, 255, 255, .4); }
+    .diff-btn:focus-visible { outline: 2px solid rgba(255, 236, 200, .6); outline-offset: 2px; }
+    .diff-note { margin: 7px auto 0; max-width: 40ch; font: 500 12.5px/1.35 var(--hs-ui); color: rgba(255, 238, 214, .7); text-wrap: balance; }
     .keys-card ul { list-style: none; margin-top: 10px; display: grid; gap: 7px; }
     .keys-card li { display: flex; align-items: center; justify-content: space-between; gap: 8px; font: 500 12.5px/1.1 var(--hs-ui); color: rgba(255, 238, 214, .8); }
     .keys-card li span:first-child { display: flex; gap: 4px; flex-wrap: wrap; }
@@ -350,6 +382,14 @@
     .ov-art canvas { width: 36px; height: 36px; animation: floaty 2.6s ease-in-out infinite; }
 
     @keyframes glow { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }
+    @keyframes hotBar { 0% { filter: brightness(1); } 100% { filter: brightness(1.5); } }
+    @keyframes noticePop {
+      0% { opacity: 0; transform: translateX(-50%) translateY(10px) scale(.85); }
+      10% { opacity: 1; transform: translateX(-50%) translateY(0) scale(1.04); }
+      18% { transform: translateX(-50%) scale(1); }
+      82% { opacity: 1; }
+      100% { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+    }
     @keyframes batBob { 0%, 100% { transform: translateX(-50%) translateY(0); } 50% { transform: translateX(-50%) translateY(3px); } }
     @keyframes bump { 0% { transform: scale(1); } 40% { transform: scale(1.12); } 100% { transform: scale(1); } }
     @keyframes cardFlash { 0% { box-shadow: 0 0 0 2px #58d8a8, 0 0 30px rgba(88, 216, 168, .8); } 100% { box-shadow: 0 14px 34px rgba(0, 0, 0, .42); } }
@@ -389,7 +429,8 @@
       .panel { display: contents; }
       .hold-card { grid-area: hold; } .score-card { grid-area: score; } .lvl-card { grid-area: lvl; } .next-card { grid-area: next; }
       .stage { grid-area: stage; }
-      .keys-card, .bar-cap { display: none; }
+      .keys-card, .bar-cap, .haunt-row { display: none; }
+      .notice { font-size: 11.5px; padding: 6px 10px; }
       .card { padding: 6px 8px 7px; border-radius: 14px; min-width: 0; box-shadow: 0 8px 18px rgba(0, 0, 0, .4), inset 0 1px 0 rgba(255, 255, 255, .06); }
       .lbl { font-size: 9px; letter-spacing: .16em; }
       .lbl .kc { display: none; }
@@ -418,7 +459,7 @@
       .cast canvas { width: 36px; height: 36px; }
     }
     @media (prefers-reduced-motion: reduce) {
-      .well::after, .orn.bat, .cast canvas, .ov-art canvas, .btn-play, .btn-play::after, .ribbon { animation: none !important; }
+      .well::after, .orn.bat, .cast canvas, .ov-art canvas, .btn-play, .btn-play::after, .ribbon, .haunt-strip.hot, .haunt-row.hot .bar i { animation: none !important; }
     }
   </style>
 </head>
@@ -462,7 +503,11 @@
           <div><div class="lbl"><span>Lines</span></div><b id="lines">0</b></div>
         </div>
         <div class="bar" aria-hidden="true"><i id="lvlBar"></i></div>
-        <div class="bar-cap" id="barCap">10 lines to level 2</div>
+        <div class="bar-cap" id="barCap">8 lines to level 2</div>
+        <div class="haunt-row off" id="hauntRow">
+          <div class="lbl"><span>Haunt</span><span id="hauntCap">from level 3</span></div>
+          <div class="bar" aria-hidden="true"><i id="hauntBar"></i></div>
+        </div>
       </section>
     </aside>
 
@@ -476,8 +521,10 @@
         <svg class="orn jack r" viewBox="0 0 64 60" aria-hidden="true"><path d="M30 10c0-5 3-8 7-9l2 3c-3 1-4 3-4 6z" fill="#5aa832"/><ellipse cx="32" cy="35" rx="29" ry="23" fill="url(#jg)"/><path d="M21 13c-6 6-7 36 0 44M43 13c6 6 7 36 0 44" fill="none" stroke="#a63a06" stroke-opacity=".5" stroke-width="2"/><path d="M16 30l8-8 4 8zM36 30l8-8 4 8zM14 40q18 16 36 0l-5 1-3 4-4-4-4 4-4-4-4 4-3-4z" fill="#ffe56a" stroke="#5a1a00" stroke-width="1.6" stroke-linejoin="round"/></svg>
         <div class="fx">
           <div class="banner" id="banner" aria-live="polite"><div class="bt" id="bt"></div><div class="bs" id="bs"></div></div>
-          <div class="lvlup" id="lvlup"><div class="lt" id="lt">Level 2</div><div class="ls">Faster!</div></div>
+          <div class="lvlup" id="lvlup"><div class="lt" id="lt">Level 2</div><div class="ls" id="ls">Faster!</div></div>
+          <div class="notice" id="notice" role="status"></div>
         </div>
+        <div class="haunt-strip" id="hauntStrip" aria-hidden="true"><i id="hauntFill"></i></div>
       </div>
     </main>
 
@@ -533,6 +580,11 @@
           <li><span class="ic keys"><span class="kc">C</span></span><span><b>Hold</b>swap a piece</span></li>
           <li class="wide"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="6" y="3" width="12" height="18" rx="6"/><path d="M12 7v4"/></svg></span><span><b>Mouse wheel</b>soft drop · P pauses</span></li>
         </ul>
+        <div class="diff" role="radiogroup" aria-label="Difficulty">
+          <button type="button" class="diff-btn" role="radio" data-diff="normal" aria-checked="true">Normal</button>
+          <button type="button" class="diff-btn" role="radio" data-diff="nightmare" aria-checked="false">Nightmare</button>
+        </div>
+        <p class="diff-note" id="diffNote"></p>
         <div class="best-pill"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 8l4.5 4L12 5l4.5 7L21 8l-2 11H5L3 8z"/></svg>Best <b id="bestStart">0</b></div>
         <div class="cta">
           <button class="btn btn-play" id="playBtn" type="button">Play</button>
@@ -596,8 +648,21 @@ const PAL = {
   skull:   { hi: "#fff2d2", mid: "#e8c98e", lo: "#a8803e", glow: "#f5d79a", edge: "rgba(70,40,10,.55)" },
   cat:     { hi: "#6e5c95", mid: "#2e2448", lo: "#100b1c", glow: "#8dff5a", edge: "rgba(190,160,255,.6)" },
   witch:   { hi: "#c2ff8e", mid: "#4fcf4a", lo: "#1a7a2c", glow: "#7dff6a", edge: "rgba(10,50,10,.55)" },
-  candy:   { hi: "#ffffff", mid: "#ffe3ef", lo: "#ffb3d4", glow: "#ff7ab8", edge: "rgba(150,10,70,.55)" }
+  candy:   { hi: "#ffffff", mid: "#ffe3ef", lo: "#ffb3d4", glow: "#ff7ab8", edge: "rgba(150,10,70,.55)" },
+  grave:   { hi: "#8f87a6", mid: "#4f4866", lo: "#2a2438", glow: "#b7a8ff", edge: "rgba(10,4,20,.7)" }
 };
+/* "grave" is the garbage tile that rises from below; it is never dealt from the bag. */
+const ALL_TILES = TYPES.concat(["grave"]);
+/* ---- difficulty tuning ---- */
+const LINES_PER_LEVEL = 8;        /* was 10 */
+const LOCK_MS = 500;              /* lock delay once a piece touches down */
+const MAX_RESETS = 15;            /* moves/turns on the ground that restart the lock timer */
+const HAUNT_FROM = 3, CURSE_FROM = 5;
+/* rows-per-drop interval: 560ms at level 1, x0.8 per level, 75ms at 10, one frame by 17+ */
+function gravityMs(L) { return Math.max(17, Math.round(560 * Math.pow(0.8, L - 1))); }
+/* seconds between graves rising: 24s at level 3, 2s quicker per level, 6s floor */
+function hauntSecs(L) { return Math.max(6, 24 - (L - HAUNT_FROM) * 2); }
+function hauntRows(L) { return L >= 9 ? 2 : 1; }
 const RMQ = matchMedia("(prefers-reduced-motion: reduce)");
 let RM = RMQ.matches;
 RMQ.addEventListener && RMQ.addEventListener("change", e => { RM = e.matches; bgDirty = true; });
@@ -612,8 +677,12 @@ const scoreEl = $("score"), bestEl = $("best");
 
 let grid = Array.from({length: ROWS}, () => Array(COLS).fill(null));
 let piece = null, bag = [], queue = [], holdType = null, canHold = true;
-let score = 0, lines = 0, dropMs = 720, acc = 0, running = false, over = false, paused = false;
-let combo = 0, dispScore = 0, shownLines = -1, shownLevel = -1;
+let score = 0, lines = 0, dropMs = gravityMs(1), acc = 0, running = false, over = false, paused = false;
+let startLevel = 1, b2b = false, lastRot = false;
+let hauntT = 0, hauntWarned = false, riseAnim = null, nextGap = 0;
+let curseQ = [], holdCursed = false, sinceCurse = 0, curseExplained = false;
+function curLevel() { return startLevel + Math.floor(lines / LINES_PER_LEVEL); }
+let combo = 0, dispScore = 0, shownLines = -1, shownLevel = -1, shownHaunt = -1, shownHauntOn = null;
 let S = 30, dpr = 1, now = 0;
 let sprites = {}, wellBg = null;
 let clearAnim = null, lockFx = null, overAnim = null, idleBlink = null, nextBlinkAt = 0, pieceBlinkUntil = 0, pieceNextBlink = 2;
@@ -624,6 +693,17 @@ function store(k, v) { try { if (v === undefined) return localStorage.getItem(k)
 let bestScore = Number(store("hollyStack.best") || 0);
 bestEl.textContent = bestScore.toLocaleString("en-US");
 $("bestStart").textContent = bestScore.toLocaleString("en-US");
+let diff = store("hollyStack.diff") === "nightmare" ? "nightmare" : "normal";
+const DIFF_NOTE = {
+  normal: "Start at level 1. Speed climbs every 8 lines, graves rise from level 3, cursed pieces from level 5.",
+  nightmare: "Start at level 5: fast drops, rising graves and cursed pieces from the first move."
+};
+function renderDiff() {
+  document.querySelectorAll(".diff-btn").forEach(b => b.setAttribute("aria-checked", String(b.dataset.diff === diff)));
+  $("diffNote").textContent = DIFF_NOTE[diff];
+}
+document.querySelectorAll(".diff-btn").forEach(b => b.addEventListener("click", () => { diff = b.dataset.diff; store("hollyStack.diff", diff); renderDiff(); }));
+renderDiff();
 
 function track(name, props) { if (window.posthog) posthog.capture(name, props || {}); }
 function haptic(p) { if (lastInputTouch && navigator.vibrate) { try { navigator.vibrate(p); } catch (e) {} } }
@@ -677,7 +757,11 @@ const sfx = {
   },
   level: () => [392, 523.25, 659.25, 783.99, 1046.5].forEach((f, i) => blip(f, 0.18, "square", 0.035, 0, i * 0.07)),
   over: () => { [392, 349.2, 311.1, 233.1].forEach((f, i) => blip(f, 0.32, "sawtooth", 0.045, f * 0.97, i * 0.2)); hiss(0.6, 0.05, 500, 0.1); },
-  start: () => [523.25, 783.99, 1046.5].forEach((f, i) => blip(f, 0.14, "triangle", 0.06, 0, i * 0.07))
+  start: () => [523.25, 783.99, 1046.5].forEach((f, i) => blip(f, 0.14, "triangle", 0.06, 0, i * 0.07)),
+  warn: () => { blip(233.1, 0.22, "sawtooth", 0.04, 207.7); blip(233.1, 0.22, "sawtooth", 0.04, 207.7, 0.28); },
+  rise: () => { blip(98, 0.4, "sawtooth", 0.07, 49); hiss(0.45, 0.09, 380); },
+  curse: () => { blip(466.2, 0.3, "triangle", 0.05, 233.1); blip(349.2, 0.35, "sine", 0.04, 174.6, 0.12); },
+  spin: () => [783.99, 987.8, 1174.7, 1568].forEach((f, i) => blip(f, 0.14, "triangle", 0.06, 0, i * 0.045))
 };
 
 /* ================= tile art ================= */
@@ -829,6 +913,27 @@ const ICON = {
     for (let t = 0; t <= Math.PI * 3.2; t += 0.12) { const r = (2 + t * 1.75) * u; const x = Math.cos(t) * r, y = Math.sin(t) * r; t === 0 ? c.moveTo(x, y) : c.lineTo(x, y); }
     c.stroke();
     c.fillStyle = "rgba(255,255,255,.95)"; dot(c, -9 * u, -10 * u, 3 * u);
+  },
+  grave(c, u, b) {
+    /* cobweb in the top-left corner */
+    c.strokeStyle = "rgba(235,225,255,.5)"; c.lineWidth = 1.3 * u; c.lineCap = "round";
+    c.beginPath();
+    c.moveTo(-44 * u, -44 * u); c.lineTo(-16 * u, -42 * u); c.moveTo(-44 * u, -44 * u); c.lineTo(-42 * u, -16 * u); c.moveTo(-44 * u, -44 * u); c.lineTo(-24 * u, -24 * u);
+    c.moveTo(-32 * u, -43 * u); c.quadraticCurveTo(-32 * u, -32 * u, -43 * u, -32 * u);
+    c.moveTo(-22 * u, -42.5 * u); c.quadraticCurveTo(-24 * u, -24 * u, -42.5 * u, -22 * u);
+    c.stroke();
+    /* headstone */
+    const g = c.createLinearGradient(0, -34 * u, 0, 36 * u); g.addColorStop(0, "#e9e4f4"); g.addColorStop(1, "#9890ad");
+    c.fillStyle = g; c.strokeStyle = "#231c33"; c.lineWidth = 2.6 * u; c.lineJoin = "round";
+    c.beginPath(); c.moveTo(-22 * u, 34 * u); c.lineTo(-22 * u, -12 * u); c.arc(0, -12 * u, 22 * u, Math.PI, 0); c.lineTo(22 * u, 34 * u); c.closePath(); c.fill(); c.stroke();
+    c.fillStyle = b ? "#9dff7a" : "#3a3150";
+    if (b) { c.shadowColor = "#7dff5a"; c.shadowBlur = 6 * u; }
+    c.font = "800 " + (15 * u).toFixed(1) + "px Fredoka, system-ui, sans-serif"; c.textAlign = "center"; c.textBaseline = "middle";
+    c.fillText("RIP", 0, -8 * u);
+    c.shadowBlur = 0;
+    c.strokeStyle = "#3a3150"; c.lineWidth = 1.8 * u;
+    c.beginPath(); c.moveTo(8 * u, 6 * u); c.lineTo(3 * u, 14 * u); c.lineTo(9 * u, 20 * u); c.lineTo(5 * u, 28 * u); c.stroke();
+    c.fillStyle = "#4a8a2a"; ell(c, -12 * u, 33 * u, 9 * u, 3.5 * u); ell(c, 13 * u, 33 * u, 8 * u, 3 * u);
   }
 };
 function drawTile(c, type, s, blink) {
@@ -870,7 +975,7 @@ function drawTile(c, type, s, blink) {
 }
 function buildSprites() {
   const px = Math.max(8, Math.round(S * dpr));
-  TYPES.forEach(t => {
+  ALL_TILES.forEach(t => {
     sprites[t] = [0, 1].map(b => {
       const c = document.createElement("canvas"); c.width = c.height = px;
       const x = c.getContext("2d"); drawTile(x, t, px, !!b); return c;
@@ -914,18 +1019,37 @@ function take() {
   }
   return bag.pop();
 }
-function fillQueue() { while (queue.length < 4) queue.push(take()); }
-function makePiece(type) {
+function fillQueue() {
+  while (queue.length < 4) {
+    queue.push(take());
+    /* cursed pieces: from level 5, roughly one in six, never two within four pieces */
+    const L = curLevel();
+    let cursed = false;
+    if (L >= CURSE_FROM) {
+      sinceCurse++;
+      if (sinceCurse >= 4 && Math.random() < Math.min(0.3, 0.16 + 0.02 * (L - CURSE_FROM))) { cursed = true; sinceCurse = 0; }
+    }
+    curseQ.push(cursed);
+  }
+}
+function makePiece(type, cursed) {
   const sh = SHAPES[type];
-  piece = { type, n: sh.n, x: Math.floor((COLS - sh.n) / 2), y: type === "bat" ? -1 : 0, cells: sh.cells.map(c => c.slice()) };
+  const y = type === "bat" ? -1 : 0;
+  piece = { type, n: sh.n, x: Math.floor((COLS - sh.n) / 2), y, cells: sh.cells.map(c => c.slice()), lockT: 0, resets: 0, lowest: y, cursed: !!cursed };
+  lastRot = false;
   pieceNextBlink = now + 1.5 + Math.random() * 2;
-  if (collide(piece)) endGame();
+  if (collide(piece)) { endGame(); return; }
+  if (piece.cursed) {
+    sfx.curse();
+    notice(curseExplained ? "Cursed piece: no landing guide" : "Cursed! This piece hides its landing guide", "");
+    curseExplained = true;
+  }
 }
 function spawn() {
   fillQueue();
-  const type = queue.shift();
+  const type = queue.shift(), cursed = curseQ.shift();
   fillQueue();
-  makePiece(type);
+  makePiece(type, cursed);
   drawPreviews();
 }
 function collide(p, dx, dy, cells) {
@@ -937,20 +1061,43 @@ function collide(p, dx, dy, cells) {
   }
   return false;
 }
+const grounded = () => collide(piece, 0, 1);
+/* a successful move or turn while resting on the stack restarts the lock timer, at most MAX_RESETS times */
+function touched(wasGrounded) {
+  if ((wasGrounded || piece.lockT > 0) && piece.resets < MAX_RESETS) { piece.resets++; piece.lockT = 0; }
+}
+/* reaching a new lowest row gives the move allowance back (so it can't be used to stall forever) */
+function fell() {
+  if (piece.y > piece.lowest) { piece.lowest = piece.y; piece.resets = 0; piece.lockT = 0; }
+  lastRot = false;
+}
 function rotate(dir) {
   if (piece.type === "pumpkin") return;
-  const n = piece.n;
+  const n = piece.n, g = grounded();
   const rot = dir < 0 ? piece.cells.map(([x, y]) => [y, n - 1 - x]) : piece.cells.map(([x, y]) => [n - 1 - y, x]);
   const kicks = [[0,0],[-1,0],[1,0],[-2,0],[2,0],[0,-1]];
   for (const [kx, ky] of kicks) {
     if (!collide(piece, kx, ky, rot)) {
       piece.cells = rot; piece.x += kx; piece.y += ky;
+      lastRot = true;
+      touched(g);
       sfx.rotate();
       return;
     }
   }
 }
+/* T-spin check for the ghost (T) piece: last move was a turn and 3 of the 4 box corners are blocked */
+function isGhostSpin() {
+  if (piece.type !== "ghost" || !lastRot) return false;
+  let k = 0;
+  [[0, 0], [2, 0], [0, 2], [2, 2]].forEach(([cx, cy]) => {
+    const x = piece.x + cx, y = piece.y + cy;
+    if (x < 0 || x >= COLS || y >= ROWS || (y >= 0 && grid[y][x])) k++;
+  });
+  return k >= 3;
+}
 function lock() {
+  const spin = isGhostSpin();
   const placed = [];
   for (const [cx, cy] of piece.cells) {
     const y = piece.y + cy, x = piece.x + cx;
@@ -965,6 +1112,7 @@ function lock() {
   const full = [];
   for (let y = 0; y < ROWS; y++) if (grid[y].every(Boolean)) full.push(y);
   const cleared = full.length;
+  const level = curLevel();
   if (cleared) {
     const old = grid.map(r => r.slice());
     const kept = grid.filter(row => !row.every(Boolean));
@@ -972,21 +1120,34 @@ function lock() {
     const map = [];
     for (let oi = ROWS - 1, ni = ROWS - 1; oi >= 0; oi--) if (!full.includes(oi)) map[ni--] = oi;
     grid = kept;
-    const level = 1 + Math.floor(lines / 10);
     combo++;
-    let add = [0, 100, 300, 500, 800][Math.min(4, cleared)] * level;
+    const hard4 = cleared >= 4 || spin;
+    let add = (spin ? [400, 800, 1200, 1600][Math.min(3, cleared)] : [0, 100, 300, 500, 800][Math.min(4, cleared)]) * level;
+    const isB2B = hard4 && b2b;
+    if (isB2B) add = Math.round(add * 1.5);
+    b2b = hard4;
     const bonus = combo > 1 ? 50 * (combo - 1) * level : 0;
     score += add + bonus;
     lines += cleared;
-    dropMs = Math.max(140, 720 - Math.floor(lines / 10) * 60);
-    const newLevel = 1 + Math.floor(lines / 10);
+    dropMs = gravityMs(curLevel());
+    /* clearing lines pushes the graves back: 30% of the interval per line, a 4-line clear wipes it */
+    if (hauntT > 0) {
+      hauntT = cleared >= 4 ? 0 : Math.max(0, hauntT - cleared * hauntSecs(level) * 0.3);
+      if (hauntT < hauntSecs(level) * 0.75) hauntWarned = false;
+    }
+    const newLevel = curLevel();
     clearAnim = { rows: full, old, map, t: 0, popped: false, cleared };
     piece = null;
-    lineFx(full, old, cleared, add + bonus);
+    lineFx(full, old, cleared, add + bonus, spin, isB2B);
     if (newLevel > level) setTimeout(() => levelUp(newLevel), RM ? 0 : 650);
-    track("tetris_line", { lines: cleared });
+    track("tetris_line", { lines: cleared, spin, b2b: isB2B });
   } else {
     combo = 0;
+    if (spin) {
+      score += 400 * level;
+      sfx.spin();
+      banner("Ghost Spin!", '<span class="pill">+' + (400 * level).toLocaleString("en-US") + "</span>", "k1");
+    }
   }
   score += 4;
   canHold = true;
@@ -997,32 +1158,55 @@ function hard() {
   if (!piece) return;
   const startY = piece.y;
   let d = 0;
-  while (!collide(piece, 0, 1)) { piece.y++; score += 1; d++; }
+  while (!collide(piece, 0, 1)) { piece.y++; score += 2; d++; }
+  if (d) lastRot = false;
   addTrail(piece, startY);
   dust(piece, 1);
   shake(Math.min(7, 2.5 + d * 0.22), 0.24);
   sfx.drop(); haptic(16);
   lock();
 }
-function step() {
-  if (collide(piece, 0, 1)) { dust(piece, 0.4); lock(); }
-  else piece.y++;
+/* graves rise from below, each batch shares one gap so it can be cleared */
+function riseGarbage(n) {
+  let topOut = false;
+  const gap = nextGap;
+  for (let k = 0; k < n; k++) {
+    if (grid[0].some(Boolean)) topOut = true;
+    grid.shift();
+    grid.push(Array.from({ length: COLS }, (_, x) => x === gap ? null : "grave"));
+  }
+  /* the next batch keeps the same gap 60% of the time; the warning silhouettes show it in advance */
+  if (Math.random() >= 0.6) nextGap = Math.floor(Math.random() * COLS);
+  lockFx = null; idleBlink = null;
+  if (piece) {
+    let up = 0;
+    while (collide(piece) && up < n + 2) { piece.y--; up++; }
+    if (up) piece.lowest = piece.y;
+  }
+  riseAnim = { t: 0, n };
+  sfx.rise(); shake(5, 0.35); haptic([20, 40, 30]);
+  if (!RM) for (let x = 0; x < COLS; x++) if (x !== gap) particles.push({ k: "dust", x: (x + 0.5) * S, y: ROWS * S - 2, vx: (Math.random() - 0.5) * 60, vy: -(40 + Math.random() * 80), r: S * 0.12, gr: S * 0.5, life: 0, max: 0.5 + Math.random() * 0.3 });
+  if (topOut || (piece && collide(piece))) endGame();
+  track("tetris_haunt", { rows: n, level: curLevel() });
 }
 function hold() {
   if (!canHold) { sfx.deny(); return; }
-  const t = piece.type;
+  const t = piece.type, tc = piece.cursed;
   canHold = false;
-  if (holdType) { const h = holdType; holdType = t; makePiece(h); }
-  else { holdType = t; spawn(); }
+  if (holdType) { const h = holdType, hc = holdCursed; holdType = t; holdCursed = tc; makePiece(h, hc); }
+  else { holdType = t; holdCursed = tc; spawn(); }
   sfx.hold(); haptic(10);
   const hc = $("holdCard"); hc.classList.remove("flash"); void hc.offsetWidth; hc.classList.add("flash");
   drawPreviews();
 }
 function act(name) {
   if (!running || paused || !piece || clearAnim) return;
-  if (name === "left") { if (!collide(piece, -1, 0)) { piece.x--; sfx.move(); } }
-  else if (name === "right") { if (!collide(piece, 1, 0)) { piece.x++; sfx.move(); } }
-  else if (name === "down") { if (collide(piece, 0, 1)) { dust(piece, 0.4); lock(); } else { piece.y++; score += 1; acc = 0; } }
+  if (name === "left" || name === "right") {
+    const dx = name === "left" ? -1 : 1, g = grounded();
+    if (!collide(piece, dx, 0)) { piece.x += dx; lastRot = false; touched(g); sfx.move(); }
+  }
+  /* soft drop never locks on its own; the lock delay does that */
+  else if (name === "down") { if (!collide(piece, 0, 1)) { piece.y++; score += 1; acc = 0; fell(); } }
   else if (name === "rot") rotate(1);
   else if (name === "ccw") rotate(-1);
   else if (name === "drop") hard();
@@ -1041,19 +1225,24 @@ function endGame() {
   sfx.over(); haptic([40, 60, 80]);
   shake(6, 0.45);
   setTimeout(() => { if (over) showView("over"); }, RM ? 200 : 1000);
-  track("tetris_ended", { score, lines });
+  track("tetris_ended", { score, lines, level: curLevel(), diff });
 }
 function start() {
   unlockAudio();
   grid = Array.from({length: ROWS}, () => Array(COLS).fill(null));
-  score = 0; lines = 0; dropMs = 720; acc = 0; over = false; running = true; paused = false;
-  combo = 0; dispScore = 0; holdType = null; canHold = true;
+  startLevel = diff === "nightmare" ? 5 : 1;
+  score = 0; lines = 0; dropMs = gravityMs(startLevel); acc = 0; over = false; running = true; paused = false;
+  combo = 0; dispScore = 0; holdType = null; canHold = true; b2b = false; lastRot = false;
+  hauntT = 0; hauntWarned = false; riseAnim = null; nextGap = Math.floor(Math.random() * COLS);
+  curseQ = []; holdCursed = false; sinceCurse = 0; curseExplained = false;
+  shownLevel = -1;
   clearAnim = null; lockFx = null; overAnim = null; particles = []; trails = [];
   bag = []; queue = [];
   hideVeil();
   spawn();
   sfx.start();
-  track("tetris_started");
+  if (startLevel >= CURSE_FROM) setTimeout(() => { if (running && !piece?.cursed) notice("Nightmare: graves rise and curses strike from the start", "warn"); }, 300);
+  track("tetris_started", { diff });
 }
 function setPaused(v) {
   if (v && !running) return;
@@ -1089,15 +1278,18 @@ function dust(p, power) {
     }
   });
 }
-function lineFx(rows, old, n, pts) {
+function lineFx(rows, old, n, pts, spin, isB2B) {
   sfx.clear(n);
-  haptic(n >= 4 ? [30, 40, 60] : n > 1 ? [20, 30] : 18);
-  shake(n >= 4 ? 9 : 2 + n * 1.5, n >= 4 ? 0.5 : 0.3);
+  if (spin) sfx.spin();
+  haptic(n >= 4 || spin ? [30, 40, 60] : n > 1 ? [20, 30] : 18);
+  shake(n >= 4 ? 9 : spin ? 6 : 2 + n * 1.5, n >= 4 ? 0.5 : 0.3);
   const titles = ["", "Nice!", "Double!", "Triple!", "HOLLY<br>STACK!"]; n = Math.min(4, n);
+  const spinTitles = ["", "Ghost Spin<br>Single!", "Ghost Spin<br>Double!", "Ghost Spin<br>Triple!"];
   const pills = [];
   pills.push('<span class="pill">+' + pts.toLocaleString("en-US") + "</span>");
+  if (isB2B) pills.push('<span class="pill hot">Back-to-back ×1.5</span>');
   if (combo > 1) pills.push('<span class="pill hot">Combo ×' + combo + "</span>");
-  banner(titles[n], pills.join(""), "k" + n);
+  banner(spin ? spinTitles[Math.min(3, n)] : titles[n], pills.join(""), spin ? "k4" : "k" + n);
   const mid = rows.reduce((a, b) => a + b, 0) / rows.length;
   particles.push({ k: "ring", x: COLS * S / 2, y: (mid + 0.5) * S, life: 0, max: 0.55, n });
   if (n >= 4 && !RM) {
@@ -1131,15 +1323,25 @@ function banner(html, sub, kind) {
   void el.offsetWidth;
   el.className = "banner " + kind + " show";
 }
+
+function notice(text, kind) {
+  const el = $("notice");
+  el.textContent = text;
+  el.className = "notice" + (kind ? " " + kind : "");
+  void el.offsetWidth;
+  el.className = "notice" + (kind ? " " + kind : "") + " show";
+}
 function levelUp(lv) {
   if (!running) return;
   const el = $("lvlup");
   $("lt").textContent = "Level " + lv;
+  $("ls").textContent = lv === HAUNT_FROM ? "Graves start rising!" : lv === CURSE_FROM ? "Cursed pieces appear!" : lv >= 10 ? "Much faster!" : "Faster!";
+  if (lv === HAUNT_FROM) setTimeout(() => { if (running) notice("Watch the haunt meter. Clear lines to push graves back", ""); }, 900);
   el.classList.remove("show"); void el.offsetWidth; el.classList.add("show");
   sfx.level();
   if (!RM) for (let i = 0; i < 26; i++) particles.push({ k: "spark", x: Math.random() * COLS * S, y: Math.random() * ROWS * S * 0.5, r: S * (0.2 + Math.random() * 0.3), life: 0, max: 0.6 + Math.random() * 0.5 });
 }
-const CLEAR_FLASH = 0.24, CLEAR_FALL = 0.17;
+const CLEAR_FLASH = 0.24, CLEAR_FALL = 0.17, RISE_T = 0.2;
 function updateFx(dt) {
   if (clearAnim) {
     clearAnim.t += dt;
@@ -1148,6 +1350,7 @@ function updateFx(dt) {
     if (clearAnim.t >= flash + fall) { clearAnim = null; if (running) spawn(); }
   }
   if (lockFx) { lockFx.t += dt; if (lockFx.t > 0.22) lockFx = null; }
+  if (riseAnim) { riseAnim.t += dt; if (riseAnim.t >= RISE_T) riseAnim = null; }
   if (overAnim) overAnim.t += dt;
   for (let i = trails.length - 1; i >= 0; i--) { trails[i].t += dt; if (trails[i].t > 0.28) trails.splice(i, 1); }
   for (let i = particles.length - 1; i >= 0; i--) {
@@ -1236,8 +1439,9 @@ function paint() {
   } else {
     const fall = clearAnim ? easeOut(Math.min(1, (clearAnim.t - flashT) / CLEAR_FALL)) : 1;
     const map = clearAnim ? clearAnim.map : null;
+    const rOff = riseAnim ? riseAnim.n * (1 - easeOut(Math.min(1, riseAnim.t / RISE_T))) : 0;
     for (let y = 0; y < ROWS; y++) {
-      let yy = y;
+      let yy = y + rOff;
       if (map && map[y] !== undefined) yy = map[y] + (y - map[y]) * fall;
       for (let x = 0; x < COLS; x++) {
         const t = grid[y][x]; if (!t) continue;
@@ -1254,6 +1458,25 @@ function paint() {
     }
   }
 
+  /* haunt warning: once the meter passes 60% a ghostly glow and headstone silhouettes rise at the bottom */
+  if (running && curLevel() >= HAUNT_FROM) {
+    const m = hauntT / hauntSecs(curLevel());
+    if (m > 0.6) {
+      const k = Math.min(1, (m - 0.6) / 0.4), pulse = RM ? 1 : 0.75 + 0.25 * Math.sin(now * (6 + 8 * k));
+      const gh = s * (1.2 + 1.8 * k);
+      const g = c.createLinearGradient(0, H - gh, 0, H);
+      g.addColorStop(0, "rgba(183,168,255,0)"); g.addColorStop(1, "rgba(" + (m > 0.75 ? "255,79,106" : "183,168,255") + "," + (0.42 * k * pulse).toFixed(3) + ")");
+      c.fillStyle = g; c.fillRect(0, H - gh, W, gh);
+      c.fillStyle = "rgba(20,10,34," + (0.5 * k).toFixed(3) + ")";
+      const peek = s * 0.55 * k;
+      for (let x = 0; x < COLS; x++) {
+        if (x === nextGap) continue;
+        const gx = x * s + s * 0.2, gw = s * 0.6, top = H - peek * (0.8 + 0.2 * ((x * 7) % 3) / 2);
+        c.beginPath(); c.moveTo(gx, H); c.lineTo(gx, top + gw / 2); c.arc(gx + gw / 2, top + gw / 2, gw / 2, Math.PI, 0); c.lineTo(gx + gw, H); c.fill();
+      }
+    }
+  }
+
   /* game-over: the well goes dark from the bottom up */
   if (overAnim) {
     const rowsDark = Math.min(ROWS, Math.floor(overAnim.t / 0.035));
@@ -1265,9 +1488,12 @@ function paint() {
   if (piece && running) {
     let gy = piece.y;
     while (!collide(piece, 0, gy - piece.y + 1)) gy++;
-    const col = PAL[piece.type].glow;
+    const cursed = piece.cursed;
+    const col = cursed ? "#a46bff" : PAL[piece.type].glow;
     const cells = piece.cells;
     const xs = {};
+    /* a cursed piece hides its column beam and landing guide */
+    if (!cursed) {
     cells.forEach(([cx, cy]) => { const x = piece.x + cx; xs[x] = Math.max(xs[x] === undefined ? -99 : xs[x], piece.y + cy); });
     Object.keys(xs).forEach(x => {
       const y0 = (xs[x] + 1) * s, y1 = (gy + Math.max(...cells.filter(([cx]) => piece.x + cx == x).map(([, cy]) => cy))) * s;
@@ -1297,6 +1523,7 @@ function paint() {
       c.stroke();
       c.restore();
     }
+    }
     /* soft aura behind the falling piece */
     c.save();
     c.fillStyle = hexA(col, 0.22);
@@ -1313,6 +1540,19 @@ function paint() {
         blitCell(c, piece.type, px, py, s, blink, 1 + 0.025 * w, 1 - 0.035 * w, Math.sin(now * 3.2 + i) * 0.035);
       }
     });
+    /* cursed tint, and a brightening flash as the lock delay runs out */
+    const lk = piece.lockT / LOCK_MS;
+    if (cursed || lk > 0) {
+      cells.forEach(([cx, cy]) => {
+        if (piece.y + cy < 0) return;
+        const px = (piece.x + cx) * s, py = (piece.y + cy) * s;
+        if (cursed) {
+          c.fillStyle = "rgba(70,10,120," + (RM ? 0.52 : 0.46 + 0.12 * Math.sin(now * 4)).toFixed(3) + ")"; rr(c, px + s * .04, py + s * .03, s * .92, s * .9, s * .21); c.fill();
+          c.strokeStyle = "rgba(205,160,255,.9)"; c.lineWidth = Math.max(1.5, s * 0.07); c.stroke();
+        }
+        if (lk > 0) { c.fillStyle = "rgba(255,255,255," + (0.38 * lk).toFixed(3) + ")"; rr(c, px + s * .04, py + s * .03, s * .92, s * .9, s * .21); c.fill(); }
+      });
+    }
   }
 
   /* particles */
@@ -1348,19 +1588,29 @@ function sizeCanvas(cv) {
   if (cv.width !== w || cv.height !== h) { cv.width = w; cv.height = h; }
   return { w: r.width, h: r.height };
 }
-function drawPieceAt(c, type, cx, cy, s) {
+function drawPieceAt(c, type, cx, cy, s, cursed) {
   const cells = SHAPES[type].cells;
   const xs = cells.map(p => p[0]), ys = cells.map(p => p[1]);
   const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
   const ox = cx - (maxX - minX + 1) * s / 2 - minX * s, oy = cy - (maxY - minY + 1) * s / 2 - minY * s;
+  if (cursed) {
+    const r = Math.max(maxX - minX + 1, maxY - minY + 1) * s * 0.85;
+    const g = c.createRadialGradient(cx, cy, 0, cx, cy, r);
+    g.addColorStop(0, "rgba(164,107,255,.55)"); g.addColorStop(1, "rgba(164,107,255,0)");
+    c.fillStyle = g; c.fillRect(cx - r, cy - r, r * 2, r * 2);
+  }
   cells.forEach(([x, y]) => c.drawImage(sprites[type][0], ox + x * s, oy + y * s, s, s));
+  if (cursed) {
+    c.fillStyle = "rgba(70,10,120,.52)"; c.strokeStyle = "rgba(205,160,255,.9)"; c.lineWidth = Math.max(1, s * 0.07);
+    cells.forEach(([x, y]) => { rr(c, ox + x * s + s * .04, oy + y * s + s * .03, s * .92, s * .9, s * .21); c.fill(); c.stroke(); });
+  }
 }
 function drawPreviews() {
   if (!sprites.pumpkin) return;
   let d = sizeCanvas(holdC);
   hctx.setTransform(dpr, 0, 0, dpr, 0, 0); hctx.clearRect(0, 0, d.w, d.h);
   hctx.imageSmoothingQuality = "high";
-  if (holdType) drawPieceAt(hctx, holdType, d.w / 2, d.h / 2, Math.min(d.w / 4.1, d.h / 2.15, 34));
+  if (holdType) drawPieceAt(hctx, holdType, d.w / 2, d.h / 2, Math.min(d.w / 4.1, d.h / 2.15, 34), holdCursed);
   $("holdCard").classList.toggle("used", !canHold);
   d = sizeCanvas(nextC);
   nctx.setTransform(dpr, 0, 0, dpr, 0, 0); nctx.clearRect(0, 0, d.w, d.h);
@@ -1375,13 +1625,13 @@ function drawPreviews() {
       const sh = d.h * f;
       const s = Math.min(d.w / 4.6, sh / 2.6, i === 0 ? 36 : 26);
       nctx.globalAlpha = i === 0 ? 1 : 0.78 - i * 0.1;
-      drawPieceAt(nctx, q[i], d.w / 2, y + sh / 2, s);
+      drawPieceAt(nctx, q[i], d.w / 2, y + sh / 2, s, curseQ[i]);
       nctx.globalAlpha = 1;
       y += sh;
       if (i < 2) { nctx.fillStyle = "rgba(255,255,255,.08)"; nctx.fillRect(d.w * 0.15, y - 0.5, d.w * 0.7, 1); }
     });
   } else {
-    drawPieceAt(nctx, q[0], d.w / 2, d.h / 2, Math.min(d.w / 4.1, d.h / 2.15, 34));
+    drawPieceAt(nctx, q[0], d.w / 2, d.h / 2, Math.min(d.w / 4.1, d.h / 2.15, 34), curseQ[0]);
   }
 }
 
@@ -1540,15 +1790,30 @@ function updateHud(dt) {
     bestEl.textContent = shownBest.toLocaleString("en-US");
     $("bestLine").classList.toggle("beat", running && dispScore > bestScore && bestScore > 0);
   }
-  const lv = 1 + Math.floor(lines / 10);
+  const lv = curLevel();
   if (lines !== shownLines || lv !== shownLevel) {
     if (lines > shownLines && shownLines >= 0 && lines - shownLines >= 1 && !RM) { scoreEl.classList.remove("bump"); void scoreEl.offsetWidth; scoreEl.classList.add("bump"); }
     shownLines = lines; shownLevel = lv;
     $("lines").textContent = lines; $("level").textContent = lv;
-    $("levelSub").textContent = "Level " + lv;
-    $("lvlBar").style.width = ((lines % 10) * 10) + "%";
-    const left = 10 - (lines % 10);
+    const rps = 1000 / gravityMs(lv);
+    $("levelSub").textContent = "Level " + lv + " · speed " + (rps < 10 ? rps.toFixed(1) : Math.round(rps)) + " rows/s";
+    $("lvlBar").style.width = ((lines % LINES_PER_LEVEL) / LINES_PER_LEVEL * 100) + "%";
+    const left = LINES_PER_LEVEL - (lines % LINES_PER_LEVEL);
     $("barCap").textContent = left + (left === 1 ? " line" : " lines") + " to level " + (lv + 1);
+  }
+  /* haunt meter (card on desktop, strip under the well everywhere) */
+  const hOn = lv >= HAUNT_FROM && (running || paused);
+  const m = hOn ? Math.min(1, hauntT / hauntSecs(lv)) : 0;
+  const mk = Math.round(m * 200);
+  if (mk !== shownHaunt || hOn !== shownHauntOn) {
+    shownHaunt = mk; shownHauntOn = hOn;
+    const pct = (m * 100).toFixed(1) + "%", hot = m >= 0.75;
+    $("hauntBar").style.width = pct; $("hauntFill").style.width = pct;
+    const strip = $("hauntStrip");
+    strip.classList.toggle("on", hOn); strip.classList.toggle("hot", hOn && hot);
+    const row = $("hauntRow");
+    row.classList.toggle("off", !hOn); row.classList.toggle("hot", hOn && hot);
+    $("hauntCap").textContent = hOn ? "rises in " + Math.max(0, Math.ceil(hauntSecs(lv) - hauntT)) + "s" : "from level " + HAUNT_FROM;
   }
   const chip = $("comboChip");
   const on = combo > 1 && running;
@@ -1561,13 +1826,13 @@ function showView(v) {
   veil.dataset.view = v;
   veil.classList.add("on");
   if (v === "pause") {
-    $("pScore").textContent = score.toLocaleString("en-US"); $("pLevel").textContent = 1 + Math.floor(lines / 10); $("pLines").textContent = lines;
+    $("pScore").textContent = score.toLocaleString("en-US"); $("pLevel").textContent = curLevel(); $("pLines").textContent = lines;
     $("resumeBtn").focus({ preventScroll: true });
   } else if (v === "over") {
     const nb = overAnim && overAnim.newBest;
     $("overTitle").textContent = nb ? "Spooktacular!" : "The well is full";
     $("ribbon").classList.toggle("on", !!nb);
-    $("oLines").textContent = lines; $("oLevel").textContent = 1 + Math.floor(lines / 10); $("oBest").textContent = bestScore.toLocaleString("en-US");
+    $("oLines").textContent = lines; $("oLevel").textContent = curLevel(); $("oBest").textContent = bestScore.toLocaleString("en-US");
     const target = score, t0 = performance.now(), el = $("oScore");
     const tick = (t) => {
       const k = RM ? 1 : Math.min(1, (t - t0) / 900);
@@ -1591,9 +1856,29 @@ function frame(t) {
   const dtms = Math.min(50, Math.max(0, t - lastT)); lastT = t;
   const dt = dtms / 1000;
   now = t / 1000;
-  if (running && !paused && piece && !clearAnim) {
+  if (running && !paused && !clearAnim && !riseAnim) {
+    /* haunt: graves rise on a timer from level 3 */
+    const L = curLevel();
+    if (L >= HAUNT_FROM) {
+      const iv = hauntSecs(L);
+      hauntT += dt;
+      if (!hauntWarned && hauntT >= iv * 0.75) { hauntWarned = true; sfx.warn(); notice(hauntRows(L) > 1 ? "Two graves rising! Clear a line" : "A grave is rising! Clear a line", "warn"); }
+      if (hauntT >= iv) { hauntT = 0; hauntWarned = false; riseGarbage(hauntRows(L)); }
+    }
+  }
+  if (running && !paused && piece && !clearAnim && !riseAnim) {
     acc += dtms;
-    while (acc >= dropMs && running && piece && !clearAnim) { step(); acc -= dropMs; }
+    while (acc >= dropMs && piece) {
+      if (collide(piece, 0, 1)) { acc = 0; break; }
+      piece.y++; fell(); acc -= dropMs;
+    }
+    /* lock delay: 500ms on the ground; out of resets means lock on touch */
+    if (piece && running) {
+      if (collide(piece, 0, 1)) {
+        piece.lockT += dtms;
+        if (piece.lockT >= LOCK_MS || piece.resets >= MAX_RESETS) { dust(piece, 0.4); lock(); }
+      } else piece.lockT = 0;
+    }
   }
   if (!paused) updateFx(dt);
   drawBg(now);
@@ -1773,9 +2058,13 @@ resize();
 requestAnimationFrame(frame);
 window.__stackTest = {
   get grid() { return grid; }, set grid(g) { grid = g; },
-  lock, start, hold, act,
+  lock, start, hold, act, riseGarbage, spawn,
   get piece() { return piece; }, set piece(p) { piece = p; },
-  state: () => ({ score, lines, running, paused, over, S, holdType, canHold, combo, clearing: !!clearAnim })
+  get hauntT() { return hauntT; }, set hauntT(v) { hauntT = v; },
+  get lines() { return lines; }, set lines(v) { lines = v; dropMs = gravityMs(curLevel()); },
+  get queue() { return queue; }, get curseQ() { return curseQ; },
+  state: () => ({ score, lines, level: curLevel(), dropMs, running, paused, over, S, holdType, canHold, combo, b2b, clearing: !!clearAnim, rising: !!riseAnim,
+    lockT: piece ? piece.lockT : null, resets: piece ? piece.resets : null, cursed: piece ? piece.cursed : null, hauntT, nextGap })
 };
 </script>
 </body>
