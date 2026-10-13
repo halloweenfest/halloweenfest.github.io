@@ -82,6 +82,14 @@
     }
     .tbtn.big svg { width: 30px; height: 30px; }
     .tbtn.on { transform: scale(.92); filter: brightness(1.2); }
+    .tbtn.big.hot { background: radial-gradient(circle at 36% 28%, #ffe0d0, #ff8a5a 42%, #a8261c 100%); box-shadow: 0 0 0 5px rgba(255, 110, 70, .2), 0 0 30px rgba(255, 80, 50, .5), 0 12px 26px rgba(0, 0, 0, .5); filter: saturate(.8) brightness(.85); }
+
+    /* difficulty toggle on the start card */
+    .diff { display: flex; justify-content: center; gap: 0; margin: 14px auto 0; width: max-content; padding: 3px; border-radius: 999px; background: rgba(10, 4, 18, .5); border: 1px solid rgba(232, 195, 106, .25); }
+    .diff button { font: 800 11px/1 var(--sans); letter-spacing: .14em; text-transform: uppercase; color: rgba(255, 243, 220, .62); background: none; border: 0; padding: 8px 16px; border-radius: 999px; cursor: pointer; }
+    .diff button[aria-checked="true"] { color: #1a0d05; background: linear-gradient(180deg, #ffe6a8, #e2a94c); box-shadow: 0 2px 10px rgba(232, 170, 70, .35); }
+    .diff button[data-d="hard"][aria-checked="true"] { color: #fff2f2; background: linear-gradient(180deg, #ff6a7a, #a3162e); box-shadow: 0 2px 12px rgba(255, 60, 80, .4); }
+    .diff button:focus-visible { outline: 2px solid rgba(255, 214, 130, .8); outline-offset: 1px; }
 
     /* premium glass overlays (page-local overrides of the shared sheet) */
     .sheet-wrap {
@@ -212,6 +220,10 @@
         <button id="night1" class="pic-tile" type="button" style="background-image:url('night1.jpg?v=1')"><span class="label">Night 1<br><span class="tag">FREE</span></span></button>
         <button id="night2" class="pic-tile" type="button" style="background-image:url('night2.jpg?v=1')"><span class="label">Night 2<br><span class="tag">LOCKED · PAY</span></span></button>
         <button id="night3" class="pic-tile" type="button" style="background-image:url('night3.jpg?v=1')"><span class="label">Night 3<br><span class="tag">LOCKED · PAY</span></span></button>
+      </div>
+      <div class="diff" role="radiogroup" aria-label="Difficulty">
+        <button type="button" role="radio" data-d="normal" aria-checked="true">Normal</button>
+        <button type="button" role="radio" data-d="hard" aria-checked="false">Hard</button>
       </div>
       <p class="keys">Mouse: move to fly · <kbd>Left click</kbd> zap (hold) · <kbd>Right click</kbd> brake<br>Keys: <kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> / arrows fly · <kbd>Space</kbd> or <kbd>F</kbd> zap · <kbd>Shift</kbd> brake · <kbd>E</kbd> boost · <kbd>P</kbd> pause</p>
       <div class="actions two">
@@ -778,20 +790,39 @@ const shooting = () => inp.shootM || inp.shootK || inp.shootT;
 let mouseSteer = false, my = 0.5;
 const aim = { x: 0, y: 0, inside: false };
 let touchDrag = null;
-let lives = 3, score = 0, dist = 0, goal = 24000, elapsed = 0;
-const KINDS = [
-  { img: "ghost", speed: 0.1, r: 26, flip: true, col: GL.teal, pc: "200,255,250" },
-  { img: "skeleton", speed: 0.14, r: 24, flip: true, col: GL.bone, pc: "255,240,210" },
-  { img: "bat", speed: 0.2, r: 24, flip: false, col: GL.violet, pc: "190,120,255" },
-  { img: "wolf", speed: 0.16, r: 30, flip: false, col: GL.blue, pc: "190,200,230" },
-  { img: "zombie", speed: 0.12, r: 28, flip: false, col: GL.green, pc: "150,255,120" }
-];
+let lives = 3, score = 0, dist = 0, goal = 20000, elapsed = 0;
+/* speed is in screen widths per second (before the night/progress multiplier) */
+const K = {
+  ghost: { img: "ghost", speed: 0.15, r: 26, flip: true, col: GL.teal, pc: "200,255,250", hp: 2 },
+  skeleton: { img: "skeleton", speed: 0.15, r: 24, flip: true, col: GL.bone, pc: "255,240,210", hp: 2 },
+  bat: { img: "bat", speed: 0.27, r: 22, flip: false, col: GL.violet, pc: "190,120,255", hp: 1 },
+  wolf: { img: "wolf", speed: 0.2, r: 30, flip: false, col: GL.blue, pc: "190,200,230", hp: 2 },
+  zombie: { img: "zombie", speed: 0.11, r: 28, flip: false, col: GL.green, pc: "150,255,120", hp: 4 }
+};
+const KINDS = [K.ghost, K.skeleton, K.bat, K.wolf, K.zombie];
+
+/* ---------- difficulty: Normal is the tougher default, Hard pushes every knob further ---------- */
+const DIFFS = {
+  normal: { k: 1, spd: 1, heat: 0.085, lock: 1.6, inv: 1.4, boss: 1, heart: [38, 52], proj: 1, drop: true },
+  hard: { k: 1.3, spd: 1.12, heat: 0.105, lock: 2.0, inv: 1.1, boss: 1.25, heart: [60, 80], proj: 1.15, drop: false }
+};
+let diffName = "normal";
+try { const d = localStorage.getItem("emma.diff"); if (d && DIFFS[d]) diffName = d; } catch (e) {}
+let D = DIFFS[diffName];
+const NIGHT_K = [1, 1.2, 1.36];
+const nk = () => NIGHT_K[level - 1] || 1;
+const prog = () => clamp(dist / goal, 0, 1);
+/* how far into the enemy roster this moment is: later nights start partway in */
+const ep = () => prog() + (level - 1) * 0.3;
+const foeSpd = () => (1 + 0.5 * (mode === "fly" ? prog() : 0.6)) * (1 + 0.14 * (level - 1)) * D.spd;
+const heat = { v: 0, lock: 0, since: 9, warn: 0 };
+
 let mode = "fly";
 let emma = { x: 0.22, y: 0.5, inv: 0, tilt: 0, vys: 0, hurtT: 0 };
 let speed = 80;
-let foes = [], treats = [], shots = [], arcs = [], orbs = [], popups = [];
+let foes = [], treats = [], shots = [], arcs = [], eshots = [], popups = [];
 let witch = null;
-let spawnZ = 0, spawnP = 0, shootCd = 0, boltCd = 0, grace = 0;
+let waveCd = 0, spawnP = 0, heartCd = 0, shootCd = 0, grace = 0;
 let over = false, won = false, hold = true, paused = false, soundOn = true;
 let scroll = 0, t = 0;
 let combo = 0, comboT = 0, bestCombo = 0, comboPop = 0;
@@ -800,6 +831,7 @@ let banner = null, heartFx = [0, 0, 0, 0, 0, 0], lastLives = 3, bossShown = 0;
 let starShot = null, starShotT = 4;
 const wand = { ang: 0, recoil: 0, flash: 0, kick: 0, idleT: 0 };
 let last = performance.now();
+let turbo = 1; /* test hook only: simulation steps per frame */
 
 /* particle pool: fixed size, round-robin reuse, no allocation per frame */
 const P_MAX = reduceMotion ? 110 : 340;
@@ -885,16 +917,19 @@ function reset(nextLevel) {
   lives = 3; lastLives = 3;
   if (!nextLevel || nextLevel === 1) score = 0;
   dist = 0;
-  goal = level === 1 ? 24000 : 18000;
+  goal = level === 1 ? 20000 : 18000;
   elapsed = 0;
   mode = "fly";
   emma = { x: 0.22, y: 0.5, inv: 0, tilt: 0, vys: 0, hurtT: 0 };
   my = 0.5;
   speed = 80;
-  foes = []; treats = []; shots = []; arcs = []; orbs = []; popups = [];
+  foes = []; treats = []; shots = []; arcs = []; eshots = []; popups = [];
   witch = null;
+  D = DIFFS[diffName];
+  heat.v = 0; heat.lock = 0; heat.since = 9; heat.warn = 0;
   /* 2 s grace: nothing spawns while the player gets their bearings */
-  grace = 2; spawnZ = 0; spawnP = 7; shootCd = 0; boltCd = 1;
+  grace = 2; waveCd = 0; spawnP = 7; shootCd = 0;
+  heartCd = rand(D.heart[0], D.heart[1]);
   combo = 0; comboT = 0; bestCombo = 0; shake = 0; hurtFx = 0; flashFx = 0; slow = 0; endT = 0; bossShown = 0;
   over = false; won = false;
   hold = false;
@@ -907,7 +942,7 @@ function reset(nextLevel) {
   clearTimeout(reset.tid);
   reset.tid = setTimeout(() => hintEl.classList.remove("show"), 7000);
   speedBtn.classList.remove("on");
-  track("emma_night_started", { night: level });
+  track("emma_night_started", { night: level, difficulty: diffName });
 }
 
 function hit(a, b, ra, rb) {
@@ -929,7 +964,7 @@ function addShake(v) { if (!reduceMotion) shake = Math.max(shake, v); }
 function hurt() {
   if (emma.inv > 0 || over || mode === "dying" || mode === "victory") return;
   lives--;
-  emma.inv = 1.6; emma.hurtT = 0.25;
+  emma.inv = D.inv; emma.hurtT = 0.25;
   hurtFx = 1;
   addShake(16);
   combo = 0; comboT = 0;
@@ -960,10 +995,11 @@ function end(win) {
 function startBoss() {
   mode = "boss";
   foes.forEach((f) => poof(f));
-  foes = []; treats = [];
-  const bossHp = level === 1 ? 20 : 20 + level * 8;
-  witch = { x: 1.25, y: 0.45, hp: bossHp, max: bossHp, flash: 0, lag: bossHp, kx: 0, cast: 0 };
-  bossIntro = 2.6; boltCd = 1.2;
+  foes = []; treats = []; eshots = [];
+  const bossHp = Math.round([60, 75, 90][level - 1] * D.boss);
+  witch = { x: 1.25, y: 0.45, hp: bossHp, max: bossHp, flash: 0, lag: bossHp, kx: 0, cast: 0,
+            st: "idle", st_t: 0, teleT: 1, atk: "", cd: 1.4, ly: 0.5, vx: 0, burst: 0, enraged: false, last: "" };
+  bossIntro = 2.6;
   banner = { title: "THE UGLY WITCH", sub: "Land " + bossHp + " lightning strikes", t: 0, dur: 2.6, boss: true };
   modeEl.textContent = "WITCH " + bossHp;
   sfx("boss");
@@ -1006,6 +1042,9 @@ function sfx(kind) {
     else if (kind === "hit") tone(320, 180, 0.07, "triangle", 0.05);
     else if (kind === "hurt") { tone(180, 50, 0.35, "sawtooth", 0.09); }
     else if (kind === "pick") { tone(520, 1040, 0.12, "sine", 0.09); tone(780, 1560, 0.16, "sine", 0.07, 0.08); }
+    else if (kind === "overheat") { tone(260, 70, 0.45, "sawtooth", 0.05); tone(140, 60, 0.3, "square", 0.025, 0.05); }
+    else if (kind === "warn") { tone(900, 700, 0.1, "square", 0.025); tone(900, 700, 0.1, "square", 0.025, 0.14); }
+    else if (kind === "throw") tone(420, 220, 0.12, "triangle", 0.035);
     else if (kind === "boss") { tone(110, 55, 1.1, "sawtooth", 0.07); tone(165, 80, 1.1, "square", 0.03); }
     else if (kind === "win") { [523, 659, 784, 1046].forEach((f, i) => tone(f, f * 1.01, 0.3, "triangle", 0.07, i * 0.12)); }
   } catch (e) {}
@@ -1025,24 +1064,50 @@ function wandTipAt(p) {
   return { x: p.hx + Math.cos(a) * L, y: p.hy + Math.sin(a) * L, a };
 }
 function wandTip() { const tp = wandTipAt(emmaPose()); return { x: tp.x / W, y: tp.y / H }; }
+/* Without a mouse (touch, keyboard) the wand only helps inside a narrow cone around the way Emma is
+   flying (her tilt follows the drag / up-down keys) and within range; otherwise it fires straight ahead. */
+const AIM_CONE = 0.3;
+function aimBase() { return clamp(emma.tilt * 2.2, -0.6, 0.6); }
 function aimTarget(p) {
   if (aim.inside && !touchUI) return { x: aim.x, y: aim.y };
+  const base = aimBase(), range = Math.min(W * 0.8, 680 * SC);
   let best = null, bd = 1e9;
-  if (mode === "boss" && witch) best = { x: witch.x * W, y: witch.y * H + (reduceMotion ? 0 : Math.sin(t * 2) * 10 * SC) };
-  else {
-    for (const f of foes) {
-      const fx = f.x * W, fy = f.y * H;
-      if (fx < p.hx + 20 || fx > W + 20) continue;
-      const d = (fx - p.hx) + Math.abs(fy - p.hy) * 1.6;
-      if (d < bd) { bd = d; best = { x: fx, y: fy }; }
-    }
-  }
-  return best || { x: p.hx + 400, y: p.hy + emma.tilt * 300 };
+  const consider = (fx, fy, r) => {
+    const dx = fx - p.hx, dy = fy - p.hy;
+    if (dx < 20 * SC || fx > W + 10) return;
+    const d = Math.hypot(dx, dy);
+    if (d > range) return;
+    const off = Math.abs(Math.atan2(dy, dx) - base) - Math.atan(r * SC / d);
+    if (off > AIM_CONE) return;
+    const sc = Math.max(0, off) * 3 + d / range;
+    if (sc < bd) { bd = sc; best = { x: fx, y: fy }; }
+  };
+  for (const f of foes) if (f.hp > 0 && !ghostPhased(f)) consider(f.x * W, f.y * H, f.kind.r);
+  if ((mode === "boss") && witch && witch.x < 1.02) consider(witch.x * W, witch.y * H + (reduceMotion ? 0 : Math.sin(t * 2) * 10 * SC), 60);
+  return best || { x: p.hx + Math.cos(base) * 400, y: p.hy + Math.sin(base) * 400 };
 }
+function ghostPhased(f) { return f.name === "ghost" && f.phs > 0 && f.phs <= 0.9; }
 function fire() {
   if (shootCd > 0 || over || hold || paused) return;
   if (mode !== "fly" && mode !== "boss") return;
+  if (heat.lock > 0) {
+    /* overheated: the wand only fizzles */
+    if (heat.warn <= 0) {
+      heat.warn = 0.35;
+      const tp = wandTipAt(emmaPose());
+      for (let i = 0; i < 3 * PK; i++) emit(tp.x, tp.y, rand(-30, 30), rand(-70, -20), rand(0.4, 0.7), rand(6, 11) * SC, GL.orange, 0.94, -30, 14 * SC);
+    }
+    return;
+  }
   shootCd = 0.17;
+  heat.since = 0;
+  heat.v += D.heat;
+  if (heat.v >= 1) {
+    heat.v = 1; heat.lock = D.lock;
+    const pe = emmaPose();
+    popup(pe.cx, pe.cy - 64 * SC, "OVERHEAT", "#ff8a5a", 17);
+    sfx("overheat");
+  }
   const p = emmaPose();
   const tg = aimTarget(p);
   wand.ang = clamp(Math.atan2(tg.y - p.hy, tg.x - p.hx), -1.3, 1.3);
@@ -1130,6 +1195,318 @@ function strike(s, x, y) {
   emit(x, y, 0, 0, 0.16, 40 * SC, GL.white, 1, 0, 80 * SC);
 }
 
+/* ---------- enemies: waves, formations and behaviour ---------- */
+const pick = (a) => a[(Math.random() * a.length) | 0];
+function addFoe(name, x, y, o) {
+  const kd = K[name];
+  const f = { x, y, by: y, kind: kd, name, ph: Math.random() * 6, hp: 1, max: 1, flash: 0, kx: 0, born: t,
+              st: "in", st_t: 0, vx: 0, vy: 0, cd: rand(0.6, 1.4), wind: 0, windT: 0.5, armor: false, chase: 0,
+              amp: 0, zf: 2, phs: 0, pcd: rand(1.5, 3), spit: false, throws: 0, hx: 0.8, lx: 0, ly: 0 };
+  if (o) Object.assign(f, o);
+  f.hp = f.max = kd.hp + (level >= 3 && (name === "wolf" || name === "zombie") ? 1 : 0) + (f.armor ? 1 : 0);
+  foes.push(f);
+  return f;
+}
+function freeY(spread) {
+  let y = 0.5;
+  for (let k = 0; k < 8; k++) {
+    y = 0.18 + Math.random() * 0.62;
+    if (foes.every((f) => f.x < 0.85 || Math.abs(f.y - y) > (spread || 0.17))) break;
+  }
+  return y;
+}
+function armorChance(e) { return clamp((e - 0.4) * 1.6, 0, level >= 3 ? 0.9 : 0.8); }
+function spawnOne(n, x, y, e) {
+  if (n === "ghost") return addFoe("ghost", x, y, { amp: rand(0.04, 0.1), zf: rand(1.6, 2.4), spit: e > 0.3 && Math.random() < 0.5 });
+  if (n === "skeleton") return addFoe("skeleton", x, y, { hx: rand(0.72, 0.88), throws: e > 0.15 ? 2 : 1, armor: Math.random() < armorChance(e) });
+  return addFoe(n, x, y);
+}
+/* returns the wave's "weight" so the next gap scales with how much just arrived */
+function makeWave(kind, e) {
+  switch (kind) {
+    case "pair":
+      for (let i = 0; i < 2; i++) spawnOne(pick(["ghost", "skeleton", "bat", "ghost"]), 1.12 + i * 0.16, freeY(), e);
+      return 2;
+    case "column": {
+      /* a wall of ghosts with one gap to slip through */
+      const n = e > 0.5 ? 4 : 3, slots = n + 1, skip = (Math.random() * slots) | 0;
+      for (let i = 0, j = 0; i < slots; i++) {
+        if (i === skip) continue;
+        addFoe("ghost", 1.12, 0.17 + i * 0.66 / (slots - 1), { amp: 0.02, zf: 2, ph: 0, pcd: rand(2.5, 4), spit: e > 0.3 && j++ % 2 === 0 });
+      }
+      return n;
+    }
+    case "train": {
+      const y = freeY(0.25), n = e > 0.5 ? 5 : 4;
+      for (let i = 0; i < n; i++) addFoe("bat", 1.1 + i * 0.09, y, { ph: i * 0.8 });
+      return n * 0.7;
+    }
+    case "vee": {
+      const y = clamp(freeY(0.3), 0.3, 0.7);
+      for (let i = 0; i < 5; i++) { const k = i - 2; addFoe("bat", 1.1 + Math.abs(k) * 0.07, y + k * 0.075, { ph: 0 }); }
+      return 3.5;
+    }
+    case "swarm": {
+      const y = clamp(freeY(0.3), 0.3, 0.7), n = 6 + Math.round(Math.min(1, e) * 3);
+      for (let i = 0; i < n; i++) addFoe("bat", 1.1 + Math.random() * 0.3, y + rand(-0.14, 0.14), { chase: 0.55 });
+      return n * 0.55;
+    }
+    case "wolf": addFoe("wolf", 1.12, freeY()); return 1.4;
+    case "pack": {
+      const n = e > 0.9 ? 3 : 2;
+      for (let i = 0; i < n; i++) addFoe("wolf", 1.12 + i * 0.22, freeY());
+      return n * 1.2;
+    }
+    case "thrower": case "armored": {
+      const n = kind === "armored" || e > 0.8 ? 2 : 1, ac = kind === "armored" ? Math.max(0.5, armorChance(e)) : armorChance(e);
+      for (let i = 0; i < n; i++) addFoe("skeleton", 1.12 + i * 0.1, freeY(), { armor: Math.random() < ac, hx: rand(0.72, 0.88), throws: e > 0.55 ? 3 : 2 });
+      return n * 1.5;
+    }
+    case "spitters":
+      for (let i = 0; i < 2; i++) addFoe("ghost", 1.12 + i * 0.18, freeY(), { amp: rand(0.07, 0.12), zf: rand(1.8, 2.6), spit: true, cd: rand(0.6, 1.4) });
+      return 2.2;
+    case "zombies": {
+      const n = level >= 3 ? 3 : 2;
+      for (let i = 0; i < n; i++) addFoe("zombie", 1.12 + i * 0.15, freeY());
+      return n * 1.2;
+    }
+    case "mixed":
+      makeWave(pick(["wolf", "thrower", "spitters"]), e);
+      makeWave(pick(["train", "vee", "column"]), e);
+      return 4;
+  }
+  return 1;
+}
+function spawnWave() {
+  const e = ep();
+  const opts = [["pair", e > 0.45 ? 1 : 3], ["column", 2], ["train", 2]];
+  if (e > 0.08) opts.push(["wolf", 2]);
+  if (e > 0.15) opts.push(["vee", 2], ["thrower", 2.5]);
+  if (e > 0.3) opts.push(["spitters", 2.2]);
+  if (e > 0.45) opts.push(["swarm", 2], ["pack", 1.5], ["armored", 2]);
+  if (e > 0.7) opts.push(["mixed", 3]);
+  if (level >= 2) opts.push(["zombies", 1.5]);
+  let tot = 0;
+  for (const o of opts) tot += o[1];
+  let r = Math.random() * tot, kind = opts[0][0];
+  for (const o of opts) { r -= o[1]; if (r <= 0) { kind = o[0]; break; } }
+  return makeWave(kind, e);
+}
+/* velocity (normalised units/s) from (x,y) toward (tx,ty) at spW screen-widths per second */
+function aimVel(x, y, tx, ty, spW) {
+  const dx = (tx - x) * W, dy = (ty - y) * H, L = Math.hypot(dx, dy) || 1, sp = spW * W;
+  return [dx / L * sp / W, dy / L * sp / H];
+}
+const projK = () => Math.sqrt(nk()) * D.proj;
+/* a visible wind-up (glow grows in the hand) always precedes a throw */
+function windUp(z, dt, windT, cdNext, fn) {
+  if (z.wind > 0) {
+    z.wind -= dt;
+    if (z.wind <= 0) { z.wind = 0; fn(); z.cd = cdNext; }
+    return;
+  }
+  z.cd -= dt;
+  if (z.cd <= 0) z.wind = z.windT = windT;
+}
+function throwBone(z) {
+  const vx = -0.55 * projK(), g = 0.9;
+  const T = Math.max(0.45, (z.x - emma.x) / -vx);
+  const vy = (emma.y - z.y) / T - 0.5 * g * T;
+  eshots.push({ type: "bone", x: z.x - 0.02, y: z.y - 0.03, vx, vy, g, r: 11, ph: Math.random() * 6, rot: 0 });
+  sfx("throw");
+}
+function spitWisp(z) {
+  const [vx, vy] = aimVel(z.x, z.y, emma.x, emma.y, 0.36 * projK());
+  eshots.push({ type: "wisp", x: z.x - 0.02, y: z.y, vx, vy, g: 0, r: 12, ph: Math.random() * 6, rot: 0 });
+  sfx("throw");
+}
+function updateFoes(dt) {
+  const sp = foeSpd(), I = nk() * D.k;
+  for (const z of foes) {
+    if (z.hp <= 0) continue;
+    z.flash = Math.max(0, z.flash - dt);
+    z.st_t += dt;
+    z.x += z.kx * dt;
+    z.kx *= Math.exp(-dt * 6);
+    const v = z.kind.speed * sp;
+    if (z.name === "bat") {
+      z.x -= v * dt;
+      if (z.chase && z.x < 0.95) z.by += (emma.y - z.by) * dt * z.chase;
+      z.y = z.by + Math.sin(t * 3 + z.ph) * 0.035;
+    } else if (z.name === "ghost") {
+      z.x -= v * dt;
+      z.by += (emma.y - z.by) * dt * 0.12;
+      z.y = clamp(z.by + Math.sin(z.st_t * z.zf + z.ph) * z.amp, 0.1, 0.88);
+      if (z.phs > 0) z.phs -= dt;
+      else if (z.wind <= 0) { z.pcd -= dt; if (z.pcd <= 0 && z.x < 1) { z.phs = 1.25; z.pcd = rand(2.6, 3.8); } }
+      if (z.spit && (z.wind > 0 || (z.x < 0.98 && z.x > 0.42 && z.phs <= 0))) windUp(z, dt, 0.55, rand(2.4, 3.4) / I, () => spitWisp(z));
+    } else if (z.name === "wolf") {
+      if (z.st === "in") {
+        z.x -= v * dt;
+        z.by += (emma.y - z.by) * dt * 0.35;
+        z.y = z.by;
+        if (z.x < emma.x + 0.45 && z.x < 0.92) { z.st = "tele"; z.st_t = 0; z.windT = clamp(0.8 / Math.sqrt(I), 0.5, 0.8); sfx("warn"); }
+      } else if (z.st === "tele") {
+        z.x += dt * 0.03;
+        /* tracks Emma, then locks for the last 0.2 s so a late dodge always works */
+        if (z.st_t < z.windT - 0.2) { z.lx = emma.x; z.ly = emma.y; }
+        if (z.st_t >= z.windT) {
+          z.st = "lunge"; z.st_t = 0;
+          const vv = aimVel(z.x, z.y, z.lx, z.ly, 1.1 * Math.sqrt(sp));
+          z.vx = vv[0]; z.vy = vv[1];
+          addShake(3);
+        }
+      } else {
+        z.x += z.vx * dt; z.y += z.vy * dt;
+      }
+    } else if (z.name === "skeleton") {
+      if (z.st === "in") { z.x -= v * dt; if (z.x <= z.hx) { z.st = "hold"; z.cd = 0.35; } }
+      else if (z.st === "hold") {
+        z.x -= dt * 0.012;
+        z.by += (emma.y - z.by) * dt * 0.3;
+        if (z.throws > 0 || z.wind > 0) windUp(z, dt, clamp(0.6 / Math.sqrt(I), 0.42, 0.6), 1.25 / I, () => { throwBone(z); z.throws--; });
+        else { z.cd -= dt; if (z.cd <= 0) z.st = "out"; }
+      } else z.x -= v * 1.7 * dt;
+      z.y = z.by;
+    } else {
+      z.x -= v * dt;
+      z.by += (emma.y - z.by) * dt * 0.3;
+      z.y = z.by;
+    }
+    if (emma.inv <= 0 && !ghostPhased(z) && hit(emma, z, 32, z.kind.r)) { hurt(); z.hp = 0; poof(z); }
+  }
+  /* keep villains from stacking on top of each other (formations and lunges keep their shape) */
+  for (let i = 0; i < foes.length; i++) for (let j = i + 1; j < foes.length; j++) {
+    const a = foes[i], b = foes[j];
+    if (a.name === "bat" || b.name === "bat" || a.st === "lunge" || b.st === "lunge") continue;
+    if (Math.abs(a.x - b.x) * W < 70 * SC && Math.abs(a.y - b.y) * H < 64 * SC) {
+      const d = a.y < b.y ? -1 : 1;
+      a.by += d * dt * 0.25; b.by -= d * dt * 0.25;
+    }
+  }
+  foes = foes.filter((z) => z.x > -0.25 && z.y > -0.3 && z.y < 1.3 && z.hp > 0);
+}
+function updateEShots(dt) {
+  for (const b of eshots) {
+    b.x += b.vx * dt; b.vy += b.g * dt; b.y += b.vy * dt; b.rot += dt * 13;
+    if (Math.random() < 0.55 * PK) {
+      const g = b.type === "bone" ? GL.orange : b.type === "wisp" ? GL.teal : (Math.random() < 0.5 ? GL.violet : GL.green);
+      emit(b.x * W, b.y * H, rand(10, 60), rand(-20, 20), 0.4, rand(4, 9) * SC, g, 0.95, 0);
+    }
+    if (emma.inv <= 0 && hit(emma, b, 22, b.r)) { hurt(); b.dead = true; }
+    if (b.x < -0.1 || b.x > 1.35 || b.y < -0.4 || b.y > 1.15) b.dead = true;
+  }
+  eshots = eshots.filter((b) => !b.dead);
+}
+function updateTreats(dt) {
+  for (const q of treats) {
+    q.x -= dt * (q.type === "heart" ? 0.15 : 0.12);
+    if (hit(emma, q, 32, 24)) {
+      const pp = emmaPose();
+      if (q.type === "heart") {
+        if (lives < 3) { lives++; popup(pp.cx, pp.cy - 50 * SC, "+1 ♥", "#ff8fa6", 20); }
+        else { score += 50; popup(pp.cx, pp.cy - 50 * SC, "+50", "#ffe9a8", 18); }
+        burst(q.x * W, q.y * H, 18, GL.pink, 220 * SC, 9 * SC, 0.6);
+      } else {
+        score += 25;
+        popup(pp.cx, pp.cy - 50 * SC, "+25", "#ffd77a", 18);
+        burst(q.x * W, q.y * H, 18, GL.orange, 220 * SC, 9 * SC, 0.6);
+      }
+      q.x = -1;
+      sfx("pick");
+    }
+  }
+  treats = treats.filter((q) => q.x > -0.2);
+}
+
+/* ---------- the ugly witch: fans, summons, telegraphed dives, enrage below 30% ---------- */
+function bossGap() {
+  const f = witch.hp / witch.max;
+  return (f > 0.66 ? 2.3 : f > 0.3 ? 1.9 : 1.25) / Math.sqrt(nk() * D.k);
+}
+function startTele(atk, teleT) {
+  const w = witch;
+  w.st = "tele"; w.atk = atk; w.st_t = 0; w.teleT = teleT * (w.enraged ? 0.75 : 1);
+  if (atk === "dive") { w.ly = clamp(emma.y, 0.14, 0.82); sfx("warn"); }
+}
+function chooseAttack() {
+  const w = witch, f = w.hp / w.max;
+  const opts = f > 0.66 ? [["fan", 0.62], ["summon", 0.38]] : [["fan", 0.42], ["dive", 0.36], ["summon", 0.22]];
+  if (foes.length >= 5 || w.last === "summon") opts.forEach((o) => { if (o[0] === "summon") o[1] = 0; });
+  let tot = 0;
+  for (const o of opts) tot += o[1];
+  let r = Math.random() * tot, atk = "fan";
+  for (const o of opts) { r -= o[1]; if (r <= 0) { atk = o[0]; break; } }
+  w.last = atk;
+  if (atk === "fan") { w.burst = w.enraged ? 1 : 0; startTele("fan", 0.7); }
+  else if (atk === "summon") startTele("summon", 0.8);
+  else { w.burst = w.enraged ? 1 : 0; startTele("dive", 1.0); }
+}
+function doAttack() {
+  const w = witch, P = projK() * (w.enraged ? 1.15 : 1);
+  if (w.atk === "fan") {
+    const n = 5 + (level - 1) + (w.enraged ? 2 : 0), spread = 0.17;
+    const wx = w.x - 0.05, wy = w.y - 0.04;
+    const a0 = Math.atan2((emma.y - wy) * H, (emma.x - wx) * W), sp = 0.4 * P * W;
+    for (let i = 0; i < n; i++) {
+      const a = a0 + (i - (n - 1) / 2) * spread;
+      eshots.push({ type: "orb", x: wx, y: wy, vx: Math.cos(a) * sp / W, vy: Math.sin(a) * sp / H, g: 0, r: 13, ph: Math.random() * 6, rot: 0 });
+    }
+    w.cast = 0.5;
+    sfx("throw");
+    if (w.burst > 0) { w.burst--; startTele("fan", 0.45); } else { w.st = "idle"; w.st_t = 0; w.cd = bossGap(); }
+  } else if (w.atk === "summon") {
+    const n = 3 + (w.enraged ? 1 : 0);
+    for (let i = 0; i < n; i++) addFoe("bat", w.x - 0.05, clamp(w.y + (i - (n - 1) / 2) * 0.12, 0.12, 0.85), { chase: 0.5, ph: i });
+    if (w.hp / w.max <= 0.66) addFoe("skeleton", 1.08, freeY(), { hx: rand(0.6, 0.68), throws: 2, armor: level >= 2 });
+    burst(w.x * W - 40 * SC, w.y * H, 24, GL.green, 260 * SC, 10 * SC, 0.6);
+    w.st = "idle"; w.st_t = 0; w.cd = bossGap();
+  } else {
+    w.st = "dive"; w.st_t = 0; w.vx = -1.6 * projK();
+    addShake(6);
+  }
+}
+function updateBoss(dt) {
+  const w = witch;
+  bossIntro = Math.max(0, bossIntro - dt);
+  w.flash = Math.max(0, w.flash - dt);
+  w.cast = Math.max(0, w.cast - dt);
+  w.lag += (w.hp - w.lag) * Math.min(1, dt * 2.5);
+  w.st_t += dt;
+  w.kx *= Math.exp(-dt * 6);
+  if (w.st === "idle" || (w.st === "tele" && w.atk !== "dive")) {
+    w.x += (0.78 - w.x) * Math.min(1, dt * (bossIntro > 0 ? 1.2 : 2)) + w.kx * dt;
+    w.y += (clamp(emma.y, 0.18, 0.8) - w.y) * dt * (w.st === "tele" ? 0.25 : 0.6);
+  }
+  if (w.st === "idle") {
+    if (bossIntro <= 0) w.cd -= dt;
+    if (w.cd <= 0) chooseAttack();
+  } else if (w.st === "tele") {
+    w.cast = Math.max(w.cast, 0.3);
+    if (w.atk === "dive") { w.x += (0.88 - w.x) * Math.min(1, dt * 3); w.y += (w.ly - w.y) * Math.min(1, dt * 8); }
+    if (w.st_t >= w.teleT) doAttack();
+  } else if (w.st === "dive") {
+    w.x += w.vx * dt; w.y = w.ly;
+    if (Math.random() < 0.8 * PK) emit(w.x * W + 40 * SC, w.y * H + rand(-30, 30) * SC, rand(40, 160), rand(-30, 30), 0.5, rand(10, 18) * SC, Math.random() < 0.5 ? GL.violet : GL.red, 0.95, 0);
+    if (w.x < -0.3) {
+      w.x = 1.3;
+      if (w.burst > 0) { w.burst--; startTele("dive", 1.0); }
+      else { w.st = "ret"; w.st_t = 0; w.y = clamp(emma.y, 0.18, 0.8); }
+    }
+  } else if (w.st === "ret") {
+    w.x += (0.78 - w.x) * Math.min(1, dt * 2.5);
+    w.y += (clamp(emma.y, 0.18, 0.8) - w.y) * dt * 0.6;
+    if (w.x < 0.8) { w.st = "idle"; w.st_t = 0; w.cd = bossGap() * 0.6; }
+  }
+  if (!w.enraged && w.hp > 0 && w.hp <= w.max * 0.3) {
+    w.enraged = true;
+    banner = { title: "SHE'S ENRAGED", sub: "Faster spells. Watch the red lines.", t: 0, dur: 1.9, boss: true };
+    flashFx = Math.max(flashFx, 0.5); addShake(12); sfx("boss");
+    if (D.drop && lives < 3) treats.push({ x: 1.1, y: 0.3 + Math.random() * 0.4, ph: 0, type: "heart" });
+  }
+  if (bossIntro <= 0 && w.x < 1.05 && emma.inv <= 0 && hit(emma, w, 34, 48)) hurt();
+}
+
 /* ---------- simulation ---------- */
 function step(dt) {
   if (over || hold || paused) return;
@@ -1137,6 +1514,14 @@ function step(dt) {
   emma.hurtT = Math.max(0, emma.hurtT - dt);
   shootCd = Math.max(0, shootCd - dt);
   grace = Math.max(0, grace - dt);
+  /* wand heat: each zap adds heat; it cools slowly while firing, faster when resting; overheat locks it */
+  heat.since += dt;
+  heat.warn = Math.max(0, heat.warn - dt);
+  if (heat.lock > 0) {
+    heat.lock -= dt;
+    heat.v = Math.max(0, heat.lock / D.lock);
+    if (heat.lock <= 0) { heat.lock = 0; heat.v = 0; }
+  } else heat.v = Math.max(0, heat.v - dt * (heat.since < 0.3 ? 0.2 : 0.6));
   const py = emma.y;
 
   if (mode === "dying") {
@@ -1197,75 +1582,32 @@ function step(dt) {
   if (mode === "fly") {
     dist += speed * dt;
     elapsed += dt;
-    spawnZ -= dt;
+    waveCd -= dt;
     spawnP -= dt;
-    if (spawnZ <= 0 && grace <= 0) {
-      spawnZ = level === 1 ? 1.7 : level === 2 ? 1.05 : 0.72;
-      const kind = KINDS[Math.floor(Math.random() * (level === 1 ? 4 : KINDS.length))];
-      let y = 0.5;
-      for (let k = 0; k < 8; k++) {
-        y = 0.18 + Math.random() * 0.62;
-        if (foes.every((f) => f.x < 0.85 || Math.abs(f.y - y) > 0.17)) break;
-      }
-      foes.push({ x: 1.12, y, kind, ph: Math.random() * 6, hp: 2, max: 2, flash: 0, kx: 0, born: t });
+    heartCd -= dt;
+    if (waveCd <= 0 && grace <= 0) {
+      const cap = 8 + level + Math.round(prog() * 4);
+      if (foes.length >= cap) waveCd = 0.6;
+      else waveCd = (1 + 0.55 * spawnWave()) * (1.15 - 0.45 * prog()) / (nk() * D.k);
     }
     if (spawnP <= 0) {
       spawnP = 9 + Math.random() * 4;
-      treats.push({ x: 1.12, y: 0.2 + Math.random() * 0.55, ph: Math.random() * 6 });
+      treats.push({ x: 1.12, y: 0.2 + Math.random() * 0.55, ph: Math.random() * 6, type: "pumpkin" });
     }
-    const chase = 0.22 + level * 0.16;
-    for (const z of foes) {
-      z.flash = Math.max(0, z.flash - dt);
-      z.x += z.kx * dt - dt * (z.kind.speed + level * 0.045);
-      z.kx *= Math.exp(-dt * 6);
-      z.y += (emma.y - z.y) * dt * chase;
-      if (emma.inv <= 0 && hit(emma, z, 34, z.kind.r)) { hurt(); z.hp = 0; poof(z); }
+    /* the only healing: a rare heart, and only when one is missing */
+    if (heartCd <= 0) {
+      if (lives < 3) { treats.push({ x: 1.12, y: 0.22 + Math.random() * 0.5, ph: Math.random() * 6, type: "heart" }); heartCd = rand(D.heart[0], D.heart[1]); }
+      else heartCd = 8;
     }
-    /* keep villains from stacking on top of each other */
-    for (let i = 0; i < foes.length; i++) for (let j = i + 1; j < foes.length; j++) {
-      const a = foes[i], b = foes[j];
-      if (Math.abs(a.x - b.x) * W < 70 * SC && Math.abs(a.y - b.y) * H < 64 * SC) {
-        const d = a.y < b.y ? -1 : 1;
-        a.y += d * dt * 0.25; b.y -= d * dt * 0.25;
-      }
-    }
-    for (const q of treats) {
-      q.x -= dt * 0.12;
-      if (hit(emma, q, 32, 24)) {
-        lives = Math.min(6, lives + 1); score += 25;
-        burst(q.x * W, q.y * H, 18, GL.orange, 220 * SC, 9 * SC, 0.6);
-        q.x = -1;
-        const pp = emmaPose();
-        burst(pp.cx, pp.cy, 14, GL.orange, 200 * SC, 9 * SC, 0.6);
-        popup(pp.cx, pp.cy - 50 * SC, "+1 ♥", "#ff8fa6", 20);
-        sfx("pick");
-      }
-    }
-    foes = foes.filter((z) => z.x > -0.2 && z.hp > 0);
-    treats = treats.filter((q) => q.x > -0.2);
-    if (dist >= goal) startBoss();
+    updateFoes(dt);
+    updateTreats(dt);
+    updateEShots(dt);
+    if (dist >= goal && mode === "fly") startBoss();
   } else if (mode === "boss" && witch) {
-    bossIntro = Math.max(0, bossIntro - dt);
-    witch.x += (0.78 - witch.x) * Math.min(1, dt * (bossIntro > 0 ? 1.2 : 2)) + witch.kx * dt;
-    witch.kx *= Math.exp(-dt * 6);
-    witch.y += (emma.y - witch.y) * dt * (0.55 + level * 0.2);
-    witch.flash = Math.max(0, witch.flash - dt);
-    witch.cast = Math.max(0, witch.cast - dt);
-    witch.lag += (witch.hp - witch.lag) * Math.min(1, dt * 2.5);
-    if (bossIntro <= 0) boltCd -= dt;
-    if (boltCd <= 0) {
-      boltCd = Math.max(0.45, 1.35 - level * 0.22);
-      witch.cast = 0.35;
-      orbs.push({ x: witch.x - 0.06, y: witch.y, vx: -0.38, vy: (emma.y - witch.y) * 0.35, ph: Math.random() * 6 });
-    }
-    for (const b of orbs) {
-      b.x += b.vx * dt;
-      b.y += b.vy * dt;
-      if (Math.random() < 0.6 * PK) emit(b.x * W, b.y * H, rand(10, 60), rand(-20, 20), 0.4, rand(5, 10) * SC, Math.random() < 0.5 ? GL.violet : GL.green, 0.95, 0);
-      if (hit(emma, b, 30, 12)) { hurt(); b.x = -1; }
-    }
-    if (bossIntro <= 0 && hit(emma, witch, 34, 48)) hurt();
-    orbs = orbs.filter((b) => b.x > -0.2);
+    updateBoss(dt);
+    updateFoes(dt);
+    updateTreats(dt);
+    updateEShots(dt);
     if (witch.hp <= 0 && mode === "boss") {
       score += 200;
       mode = "victory"; endT = 2.2; slow = 0.9;
@@ -1275,7 +1617,9 @@ function step(dt) {
       burst(x, y, 30, GL.gold, 300 * SC, 10 * SC, 1.2);
       emit(x, y, 0, 0, 0.5, 80 * SC, GL.white, 1, 0, 400 * SC);
       flashFx = 1; addShake(22);
-      orbs = [];
+      eshots = [];
+      foes.forEach((f) => poof(f));
+      foes = [];
       popup(x, y - 60 * SC, "+200", "#ffe9a8", 30);
       banner = { title: "NIGHT " + level + " CLEARED", sub: "The ugly witch is gone. Score " + score, t: 0, dur: 2.2 };
       sfx("win");
@@ -1290,18 +1634,19 @@ function step(dt) {
   for (const s of shots) {
     if (s.dead) continue;
     const step2 = s.sp * dt, nx = s.x + s.dx * step2, ny = s.y + s.dy * step2;
-    if (mode === "fly") {
+    if (mode === "fly" || mode === "boss") {
       for (const z of foes) {
-        if (z.hp <= 0) continue;
+        if (z.hp <= 0 || ghostPhased(z)) continue;
         if (segHit(s.x, s.y, nx, ny, z.x * W, z.y * H, (z.kind.r + 12) * SC)) {
           s.dead = true;
           strike(s, z.x * W - s.dx * z.kind.r * SC * 0.5, z.y * H - s.dy * z.kind.r * SC * 0.5);
-          z.hp--; z.flash = 0.14; z.kx = 0.35;
+          z.hp--; z.flash = 0.14; z.kx = z.st === "lunge" ? 0 : 0.35;
           if (z.hp <= 0) killFoe(z); else sfx("hit");
           break;
         }
       }
-    } else if (mode === "boss" && witch && witch.x < 1.02) {
+    }
+    if (!s.dead && mode === "boss" && witch && witch.x < 1.02) {
       const wy = witch.y * H + (reduceMotion ? 0 : Math.sin(t * 2) * 10 * SC);
       if (segHit(s.x, s.y, nx, ny, witch.x * W, wy, 72 * SC)) {
         s.dead = true;
@@ -1437,11 +1782,52 @@ function drawFoe(z) {
     default: rot = Math.sin(a * 2.4) * 0.16 * k; sx = 1 + Math.sin(a * 4.8) * 0.04 * k; oy = Math.sin(a * 2.4) * 4 * SC * k;
   }
   const fade = Math.min(1, (t - z.born) * 3);
+  /* ghosts shimmer, then phase out (bolts pass through, and so does Emma) */
+  if (z.name === "ghost" && z.phs > 0) {
+    if (z.phs > 0.9) al *= 0.55 + 0.45 * (Math.floor(t * 20) % 2);
+    else al *= 0.2 + 0.08 * Math.sin(t * 30);
+  }
   ctx.globalCompositeOperation = "lighter";
   glow(z.kind.col, x, y + oy, 62 * SC, 0.16 * fade);
+  if (z.armor) glow(GL.blue, x, y + oy, 50 * SC, 0.22);
+  /* wolf about to lunge: red pulse, crouch, and a line to where it will strike */
+  if (z.name === "wolf" && z.st === "tele") {
+    const u = clamp(z.st_t / z.windT, 0, 1), pul = 0.5 + 0.5 * Math.sin(t * 26);
+    glow(GL.red, x, y + oy, (54 + u * 30) * SC, 0.35 + 0.45 * pul);
+    sy *= 1 - 0.12 * u; sx *= 1 + 0.08 * u;
+    ctx.globalCompositeOperation = "source-over";
+    ctx.save();
+    ctx.globalAlpha = 0.25 + 0.55 * u;
+    ctx.strokeStyle = "rgba(255,70,80,1)"; ctx.lineWidth = 2.2 * SC; ctx.setLineDash([10 * SC, 8 * SC]);
+    ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(z.lx * W, z.ly * H); ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.font = `900 ${Math.round(26 * Math.max(0.8, SC))}px ${SANS}`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillStyle = "#ff5a64"; ctx.globalAlpha = 0.6 + 0.4 * pul;
+    ctx.fillText("!", x, y + oy - 48 * SC);
+    ctx.restore();
+    ctx.globalCompositeOperation = "lighter";
+  }
+  if (z.name === "wolf" && z.st === "lunge") glow(GL.red, x, y + oy, 60 * SC, 0.3);
+  if (z.name === "ghost" && z.phs > 0.9) glow(GL.teal, x, y + oy, 70 * SC, 0.3);
   ctx.globalCompositeOperation = "source-over";
   spr(z.kind.img, x, y + oy, (z.kind.flip ? -1 : 1) * sx * (1 + z.flash * 0.8), sy * (1 - z.flash * 0.5), rot, al * fade, z.flash > 0 ? 0.95 : 0);
-  if (z.hp < z.max) {
+  if (z.armor) {
+    ctx.save();
+    ctx.globalAlpha = 0.75 * fade;
+    ctx.strokeStyle = "rgba(190,215,255,1)"; ctx.lineWidth = 2.4 * SC;
+    ctx.beginPath(); ctx.arc(x, y + oy, (z.kind.r + 10) * SC, Math.PI * 0.6, Math.PI * 1.4); ctx.stroke();
+    ctx.beginPath(); ctx.arc(x, y + oy, (z.kind.r + 10) * SC, -Math.PI * 0.4, Math.PI * 0.4); ctx.stroke();
+    ctx.restore();
+  }
+  /* wind-up before a throw / spit: the glow in the hand grows until it lets go */
+  if (z.wind > 0) {
+    const u = 1 - z.wind / z.windT, hxp = x - 22 * SC, hyp = y + oy - 22 * SC;
+    ctx.globalCompositeOperation = "lighter";
+    if (z.name === "skeleton") { glow(GL.orange, hxp, hyp, (14 + u * 26) * SC, 0.5 + u * 0.5); glow(GL.bone, hxp, hyp, (6 + u * 10) * SC, 1); }
+    else { glow(GL.teal, x - 18 * SC, y + oy, (14 + u * 30) * SC, 0.5 + u * 0.5); glow(GL.white, x - 18 * SC, y + oy, (5 + u * 8) * SC, 1); }
+    ctx.globalCompositeOperation = "source-over";
+  }
+  if (z.hp < z.max || z.max > 2) {
     const bx = x, by = y + oy - 50 * SC;
     for (let i = 0; i < z.max; i++) {
       ctx.globalAlpha = 1;
@@ -1463,7 +1849,65 @@ function drawWitch() {
   ctx.globalCompositeOperation = "lighter";
   glow(GL.violet, sx, sy, (16 + pulse * 6 + w.cast * 60) * SC, 0.7);
   glow(GL.green, sx, sy, (6 + w.cast * 20) * SC, 0.9);
+  if (w.enraged && mode === "boss") glow(GL.red, x, y, 120 * SC, 0.22 + 0.12 * Math.sin(t * 9));
   ctx.globalCompositeOperation = "source-over";
+  /* spell telegraph: a ring closing in on her hand (violet = fan, green = summon, red = dive) */
+  if (w.st === "tele" && mode === "boss") {
+    const u = clamp(w.st_t / w.teleT, 0, 1);
+    ctx.save();
+    ctx.globalCompositeOperation = "lighter";
+    ctx.strokeStyle = w.atk === "fan" ? "rgba(200,140,255,1)" : w.atk === "summon" ? "rgba(140,255,120,1)" : "rgba(255,70,80,1)";
+    ctx.lineWidth = 3 * SC; ctx.globalAlpha = 0.35 + 0.6 * u;
+    ctx.beginPath(); ctx.arc(sx, sy, (90 - 70 * u) * SC, 0, TAU); ctx.stroke();
+    ctx.lineWidth = 1.5 * SC; ctx.globalAlpha = 0.3 * u;
+    ctx.beginPath(); ctx.arc(sx, sy, (130 - 90 * u) * SC, 0, TAU); ctx.stroke();
+    ctx.restore();
+  }
+}
+function drawDiveWarning() {
+  const w = witch;
+  if (mode !== "boss" || !(w.st === "dive" || (w.st === "tele" && w.atk === "dive"))) return;
+  const band = (48 + 34) * SC, y = w.ly * H, tele = w.st === "tele";
+  const u = tele ? clamp(w.st_t / w.teleT, 0, 1) : 1, fl = 0.5 + 0.5 * Math.sin(t * (tele ? 16 + u * 20 : 30));
+  ctx.save();
+  ctx.globalAlpha = tele ? 0.08 + 0.14 * fl + 0.1 * u : 0.12;
+  ctx.fillStyle = "#ff2a40";
+  ctx.fillRect(0, y - band, W, band * 2);
+  ctx.globalAlpha = tele ? 0.45 + 0.45 * fl : 0.3;
+  ctx.strokeStyle = "rgba(255,90,100,1)"; ctx.lineWidth = 2; ctx.setLineDash([14, 10]);
+  ctx.lineDashOffset = -t * 120;
+  ctx.beginPath(); ctx.moveTo(0, y - band); ctx.lineTo(W, y - band); ctx.moveTo(0, y + band); ctx.lineTo(W, y + band); ctx.stroke();
+  ctx.setLineDash([]);
+  if (tele) {
+    ctx.font = `900 ${Math.round(30 * Math.max(0.8, SC))}px ${SANS}`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillStyle = "#ff6a74"; ctx.globalAlpha = 0.5 + 0.5 * fl;
+    for (const fx of [0.08, 0.5]) ctx.fillText("!", W * fx, y);
+  }
+  ctx.restore();
+}
+function drawEShots() {
+  ctx.globalCompositeOperation = "lighter";
+  for (const b of eshots) {
+    const x = b.x * W, y = b.y * H, pl = 1 + 0.15 * Math.sin(t * 20 + b.ph);
+    if (b.type === "orb") {
+      glow(GL.violet, x, y, 30 * SC * pl, 0.9); glow(GL.green, x, y, 14 * SC * pl, 0.8); glow(GL.white, x, y, 6 * SC, 1);
+    } else if (b.type === "wisp") {
+      glow(GL.teal, x, y, 30 * SC * pl, 0.85); glow(GL.white, x, y, 8 * SC, 1);
+    } else {
+      glow(GL.orange, x, y, 30 * SC * pl, 0.7); glow(GL.bone, x, y, 14 * SC, 0.6);
+    }
+  }
+  ctx.globalCompositeOperation = "source-over";
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = "#fff3dc";
+  for (const b of eshots) {
+    if (b.type !== "bone") continue;
+    ctx.save();
+    ctx.translate(b.x * W, b.y * H); ctx.rotate(b.rot); ctx.scale(SC, SC);
+    ctx.fillRect(-9, -2.2, 18, 4.4);
+    for (const ex of [-9, 9]) for (const ey of [-2.6, 2.6]) { ctx.beginPath(); ctx.arc(ex, ey, 3.2, 0, TAU); ctx.fill(); }
+    ctx.restore();
+  }
 }
 function drawEmma() {
   const p = emmaPose();
@@ -1489,7 +1933,8 @@ function drawEmma() {
   ctx.beginPath(); ctx.moveTo(-6 * SC, -2.2 * SC); ctx.lineTo(L - 2 * SC, -0.8 * SC); ctx.stroke();
   /* glowing rune channel along the shaft, brighter right after a shot */
   ctx.globalCompositeOperation = "lighter";
-  ctx.strokeStyle = `rgba(140,200,255,${0.35 + wand.flash * 0.65})`; ctx.lineWidth = 1.4 * SC;
+  const hv = heat.lock > 0 ? 1 : heat.v;
+  ctx.strokeStyle = `rgba(${140 + 115 * hv | 0},${200 - 120 * hv | 0},${255 - 205 * hv | 0},${0.35 + Math.max(wand.flash, hv * 0.6) * 0.65})`; ctx.lineWidth = 1.4 * SC;
   ctx.beginPath(); ctx.moveTo(10 * SC, 0); ctx.lineTo(L - 3 * SC, 0); ctx.stroke();
   ctx.globalCompositeOperation = "source-over";
   ctx.fillStyle = "#f2cf78";
@@ -1512,7 +1957,7 @@ function drawEmma() {
   const tp = wandTipAt(p);
   ctx.globalCompositeOperation = "lighter";
   const pul = reduceMotion ? 0 : Math.sin(t * 8) * 2;
-  glow(GL.blue, tp.x, tp.y, (14 + pul + wand.flash * 26) * SC, 0.55 + wand.flash * 0.45);
+  glow(heat.lock > 0 ? GL.orange : GL.blue, tp.x, tp.y, (14 + pul + wand.flash * 26) * SC, 0.55 + wand.flash * 0.45);
   glow(GL.white, tp.x, tp.y, (4 + wand.flash * 10) * SC, 0.9);
   if (wand.flash > 0.3) {
     ctx.strokeStyle = "rgba(220,240,255,1)"; ctx.lineWidth = 1.5 * SC; ctx.globalAlpha = wand.flash;
@@ -1594,7 +2039,7 @@ function drawHUD() {
   const pad = 14, top = 12, narrow = W < 640;
   const hs = narrow ? 22 : 26;
   /* hearts */
-  const nh = Math.max(3, Math.min(6, Math.max(lives, lastLives)));
+  const nh = 3;
   for (let i = 0; i < nh; i++) {
     const full = i < lives;
     let s = 1 + heartFx[i] * 0.5;
@@ -1604,6 +2049,22 @@ function drawHUD() {
     ctx.globalAlpha = 1;
     ctx.drawImage(img, x - d / 2, y - d / 2, d, d);
     if (heartFx[i] > 0) { ctx.globalCompositeOperation = "lighter"; glow(GL.red, x, y, hs * 1.6, heartFx[i] * 0.7); ctx.globalCompositeOperation = "source-over"; }
+  }
+  /* wand heat meter under the hearts */
+  {
+    const bw = nh * (hs + 4) - 4, bh = 6, bx = pad, by = top + hs + 7, locked = heat.lock > 0, hv = heat.v;
+    ctx.globalAlpha = 1;
+    rr(bx - 1, by - 1, bw + 2, bh + 2, 4); ctx.fillStyle = "rgba(10,4,20,.65)"; ctx.fill();
+    ctx.strokeStyle = locked ? "rgba(255,110,80,.8)" : "rgba(255,243,220,.18)"; ctx.lineWidth = 1; ctx.stroke();
+    if (hv > 0.005) {
+      const g = ctx.createLinearGradient(bx, 0, bx + bw, 0);
+      g.addColorStop(0, "#7fc4ff"); g.addColorStop(0.6, "#ffb44a"); g.addColorStop(1, "#ff4a3a");
+      ctx.fillStyle = locked ? (Math.floor(t * 8) % 2 ? "#ff4a3a" : "#ff8a5a") : g;
+      rr(bx, by, Math.max(2, bw * hv), bh, 3); ctx.fill();
+    }
+    ctx.font = `800 9px ${SANS}`; ctx.textAlign = "left"; ctx.textBaseline = "middle";
+    ctx.fillStyle = locked ? "#ff8a6a" : heat.v > 0.7 ? "rgba(255,180,90,.9)" : "rgba(255,243,220,.5)";
+    ctx.fillText(locked ? "OVERHEAT" : "WAND", bx + bw + 6, by + bh / 2 + 0.5);
   }
   /* score */
   ctx.globalAlpha = 1;
@@ -1632,7 +2093,7 @@ function drawHUD() {
   }
   /* progress path or boss bar */
   const pw = narrow ? W - pad * 2 : clamp(W * 0.36, 260, 460);
-  const px = narrow ? pad : (W - pw) / 2, py = narrow ? top + hs + 22 : top + 14;
+  const px = narrow ? pad : (W - pw) / 2, py = narrow ? top + hs + 30 : top + 14;
   if ((mode === "boss" || mode === "victory") && witch) drawBossBar(px, py - 6, pw);
   else drawPath(px, py, pw);
   ctx.textAlign = "left"; ctx.textBaseline = "alphabetic";
@@ -1672,7 +2133,7 @@ function drawPath(x0, y0, w) {
   const mins = Math.floor(elapsed / 60), secs = String(Math.floor(elapsed % 60)).padStart(2, "0");
   ctx.font = `700 11px ${SANS}`; ctx.textAlign = "center"; ctx.textBaseline = "top";
   ctx.fillStyle = "rgba(255,243,220,.7)";
-  ctx.fillText("NIGHT " + level + "  ·  " + mins + ":" + secs + "  ·  " + Math.round(frac * 100) + "%", x0 + w / 2, y0 + 12);
+  ctx.fillText("NIGHT " + level + (diffName === "hard" ? "  ·  HARD" : "") + "  ·  " + mins + ":" + secs + "  ·  " + Math.round(frac * 100) + "%", x0 + w / 2, y0 + 12);
 }
 function drawBossBar(x0, y0, w) {
   const h = 14, wt = witch;
@@ -1769,19 +2230,19 @@ function draw() {
   if (playingNow) {
     for (const q of treats) {
       const x = q.x * W, y = q.y * H + (reduceMotion ? 0 : Math.sin(t * 3 + q.ph) * 6);
+      if (q.type === "heart") {
+        const pl = 1 + (reduceMotion ? 0 : 0.12 * Math.sin(t * 6)), d = 40 * SC * pl;
+        ctx.globalCompositeOperation = "lighter"; glow(GL.pink, x, y, 54 * SC * pl, 0.55); glow(GL.white, x, y, 14 * SC, 0.5); ctx.globalCompositeOperation = "source-over";
+        ctx.globalAlpha = 1; ctx.drawImage(HEART, x - d / 2, y - d / 2, d, d);
+        continue;
+      }
       ctx.globalCompositeOperation = "lighter"; glow(GL.orange, x, y, 46 * SC, 0.35 + 0.15 * Math.sin(t * 5)); ctx.globalCompositeOperation = "source-over";
       spr("pumpkin", x, y, 1, 1, Math.sin(t * 2 + q.ph) * 0.12, 1, 0);
     }
+    if (witch) drawDiveWarning();
     for (const z of foes) drawFoe(z);
     if (witch) drawWitch();
-    ctx.globalCompositeOperation = "lighter";
-    for (const b of orbs) {
-      const x = b.x * W, y = b.y * H, pl = 1 + 0.15 * Math.sin(t * 20 + b.ph);
-      glow(GL.violet, x, y, 30 * SC * pl, 0.9);
-      glow(GL.green, x, y, 14 * SC * pl, 0.8);
-      glow(GL.white, x, y, 6 * SC, 1);
-    }
-    ctx.globalCompositeOperation = "source-over";
+    drawEShots();
     drawEmma();
     drawShots();
   }
@@ -1798,10 +2259,13 @@ function draw() {
   if (playingNow) { drawHUD(); drawBanner(); drawReticle(); }
 }
 
-let uiPlaying = null;
+let uiPlaying = null, uiHot = null;
+const shootBtn = document.getElementById("goShoot");
 function syncUI() {
   const pl = !hold && !over && !paused;
   if (pl !== uiPlaying) { uiPlaying = pl; document.body.classList.toggle("playing", pl); }
+  const hot = heat.lock > 0;
+  if (hot !== uiHot) { uiHot = hot; shootBtn.classList.toggle("hot", hot); }
 }
 function frame(now) {
   const rdt = Math.min(0.05, (now - last) / 1000);
@@ -1809,10 +2273,12 @@ function frame(now) {
   if (!paused) {
     let dt = Math.min(0.033, rdt);
     if (slow > 0) { slow = Math.max(0, slow - rdt); dt *= 0.35; }
-    t += dt;
-    if (hold && !over) scroll += 45 * dt;
-    step(dt);
-    updateFx(dt, rdt);
+    for (let i = 0; i < turbo; i++) {
+      t += dt;
+      if (hold && !over) scroll += 45 * dt;
+      step(dt);
+      updateFx(dt, rdt);
+    }
   }
   syncUI();
   draw();
@@ -1928,24 +2394,45 @@ document.getElementById("contactNo").onclick = () => sheet("contact", false);
 document.getElementById("pauseBtn").onclick = () => setPaused(!paused);
 document.getElementById("resume").onclick = () => setPaused(false);
 document.getElementById("toNights").onclick = () => { setPaused(false); showLevels(); };
+/* difficulty toggle (remembered on this device) */
+function paintDiff() {
+  document.querySelectorAll(".diff button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.d === diffName)));
+}
+document.querySelectorAll(".diff button").forEach((b) => {
+  b.onclick = () => {
+    diffName = DIFFS[b.dataset.d] ? b.dataset.d : "normal";
+    D = DIFFS[diffName];
+    try { localStorage.setItem("emma.diff", diffName); } catch (e) {}
+    paintDiff();
+  };
+});
+paintDiff();
 paintNights();
 resize();
 if (document.fonts && document.fonts.load) document.fonts.load("800 40px Cinzel").catch(() => {});
 window.__emmaTest = {
   paidNow, showPay, reset, showLevels, fire, startBoss, setPaused, wandTip,
   spawnAbove() {
-    foes.push({ x: emma.x + 0.25, y: emma.y, kind: KINDS[0], ph: 1, hp: 2, max: 2, flash: 0, kx: 0, born: t });
+    addFoe("ghost", emma.x + 0.25, emma.y, { ph: 1 });
   },
   spawnWave(n) {
-    for (let i = 0; i < (n || 4); i++) foes.push({ x: 0.55 + i * 0.1, y: 0.22 + (i % 4) * 0.17, kind: KINDS[i % KINDS.length], ph: i, hp: 2, max: 2, flash: 0, kx: 0, born: t - 1 });
+    const names = Object.keys(K);
+    for (let i = 0; i < (n || 4); i++) addFoe(names[i % names.length], 0.55 + i * 0.1, 0.22 + (i % 4) * 0.17, { ph: i, born: t - 1 });
   },
+  makeWave(kind) { return makeWave(kind, ep()); },
   setDist(v) { dist = v; },
   setLives(v) { lives = v; },
+  setDiff(d) { if (DIFFS[d]) { diffName = d; D = DIFFS[d]; paintDiff(); } },
+  setTurbo(n) { turbo = Math.max(1, Math.min(8, n | 0)); },
+  hurtWitch(n) { if (witch) witch.hp -= n; },
   state: () => ({
     level, lives, mode, hold, over, paused, score, combo, shots: shots.length, wandAng: wand.ang,
-    brake: inp.brakeM || inp.brakeK || inp.brakeT, shootHeld: shooting(), emmaY: emma.y, speed,
-    witch: witch && { hp: witch.hp, max: witch.max },
-    foes: foes.map((z) => ({ x: z.x, y: z.y, hp: z.hp, img: z.kind.img }))
+    brake: inp.brakeM || inp.brakeK || inp.brakeT, shootHeld: shooting(), emmaX: emma.x, emmaY: emma.y, speed,
+    inv: emma.inv, time: t, elapsed, dist, goal, diff: diffName, heat: heat.v, locked: heat.lock > 0, W, H, SC,
+    witch: witch && { hp: witch.hp, max: witch.max, x: witch.x, y: witch.y, st: witch.st, atk: witch.atk, ly: witch.ly, enraged: witch.enraged },
+    foes: foes.map((z) => ({ x: z.x, y: z.y, hp: z.hp, img: z.kind.img, st: z.st, phased: ghostPhased(z), armor: z.armor, wind: z.wind, lx: z.lx, ly: z.ly, vx: z.vx, vy: z.vy, r: z.kind.r })),
+    eshots: eshots.map((b) => ({ x: b.x, y: b.y, vx: b.vx, vy: b.vy, g: b.g, type: b.type })),
+    treats: treats.map((q) => ({ x: q.x, y: q.y, type: q.type }))
   })
 };
 requestAnimationFrame(frame);
