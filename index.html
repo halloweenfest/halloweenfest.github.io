@@ -672,7 +672,7 @@
     }
     .gate-foot .btn-quiet { min-height: 44px; padding: 0 4px; }
     @media (min-width: 760px) {
-      .games { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px; }
+      .games { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
       .game-card .art { aspect-ratio: 4 / 5; }
       .game-card .body { margin-top: -90px; }
       .game-card .title { font-size: 26px; }
@@ -885,9 +885,9 @@
         <button id="gateContact" class="chip-btn" type="button">Contact</button>
       </nav>
       <section class="hero">
-        <span class="eyebrow"><i></i>Halloween Fest · 3 free games</span>
+        <span class="eyebrow"><i></i>Halloween Fest · 4 free games</span>
         <h1><span>Holly</span><span>Haunt</span></h1>
-        <p class="lede">Hunt hidden treasures in a candlelit manor, ride Emma's broom through the storm, or stack the spookiest blocks in town.</p>
+        <p class="lede">Hunt hidden treasures in a candlelit manor, ride Emma's broom through the storm, stack the spookiest blocks, or send her down the cliff road.</p>
         <div class="cta">
           <button id="heroPlay" class="btn btn-primary" type="button"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>Play the Haunted Hall</button>
           <a class="btn btn-ghost" href="#games">See all games</a>
@@ -929,6 +929,17 @@
             <span class="title" role="heading" aria-level="3">Holly Stack</span>
             <span class="desc">Falling blocks with pumpkins, ghosts, bats and black cats. Clear the rows.</span>
             <span class="foot"><span class="meta">Endless · high score</span><span class="play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>Play</span></span>
+          </span>
+        </a>
+        <a id="playRush" class="game-card c-stack" href="rush.html">
+          <span class="glare" aria-hidden="true"></span>
+          <span class="art"><img src="tile-rush.jpg?v=1" alt="" width="720" height="960" decoding="async" /></span>
+          <span class="badges"><span class="pill free">Free</span></span>
+          <span class="body">
+            <span class="tag">Cliff run</span>
+            <span class="title" role="heading" aria-level="3">Adrenaline Rush</span>
+            <span class="desc">Emma on a mountain bike. Jump the rocks, duck the branches, grab energy cans and action cams.</span>
+            <span class="foot"><span class="meta">Endless · 3 lanes</span><span class="play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>Play</span></span>
           </span>
         </a>
       </nav>
@@ -1467,6 +1478,9 @@ document.getElementById("playBroom").addEventListener("click", () => {
 });
 document.getElementById("playStack").addEventListener("click", () => {
   track("game_chosen", { game: "holly_stack" });
+});
+document.getElementById("playRush").addEventListener("click", () => {
+  track("game_chosen", { game: "adrenaline_rush" });
 });
 function backToGames(){
   clearTimers.forEach(clearTimeout); clearTimers = [];

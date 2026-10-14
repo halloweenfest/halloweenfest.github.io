@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Adrenaline Rush · Holly Haunt</title>
+  <meta name="description" content="Ride Emma down a moonlit cliff road. Grab energy cans and action cams, jump the rocks, and duck the branches." />
+  <link rel="icon" href="favicon.png?v=1" type="image/png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=1" />
+  <script>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    posthog.init('phc_z6kQXd5am8uAvdXVkFVNWkbPxMuJ7vJc547HLKTxLLtp',{api_host:'https://us.i.posthog.com',person_profiles:'identified_only'});
+  </script>
+  <style>
+    :root { --gold:#e8c36a; --cream:#fff6e4; --ink:#10080c; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #07060d; color: var(--cream); font-family: "Trebuchet MS", "Segoe UI", sans-serif; overflow: hidden; }
+    #view { position: fixed; inset: 0; }
+    #view canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+    header {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 2;
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding: calc(10px + env(safe-area-inset-top)) 12px 0;
+      pointer-events: none;
+    }
+    header a, header button { pointer-events: auto; }
+    .back {
+      border: 1px solid #e8c36a55; background: #1b120fcc; color: var(--cream);
+      border-radius: 999px; padding: 8px 12px; font: 800 12px inherit; text-decoration: none;
+    }
+    .hud { text-align: right; text-shadow: 0 2px 8px #000; }
+    .hud b { display: block; font-size: 28px; letter-spacing: .04em; }
+    .hud span { color: var(--gold); font-size: 13px; font-weight: 800; }
+    #shield { display: none; margin-top: 4px; color: #9fd0ff; font-size: 12px; font-weight: 800; }
+    #shield.on { display: block; }
+    .dock {
+      position: fixed; left: 0; right: 0; bottom: 0; z-index: 2;
+      display: grid; grid-template-columns: 1fr 1fr 1fr 1fr;
+      gap: 8px; padding: 10px 10px calc(10px + env(safe-area-inset-bottom));
+    }
+    .dock button {
+      height: 52px; border: 0; border-radius: 16px;
+      background: linear-gradient(180deg, #3a2820cc, #1c1210ee);
+      color: var(--cream); font: 800 14px inherit;
+      box-shadow: inset 0 1px 0 #fff3, 0 6px 0 #0a0608;
+    }
+    .dock button:active { transform: translateY(3px); }
+    #veil {
+      position: fixed; inset: 0; z-index: 5; display: flex; align-items: flex-end; justify-content: center;
+      background: #07060d99; padding: 18px 14px 24px;
+    }
+    #veil.off { display: none; }
+    .sheet {
+      width: min(460px, 100%);
+      background: linear-gradient(180deg, #2a1c18, #140c0c);
+      border: 1px solid #e8c36a55; border-radius: 22px; padding: 20px 16px 16px;
+    }
+    .sheet p.k { color: var(--gold); letter-spacing: .18em; font-size: 11px; font-weight: 800; }
+    .sheet h1 { font-size: 34px; line-height: .95; margin: 4px 0 8px; }
+    .sheet p { opacity: .9; line-height: 1.4; margin-bottom: 14px; }
+    .row { display: flex; gap: 8px; }
+    .row a, .row button {
+      flex: 1; height: 48px; border: 0; border-radius: 14px; font: 800 15px inherit;
+      text-decoration: none; display: flex; align-items: center; justify-content: center;
+    }
+    .primary { background: var(--gold); color: #2a160c; }
+    .ghost { background: #3a241c; color: var(--cream); }
+  </style>
+</head>
+<body>
+  <div id="view"></div>
+  <header>
+    <a class="back" href="./">Games</a>
+    <div class="hud">
+      <b id="score">0</b>
+      <span id="loot">0 cans · 0 cams</span>
+      <div id="shield">CAM SHIELD</div>
+    </div>
+  </header>
+  <div class="dock">
+    <button type="button" data-act="left">Left</button>
+    <button type="button" data-act="jump">Jump</button>
+    <button type="button" data-act="slide">Duck</button>
+    <button type="button" data-act="right">Right</button>
+  </div>
+  <div id="veil">
+    <div class="sheet">
+      <p class="k">HOLLY HAUNT</p>
+      <h1 id="title">Adrenaline Rush</h1>
+      <p id="blurb">Emma rides the cliff road. Switch lanes, jump the rocks, duck the branches. Energy cans score. An action cam blocks one crash.</p>
+      <div class="row">
+        <a class="ghost" href="./">Games</a>
+        <button class="primary" id="play" type="button">Ride</button>
+      </div>
+    </div>
+  </div>
+  <script type="importmap">
+    { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }
+  </script>
+  <script type="module">
+import * as THREE from "three";
+
+const LANES = [-1.9, 0, 1.9];
+const view = document.getElementById("view");
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+view.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#0c1024");
+scene.fog = new THREE.Fog("#0c1024", 18, 62);
+const camera = new THREE.PerspectiveCamera(58, innerWidth / innerHeight, 0.1, 120);
+camera.position.set(0, 3.4, 7.2);
+camera.lookAt(0, 1.2, -8);
+
+scene.add(new THREE.HemisphereLight("#c9d6ff", "#3a2418", 1.1));
+const moon = new THREE.DirectionalLight("#fff1cf", 1.4);
+moon.position.set(-6, 12, 4);
+scene.add(moon);
+
+const road = new THREE.Mesh(
+  new THREE.PlaneGeometry(7.2, 90),
+  new THREE.MeshStandardMaterial({ color: "#2a242c", roughness: 0.92 })
+);
+road.rotation.x = -Math.PI / 2;
+road.position.set(0, 0, -32);
+scene.add(road);
+[-2.55, 2.55].forEach((x) => {
+  const cliff = new THREE.Mesh(
+    new THREE.BoxGeometry(3.2, 8, 90),
+    new THREE.MeshStandardMaterial({ color: x < 0 ? "#6a3a28" : "#5c3424", roughness: 1 })
+  );
+  cliff.position.set(x < 0 ? -5.1 : 5.1, 1.2, -32);
+  scene.add(cliff);
+});
+for (const x of [-0.95, 0.95]) {
+  const line = new THREE.Mesh(
+    new THREE.BoxGeometry(0.06, 0.02, 90),
+    new THREE.MeshBasicMaterial({ color: "#e8c36a" })
+  );
+  line.position.set(x, 0.02, -32);
+  scene.add(line);
+}
+
+const loader = new THREE.TextureLoader();
+function tex(url) {
+  const t = loader.load(url);
+  t.colorSpace = THREE.SRGBColorSpace;
+  return t;
+}
+const art = {
+  ride: tex("rush/emma-ride.png"),
+  jump: tex("rush/emma-jump.png"),
+  slide: tex("rush/emma-slide.png"),
+  can: tex("rush/can.png"),
+  cam: tex("rush/cam.png")
+};
+function sprite(texture, w, h) {
+  const m = new THREE.SpriteMaterial({ map: texture, transparent: true, alphaTest: 0.35, depthWrite: false });
+  const s = new THREE.Sprite(m);
+  s.scale.set(w, h, 1);
+  return s;
+}
+const emma = sprite(art.ride, 2.05, 3.05);
+emma.position.set(0, 1.52, 0.4);
+scene.add(emma);
+
+const objs = [];
+let lane = 1, x = 0, y = 0, vy = 0, slide = 0, shield = 0;
+let speed = 16, dist = 0, cans = 0, cams = 0, spawned = 0, running = false, over = false;
+let best = Number(localStorage.getItem("hollyRush.best") || 0);
+const clock = new THREE.Clock();
+
+function track(name, props) { if (window.posthog) posthog.capture(name, props || {}); }
+function tone(freq, dur) {
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  if (!Ctx) return;
+  const ac = tone.ac || (tone.ac = new Ctx());
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.frequency.value = freq; o.type = "triangle";
+  g.gain.setValueAtTime(0.0001, ac.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.05, ac.currentTime + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + dur);
+  o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + dur);
+}
+function clearWorld() {
+  while (objs.length) {
+    const o = objs.pop();
+    scene.remove(o.mesh);
+  }
+}
+function addObj(type, laneIndex, z) {
+  let mesh;
+  if (type === "rock") {
+    mesh = new THREE.Mesh(
+      new THREE.DodecahedronGeometry(0.55),
+      new THREE.MeshStandardMaterial({ color: "#8a5a3c", roughness: 1 })
+    );
+    mesh.position.y = 0.5;
+  } else if (type === "limb") {
+    mesh = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.08, 0.1, 1.7, 8),
+      new THREE.MeshStandardMaterial({ color: "#3a2418", roughness: 1 })
+    );
+    mesh.rotation.z = Math.PI / 2;
+    mesh.position.y = 1.65;
+  } else if (type === "can") {
+    mesh = sprite(art.can, 0.42, 0.95);
+    mesh.position.y = 0.7;
+  } else {
+    mesh = sprite(art.cam, 0.7, 0.55);
+    mesh.position.y = 0.85;
+  }
+  mesh.position.x = LANES[laneIndex];
+  mesh.position.z = z;
+  scene.add(mesh);
+  objs.push({ type, lane: laneIndex, mesh, hit: false });
+}
+function spawnRow() {
+  const slots = [null, null, null];
+  const roll = Math.random();
+  const pick = () => Math.floor(Math.random() * 3);
+  if (roll < 0.34) {
+    slots[pick()] = Math.random() < 0.62 ? "rock" : "limb";
+    const open = slots.findIndex((s) => !s);
+    if (Math.random() < 0.55) slots[open] = Math.random() < 0.8 ? "can" : "cam";
+  } else if (roll < 0.68) {
+    const a = pick();
+    let b = pick();
+    while (b === a) b = pick();
+    slots[a] = Math.random() < 0.6 ? "rock" : "limb";
+    slots[b] = Math.random() < 0.45 ? (Math.random() < 0.7 ? "can" : "cam") : (Math.random() < 0.5 ? "rock" : "limb");
+  } else if (roll < 0.88) {
+    slots[pick()] = "can";
+    if (Math.random() < 0.6) slots[pick()] = "can";
+  } else {
+    slots[1] = "cam";
+    slots[pick() === 1 ? 0 : 2] = "can";
+  }
+  const hazards = [0, 1, 2].filter((i) => slots[i] === "rock" || slots[i] === "limb");
+  if (hazards.length === 3) slots[hazards[0]] = null;
+  slots.forEach((type, i) => { if (type) addObj(type, i, -58); });
+}
+function points() { return Math.floor(dist) + cans * 10 + cams * 50; }
+function paintHud() {
+  document.getElementById("score").textContent = points();
+  document.getElementById("loot").textContent = cans + " cans · " + cams + " cams";
+  document.getElementById("shield").classList.toggle("on", shield > 0);
+}
+function crash() {
+  if (shield > 0) { shield--; tone(520, 0.12); paintHud(); return true; }
+  running = false; over = true;
+  const total = points();
+  if (total > best) { best = total; localStorage.setItem("hollyRush.best", String(best)); }
+  document.getElementById("title").textContent = "Emma went down";
+  document.getElementById("blurb").textContent = "Score " + total + ". Best " + best + ". Cans " + cans + ", cams " + cams + ".";
+  document.getElementById("play").textContent = "Ride again";
+  document.getElementById("veil").classList.remove("off");
+  track("rush_ended", { score: total, cans, cams });
+  return false;
+}
+function start() {
+  clearWorld();
+  lane = 1; x = 0; y = 0; vy = 0; slide = 0; shield = 0;
+  speed = 16; dist = 0; cans = 0; cams = 0; spawned = 0;
+  running = true; over = false;
+  document.getElementById("veil").classList.add("off");
+  spawnRow();
+  paintHud();
+  track("rush_started");
+  clock.getDelta();
+}
+function act(name) {
+  if (!running) return;
+  if (name === "left") lane = Math.max(0, lane - 1);
+  if (name === "right") lane = Math.min(2, lane + 1);
+  if (name === "jump" && y <= 0.02 && slide <= 0) { vy = 8.4; tone(440, 0.08); }
+  if (name === "slide" && y <= 0.05) slide = 0.55;
+}
+document.getElementById("play").onclick = start;
+document.querySelectorAll(".dock button").forEach((btn) => {
+  btn.addEventListener("pointerdown", (e) => { e.preventDefault(); act(btn.dataset.act); });
+});
+addEventListener("keydown", (e) => {
+  const map = { ArrowLeft: "left", ArrowRight: "right", ArrowUp: "jump", ArrowDown: "slide", a: "left", d: "right", w: "jump", s: "slide" };
+  if (!map[e.key]) return;
+  e.preventDefault();
+  if (!running && !over) start();
+  else act(map[e.key]);
+});
+let sx = 0, sy = 0;
+renderer.domElement.addEventListener("pointerdown", (e) => { sx = e.clientX; sy = e.clientY; });
+renderer.domElement.addEventListener("pointerup", (e) => {
+  const dx = e.clientX - sx, dy = e.clientY - sy;
+  if (!running) return;
+  if (Math.abs(dx) < 24 && Math.abs(dy) < 24) return;
+  if (Math.abs(dx) > Math.abs(dy)) act(dx < 0 ? "left" : "right");
+  else act(dy < 0 ? "jump" : "slide");
+});
+addEventListener("resize", () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+
+function frame() {
+  requestAnimationFrame(frame);
+  const dt = Math.min(0.033, clock.getDelta());
+  if (running) {
+    speed = Math.min(34, 16 + dist * 0.012);
+    const step = speed * dt;
+    dist += step;
+    spawned += step;
+    const gap = Math.max(10, 16 - dist * 0.004);
+    if (spawned > gap) { spawned = 0; spawnRow(); }
+    x += (LANES[lane] - x) * Math.min(1, dt * 10);
+    vy -= 24 * dt;
+    y += vy * dt;
+    if (y <= 0) { y = 0; vy = 0; }
+    slide = Math.max(0, slide - dt);
+    const pose = y > 0.2 ? "jump" : slide > 0 ? "slide" : "ride";
+    emma.material.map = art[pose];
+    emma.material.needsUpdate = true;
+    const h = pose === "slide" ? 1.85 : pose === "jump" ? 3.25 : 3.05;
+    emma.scale.set(h * 0.68, h, 1);
+    emma.position.set(x, h * 0.5 + y, 0.4);
+    for (let i = objs.length - 1; i >= 0; i--) {
+      const o = objs[i];
+      o.mesh.position.z += step;
+      if ((o.type === "can" || o.type === "cam") && !o.hit) o.mesh.position.y = (o.type === "can" ? 0.7 : 0.9) + Math.sin(dist * 0.4 + i) * 0.08;
+      const near = o.mesh.position.z > -0.4 && o.mesh.position.z < 1.5 && o.lane === lane;
+      if (near && !o.hit) {
+        if (o.type === "can") { o.hit = true; cans++; tone(660, 0.06); scene.remove(o.mesh); }
+        else if (o.type === "cam") { o.hit = true; cams++; shield = 1; tone(780, 0.1); scene.remove(o.mesh); }
+        else if (o.type === "rock") {
+          if (y < 0.9) { o.hit = true; if (!crash()) scene.remove(o.mesh); else { o.hit = true; scene.remove(o.mesh); } }
+        } else if (o.type === "limb") {
+          if (slide <= 0 && y < 0.7) { o.hit = true; if (!crash()) scene.remove(o.mesh); else scene.remove(o.mesh); }
+        }
+      }
+      if (o.mesh.position.z > 8) { scene.remove(o.mesh); objs.splice(i, 1); }
+    }
+    paintHud();
+  }
+  renderer.render(scene, camera);
+}
+paintHud();
+requestAnimationFrame(frame);
+  </script>
+</body>
+</html>
