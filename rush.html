@@ -17,6 +17,10 @@
     html, body { height: 100%; background: #07060d; color: var(--cream); font-family: "Trebuchet MS", "Segoe UI", sans-serif; overflow: hidden; }
     #view { position: fixed; inset: 0; }
     #view canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+    #view::after {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: radial-gradient(ellipse at 50% 42%, transparent 46%, #07060d99 100%);
+    }
     header {
       position: fixed; top: 0; left: 0; right: 0; z-index: 2;
       display: flex; justify-content: space-between; align-items: flex-start;
@@ -28,10 +32,14 @@
       border: 1px solid #e8c36a55; background: #1b120fcc; color: var(--cream);
       border-radius: 999px; padding: 8px 12px; font: 800 12px inherit; text-decoration: none;
     }
-    .hud { text-align: right; text-shadow: 0 2px 8px #000; }
-    .hud b { display: block; font-size: 28px; letter-spacing: .04em; }
-    .hud span { color: var(--gold); font-size: 13px; font-weight: 800; }
-    #shield { display: none; margin-top: 4px; color: #9fd0ff; font-size: 12px; font-weight: 800; }
+    .hud { text-align: right; }
+    .hud b, .hud span, #shield {
+      display: inline-block; background: #120c10cc; border: 1px solid #e8c36a44;
+      border-radius: 999px; padding: 6px 12px; box-shadow: 0 6px 16px #0008;
+    }
+    .hud b { display: block; margin-left: auto; font-size: 22px; letter-spacing: .04em; }
+    .hud span { color: var(--gold); font-size: 12px; font-weight: 800; margin-top: 6px; }
+    #shield { display: none; margin-top: 6px; color: #9fd0ff; font-size: 11px; font-weight: 800; }
     #shield.on { display: block; }
     .dock {
       position: fixed; left: 0; right: 0; bottom: 0; z-index: 2;
@@ -103,51 +111,36 @@ import * as THREE from "three";
 const LANES = [-1.9, 0, 1.9];
 const view = document.getElementById("view");
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
-renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
+renderer.setPixelRatio(Math.min(1.75, devicePixelRatio || 1));
 renderer.setSize(innerWidth, innerHeight);
 renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.15;
 view.appendChild(renderer.domElement);
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color("#0c1024");
-scene.fog = new THREE.Fog("#0c1024", 18, 62);
-const camera = new THREE.PerspectiveCamera(58, innerWidth / innerHeight, 0.1, 120);
-camera.position.set(0, 3.4, 7.2);
-camera.lookAt(0, 1.2, -8);
+scene.background = new THREE.Color("#0b1228");
+scene.fog = new THREE.Fog("#1a2748", 26, 78);
+const camera = new THREE.PerspectiveCamera(52, innerWidth / innerHeight, 0.1, 140);
+camera.position.set(0, 2.05, 4.6);
+camera.lookAt(0, 1.15, -12);
 
-scene.add(new THREE.HemisphereLight("#c9d6ff", "#3a2418", 1.1));
-const moon = new THREE.DirectionalLight("#fff1cf", 1.4);
-moon.position.set(-6, 12, 4);
+scene.add(new THREE.HemisphereLight("#b9c7ee", "#6a4030", 0.85));
+const moon = new THREE.DirectionalLight("#fff4d2", 1.55);
+moon.position.set(-8, 14, 6);
 scene.add(moon);
-
-const road = new THREE.Mesh(
-  new THREE.PlaneGeometry(7.2, 90),
-  new THREE.MeshStandardMaterial({ color: "#2a242c", roughness: 0.92 })
-);
-road.rotation.x = -Math.PI / 2;
-road.position.set(0, 0, -32);
-scene.add(road);
-[-2.55, 2.55].forEach((x) => {
-  const cliff = new THREE.Mesh(
-    new THREE.BoxGeometry(3.2, 8, 90),
-    new THREE.MeshStandardMaterial({ color: x < 0 ? "#6a3a28" : "#5c3424", roughness: 1 })
-  );
-  cliff.position.set(x < 0 ? -5.1 : 5.1, 1.2, -32);
-  scene.add(cliff);
-});
-for (const x of [-0.95, 0.95]) {
-  const line = new THREE.Mesh(
-    new THREE.BoxGeometry(0.06, 0.02, 90),
-    new THREE.MeshBasicMaterial({ color: "#e8c36a" })
-  );
-  line.position.set(x, 0.02, -32);
-  scene.add(line);
-}
+const lamp = new THREE.PointLight("#ffb15a", 6, 14);
+lamp.position.set(0, 2.2, 1);
+scene.add(lamp);
 
 const loader = new THREE.TextureLoader();
-function tex(url) {
+function tex(url, repeat) {
   const t = loader.load(url);
   t.colorSpace = THREE.SRGBColorSpace;
+  if (repeat) {
+    t.wrapS = t.wrapT = THREE.RepeatWrapping;
+    t.repeat.set(repeat[0], repeat[1]);
+  }
   return t;
 }
 const art = {
@@ -155,16 +148,71 @@ const art = {
   jump: tex("rush/emma-jump.png"),
   slide: tex("rush/emma-slide.png"),
   can: tex("rush/can.png"),
-  cam: tex("rush/cam.png")
+  cam: tex("rush/cam.png"),
+  rock: tex("rush/rock.png"),
+  branch: tex("rush/branch.png"),
+  road: tex("rush/road.jpg", [1, 10]),
+  cliff: tex("rush/cliff.jpg", [2, 6]),
+  sky: tex("rush/sky.jpg")
 };
+art.road.anisotropy = 8;
+
+const road = new THREE.Mesh(
+  new THREE.PlaneGeometry(8.4, 96),
+  new THREE.MeshStandardMaterial({ map: art.road, roughness: 0.82, metalness: 0.04 })
+);
+road.rotation.x = -Math.PI / 2;
+road.position.set(0, 0, -34);
+scene.add(road);
+
+function cliffWall(x, rot) {
+  const wall = new THREE.Mesh(
+    new THREE.BoxGeometry(4.4, 16, 92),
+    new THREE.MeshStandardMaterial({ map: art.cliff, roughness: 1 })
+  );
+  wall.position.set(x, 5.2, -32);
+  wall.rotation.y = rot;
+  scene.add(wall);
+  return wall;
+}
+cliffWall(-6.4, 0.08);
+cliffWall(6.4, -0.08);
+
+const sky = new THREE.Mesh(
+  new THREE.PlaneGeometry(78, 42),
+  new THREE.MeshBasicMaterial({ map: art.sky })
+);
+sky.position.set(0, 9, -62);
+scene.add(sky);
+
+const shadow = new THREE.Mesh(
+  new THREE.CircleGeometry(0.7, 20),
+  new THREE.MeshBasicMaterial({ color: "#000", transparent: true, opacity: 0.35 })
+);
+shadow.rotation.x = -Math.PI / 2;
+shadow.position.y = 0.03;
+scene.add(shadow);
+
+const dustGeo = new THREE.BufferGeometry();
+const dustCount = 90;
+const dustPos = new Float32Array(dustCount * 3);
+for (let i = 0; i < dustCount; i++) {
+  dustPos[i * 3] = (Math.random() - 0.5) * 7;
+  dustPos[i * 3 + 1] = 0.15 + Math.random() * 1.4;
+  dustPos[i * 3 + 2] = -Math.random() * 40;
+}
+dustGeo.setAttribute("position", new THREE.BufferAttribute(dustPos, 3));
+const dust = new THREE.Points(dustGeo, new THREE.PointsMaterial({ color: "#e8c9a0", size: 0.06, transparent: true, opacity: 0.45 }));
+scene.add(dust);
+
 function sprite(texture, w, h) {
-  const m = new THREE.SpriteMaterial({ map: texture, transparent: true, alphaTest: 0.35, depthWrite: false });
+  const m = new THREE.SpriteMaterial({ map: texture, transparent: true, alphaTest: 0.28, depthWrite: false });
   const s = new THREE.Sprite(m);
   s.scale.set(w, h, 1);
   return s;
 }
-const emma = sprite(art.ride, 2.05, 3.05);
-emma.position.set(0, 1.52, 0.4);
+const emma = sprite(art.ride, 2.15, 3.15);
+emma.position.set(0, 1.58, 0.2);
 scene.add(emma);
 
 const objs = [];
@@ -194,18 +242,11 @@ function clearWorld() {
 function addObj(type, laneIndex, z) {
   let mesh;
   if (type === "rock") {
-    mesh = new THREE.Mesh(
-      new THREE.DodecahedronGeometry(0.55),
-      new THREE.MeshStandardMaterial({ color: "#8a5a3c", roughness: 1 })
-    );
-    mesh.position.y = 0.5;
+    mesh = sprite(art.rock, 1.45, 1.12);
+    mesh.position.y = 0.62;
   } else if (type === "limb") {
-    mesh = new THREE.Mesh(
-      new THREE.CylinderGeometry(0.08, 0.1, 1.7, 8),
-      new THREE.MeshStandardMaterial({ color: "#3a2418", roughness: 1 })
-    );
-    mesh.rotation.z = Math.PI / 2;
-    mesh.position.y = 1.65;
+    mesh = sprite(art.branch, 2.35, 1.05);
+    mesh.position.y = 1.72;
   } else if (type === "can") {
     mesh = sprite(art.can, 0.42, 0.95);
     mesh.position.y = 0.7;
@@ -323,9 +364,23 @@ function frame() {
     const pose = y > 0.2 ? "jump" : slide > 0 ? "slide" : "ride";
     emma.material.map = art[pose];
     emma.material.needsUpdate = true;
-    const h = pose === "slide" ? 1.85 : pose === "jump" ? 3.25 : 3.05;
+    const h = pose === "slide" ? 2.15 : pose === "jump" ? 3.7 : 3.45;
     emma.scale.set(h * 0.68, h, 1);
-    emma.position.set(x, h * 0.5 + y, 0.4);
+    emma.position.set(x, h * 0.5 + y, 0.2);
+    shadow.position.x = x;
+    shadow.scale.set(1 - Math.min(0.45, y * 0.25), 1, 1);
+    lamp.position.set(x, 2.1, 0.6);
+    camera.position.x += (x * 0.35 - camera.position.x) * 0.08;
+    camera.position.y = 2.05 + Math.sin(dist * 0.35) * 0.035;
+    camera.lookAt(x * 0.2, 1.15, -12);
+    art.road.offset.y = -dist * 0.012;
+    const dp = dust.geometry.attributes.position;
+    for (let i = 0; i < dustCount; i++) {
+      let z = dp.getZ(i) + step * 0.85;
+      if (z > 4) z = -40 - Math.random() * 8;
+      dp.setZ(i, z);
+    }
+    dp.needsUpdate = true;
     for (let i = objs.length - 1; i >= 0; i--) {
       const o = objs[i];
       o.mesh.position.z += step;
