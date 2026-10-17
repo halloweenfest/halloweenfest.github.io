@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Emma on a Broom · Holly Haunt Halloween game</title>
-  <meta name="description" content="Fly Emma the witch on her broom through a Halloween night. Zap ghosts, bats, wolves and skeletons with her lightning wand, then beat the ugly witch. Free on phone and desktop." />
+  <meta name="description" content="Fly with Emma through a Halloween night. Zap ghosts, bats, wolves and skeletons, then beat the ugly witch. Free on phone and desktop." />
   <meta name="theme-color" content="#0c0710" />
   <link rel="canonical" href="https://halloweenfest.github.io/fly.html" />
   <meta property="og:type" content="website" />
@@ -136,7 +136,7 @@
     </div>
     <div class="mid">
       <div class="kicker" id="mode">EMMA'S FLIGHT</div>
-      <div class="sub">Emma on a broom</div>
+      <div class="sub">Night ride</div>
     </div>
     <div class="right">
       <button id="pauseBtn" class="chip-btn icon" type="button" aria-label="Pause" title="Pause (P)">
@@ -206,7 +206,7 @@
           <h2 id="levelsTitle">Pick a night</h2>
           <p id="levelLine">Night 1 is free. Villains chase her. Nights 2 and 3 unlock together.</p>
         </div>
-        <img src="emma.png?v=5" alt="" width="108" height="118" />
+        <img src="emma.png?v=6" alt="" width="108" height="118" />
       </div>
       <div class="nights">
         <button id="night1" class="pic-tile" type="button" style="background-image:url('night1.jpg?v=1')"><span class="label">Night 1<br><span class="tag">FREE</span></span></button>
@@ -272,7 +272,7 @@ const imgs = {}, cache = {};
 Object.keys(SPRITES).forEach((n) => {
   const i = new Image();
   i.onload = () => bake(n);
-  i.src = n + ".png?v=5";
+  i.src = n + ".png?v=6";
   imgs[n] = i;
 });
 function bake(n) {

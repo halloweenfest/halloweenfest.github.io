@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Holly Stack · Halloween falling-blocks puzzle</title>
-  <meta name="description" content="Holly Stack is a free Halloween falling-blocks puzzle. Stack pumpkins, ghosts, bats, skulls, black cats, witches and candy and clear full rows. Plays on phone and desktop." />
+  <meta name="description" content="Holly Stack is a free Halloween falling-blocks puzzle. Stack pumpkins, ghosts, bats, skulls, black cats, Emma and candy and clear full rows." />
   <meta name="theme-color" content="#0b0618" />
   <link rel="canonical" href="https://halloweenfest.github.io/tetris.html" />
   <meta property="og:type" content="website" />
@@ -126,7 +126,8 @@
     .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .duo b { display: block; margin-top: 6px; font: 700 28px/1 var(--hs-ui); color: #fff3dc; font-variant-numeric: tabular-nums; }
     .duo > div + div { border-left: 1px solid rgba(255, 255, 255, .1); padding-left: 10px; }
-    .bar { margin-top: 12px; height: 8px; border-radius: 99px; background: rgba(0, 0, 0, .4); box-shadow: inset 0 1px 2px rgba(0, 0, 0, .6); overflow: hidden; }
+    .emma-mark { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid #e8c36a; flex: none; }
+    .topbar .mid { display: flex; align-items: center; gap: 8px; }
     .bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #a46bff, #ff6fb0 60%, #ffb347); box-shadow: 0 0 10px rgba(255, 120, 180, .7); transition: width .4s cubic-bezier(.3, 1.3, .5, 1); }
     .bar-cap { margin-top: 6px; font: 500 11px/1 var(--hs-ui); color: rgba(255, 238, 214, .55); }
     .keys-card ul { list-style: none; margin-top: 10px; display: grid; gap: 7px; }
@@ -431,8 +432,11 @@
       </a>
     </div>
     <div class="mid">
+      <img class="emma-mark" src="emma-face.png?v=1" alt="Emma" width="34" height="34" />
+      <div>
       <div class="kicker">Holly Stack</div>
       <div class="sub" id="levelSub">Level 1</div>
+      </div>
     </div>
     <div class="right">
       <button class="chip-btn icon" id="soundBtn" type="button" aria-pressed="true" aria-label="Sound on" title="Sound (M)">
@@ -519,7 +523,7 @@
       <div class="view v-start">
         <div class="cast" id="cast" aria-hidden="true"></div>
         <h1 class="logo" id="veilTitle"><span class="l1">Holly</span><span class="l2">Stack</span></h1>
-        <p class="tagline">Stack pumpkins, ghosts, bats and cats. Fill a row to clear it before the well fills up.</p>
+        <p class="tagline">Stack pumpkins, ghosts, bats, cats and Emma. Fill a row to clear it before the well fills up.</p>
         <ul class="howto" id="howtoTouch">
           <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2" fill="currentColor"/><circle cx="12" cy="12" r="7" opacity=".55"/><circle cx="12" cy="12" r="10.5" opacity=".25"/></svg></span><span><b>Tap</b>to turn</span></li>
           <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg></span><span><b>Drag</b>to move</span></li>
@@ -578,6 +582,8 @@
 "use strict";
 const COLS = 10, ROWS = 20;
 const TYPES = ["pumpkin","ghost","bat","skull","cat","witch","candy"];
+const emmaFace = new Image();
+emmaFace.src = "emma-face.png?v=1";
 /* Each shape lives in an n x n box so it can turn in place without drifting. */
 const SHAPES = {
   pumpkin: { n: 2, cells: [[0,0],[1,0],[0,1],[1,1]] },
@@ -797,26 +803,20 @@ const ICON = {
     c.moveTo(19 * u, 12 * u); c.lineTo(40 * u, 8 * u); c.moveTo(19 * u, 16 * u); c.lineTo(40 * u, 19 * u);
     c.stroke();
   },
-  witch(c, u, b) {
-    const ink = "#0e2a10";
-    c.fillStyle = "rgba(255,110,150,.45)"; ell(c, -24 * u, 21 * u, 6 * u, 3.5 * u); ell(c, 24 * u, 21 * u, 6 * u, 3.5 * u);
-    if (b) shutEyes(c, u, ink, [[-13, 14, 6], [13, 14, 6]], 3.6);
-    else {
-      c.fillStyle = ink; ell(c, -13 * u, 11 * u, 5.5 * u, 7 * u); ell(c, 13 * u, 11 * u, 5.5 * u, 7 * u);
-      c.fillStyle = "#fff"; dot(c, -11 * u, 8 * u, 2 * u); dot(c, 15 * u, 8 * u, 2 * u);
-    }
-    c.strokeStyle = ink; c.lineWidth = 3 * u; c.lineCap = "round";
-    c.beginPath(); c.arc(0, 21 * u, 8 * u, 0.25, Math.PI - 0.25); c.stroke();
-    /* hat */
-    const hg = c.createLinearGradient(0, -50 * u, 0, -4 * u); hg.addColorStop(0, "#7a3ac0"); hg.addColorStop(1, "#2a1046");
-    c.fillStyle = hg;
-    c.beginPath(); c.moveTo(-23 * u, -8 * u); c.quadraticCurveTo(-12 * u, -28 * u, -3 * u, -45 * u);
-    c.quadraticCurveTo(8 * u, -52 * u, 21 * u, -45 * u); c.quadraticCurveTo(9 * u, -42 * u, 6 * u, -33 * u);
-    c.quadraticCurveTo(12 * u, -18 * u, 23 * u, -8 * u); c.closePath(); c.fill();
-    c.fillStyle = "#ffc93a"; rr(c, -21 * u, -18 * u, 42 * u, 7 * u, 2 * u); c.fill();
-    c.strokeStyle = "#5a2a00"; c.lineWidth = 1.8 * u; c.strokeRect(-5 * u, -19.5 * u, 10 * u, 10 * u);
-    const bg = c.createLinearGradient(0, -12 * u, 0, 0); bg.addColorStop(0, "#5a28a0"); bg.addColorStop(1, "#1e0b36");
-    c.fillStyle = bg; ell(c, 0, -6 * u, 42 * u, 7.5 * u);
+  witch(c, u) {
+    const r = 34 * u;
+    c.save();
+    c.beginPath();
+    c.arc(0, 2 * u, r, 0, Math.PI * 2);
+    c.clip();
+    if (emmaFace.complete && emmaFace.naturalWidth) c.drawImage(emmaFace, -r, 2 * u - r, r * 2, r * 2);
+    else { c.fillStyle = "#7a2438"; c.fillRect(-r, 2 * u - r, r * 2, r * 2); }
+    c.restore();
+    c.strokeStyle = "#e8c36a";
+    c.lineWidth = 3 * u;
+    c.beginPath();
+    c.arc(0, 2 * u, r, 0, Math.PI * 2);
+    c.stroke();
   },
   candy(c, u, b) {
     c.fillStyle = "#ff7ab6"; c.strokeStyle = "#a8104e"; c.lineWidth = 2.4 * u; c.lineJoin = "round";
@@ -1755,6 +1755,7 @@ document.addEventListener("visibilitychange", () => { if (document.hidden && run
 if (matchMedia("(hover: hover) and (pointer: fine)").matches) { $("howtoKeys").hidden = false; $("howtoTouch").hidden = true; }
 
 function castRow(el, size, n) {
+  el.replaceChildren();
   TYPES.slice(0, n).forEach((t, i) => {
     const c = document.createElement("canvas");
     const px = Math.round(size * Math.min(2, window.devicePixelRatio || 1));
@@ -1766,6 +1767,7 @@ function castRow(el, size, n) {
 }
 castRow($("cast"), 44, 7);
 castRow($("overArt"), 36, 7);
+emmaFace.onload = () => { castRow($("cast"), 44, 7); castRow($("overArt"), 36, 7); };
 
 addEventListener("resize", resize);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(resize);

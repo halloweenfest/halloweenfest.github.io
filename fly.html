@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Emma on a Broom · Holly Haunt Halloween game</title>
-  <meta name="description" content="Fly Emma the witch on her broom through a Halloween night. Zap ghosts, bats, wolves and skeletons with her lightning wand, then beat the ugly witch. Free on phone and desktop." />
+  <meta name="description" content="Fly with Emma through a Halloween night. Zap ghosts, bats, wolves and skeletons, then beat the ugly witch. Free on phone and desktop." />
   <meta name="theme-color" content="#0c0710" />
   <link rel="canonical" href="https://halloweenfest.github.io/fly.html" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Holly Haunt" />
   <meta property="og:title" content="Emma on a Broom · Halloween flying game" />
-  <meta property="og:description" content="Zap ghosts, bats and wolves with Emma's lightning wand, then face the ugly witch." />
+  <meta property="og:description" content="Zap ghosts, bats and wolves with Emma, then face the ugly witch." />
   <meta property="og:url" content="https://halloweenfest.github.io/fly.html" />
   <meta property="og:image" content="https://halloweenfest.github.io/tile-emma.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -122,7 +122,8 @@
     .nights .pic-tile:hover, .nights .pic-tile:focus-visible { border-color: rgba(255, 214, 130, .8); box-shadow: 0 0 0 1px rgba(255, 214, 130, .4), 0 0 28px rgba(232, 170, 70, .35), 0 12px 26px rgba(0, 0, 0, .45); }
     #night1 { border-color: rgba(255, 214, 130, .55); }
     .keys { font-size: 12px; line-height: 2; color: rgba(255, 243, 220, .6); text-align: center; margin-top: 12px; }
-    @media (hover: none) { .keys { display: none; } }
+    .emma-mark { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid #e8c36a; flex: none; }
+    .topbar .mid { display: flex; align-items: center; gap: 8px; }
     .stat-row > div { background: rgba(255, 243, 220, .05); }
     #pay .sheet { box-shadow: 0 40px 90px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(255, 255, 255, .14), 0 0 90px rgba(232, 170, 70, .25); }
   </style>
@@ -135,8 +136,11 @@
       </a>
     </div>
     <div class="mid">
+      <img class="emma-mark" src="emma-face.png?v=1" alt="Emma" width="34" height="34" />
+      <div>
       <div class="kicker" id="mode">EMMA'S FLIGHT</div>
-      <div class="sub">Emma on a broom</div>
+      <div class="sub">Night ride</div>
+      </div>
     </div>
     <div class="right">
       <button id="pauseBtn" class="chip-btn icon" type="button" aria-label="Pause" title="Pause (P)">
@@ -206,7 +210,7 @@
           <h2 id="levelsTitle">Pick a night</h2>
           <p id="levelLine">Night 1 is free. Villains chase her. Nights 2 and 3 unlock together.</p>
         </div>
-        <img src="emma.png?v=5" alt="" width="108" height="118" />
+        <img src="emma.png?v=6" alt="Emma" width="108" height="118" />
       </div>
       <div class="nights">
         <button id="night1" class="pic-tile" type="button" style="background-image:url('night1.jpg?v=1')"><span class="label">Night 1<br><span class="tag">FREE</span></span></button>
@@ -272,7 +276,7 @@ const imgs = {}, cache = {};
 Object.keys(SPRITES).forEach((n) => {
   const i = new Image();
   i.onload = () => bake(n);
-  i.src = n + ".png?v=5";
+  i.src = n + ".png?v=6";
   imgs[n] = i;
 });
 function bake(n) {

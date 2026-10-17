@@ -19,7 +19,7 @@
     #view canvas { width: 100%; height: 100%; display: block; touch-action: none; }
     header { position: fixed; top: 0; left: 0; right: 0; z-index: 2; display: flex; justify-content: space-between; padding: calc(10px + env(safe-area-inset-top)) 12px 0; pointer-events: none; }
     header a { pointer-events: auto; }
-    .back { border: 1px solid #e8c36a55; background: #1b120fcc; color: var(--cream); border-radius: 999px; padding: 8px 12px; font: 800 12px inherit; text-decoration: none; }
+    .emma-mark { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid #e8c36a; }
     .hud { text-align: right; }
     .hud b, .hud span, #shield { display: inline-block; background: #120c10cc; border: 1px solid #e8c36a44; border-radius: 999px; padding: 6px 12px; }
     .hud b { display: block; margin-left: auto; font-size: 22px; }
@@ -43,7 +43,7 @@
 <body>
   <div id="view"></div>
   <header>
-    <a class="back" href="./">Games</a>
+    <a class="back" href="./"><img class="emma-mark" src="emma-face.png?v=1" alt="Emma" width="34" height="34" style="vertical-align:middle;margin-right:6px" />Games</a>
     <div class="hud"><b id="score">0</b><span id="loot">0 cans · 0 cams</span><div id="shield">CAM SHIELD</div></div>
   </header>
   <div class="dock">
@@ -124,7 +124,6 @@ const steel = new THREE.MeshStandardMaterial({ color: "#8d9098", roughness: 0.35
 const cloth = new THREE.MeshStandardMaterial({ color: "#7a2438", roughness: 0.78, metalness: 0.02 });
 const skin = new THREE.MeshStandardMaterial({ color: "#e0b090", roughness: 0.62 });
 const hair = new THREE.MeshStandardMaterial({ color: "#4a2c1c", roughness: 0.7 });
-const hatMat = new THREE.MeshStandardMaterial({ color: "#1c1418", roughness: 0.55 });
 const wood = new THREE.MeshStandardMaterial({ color: "#3a2618", roughness: 0.9 });
 const canMat = new THREE.MeshPhysicalMaterial({ color: "#1d4ed8", metalness: 0.72, roughness: 0.22, clearcoat: 0.8 });
 const camMat = new THREE.MeshStandardMaterial({ color: "#111", roughness: 0.4, metalness: 0.6 });
@@ -190,18 +189,11 @@ function buildRider() {
   body.add(box(0.12, 0.32, 0.12, cloth, 0.22, 1.12, 0.02));
   body.add(box(0.14, 0.38, 0.14, new THREE.MeshStandardMaterial({ color: "#1a1a1a", roughness: 0.8 }), -0.1, 0.72, 0.08));
   body.add(box(0.14, 0.38, 0.14, new THREE.MeshStandardMaterial({ color: "#1a1a1a", roughness: 0.8 }), 0.1, 0.72, 0.08));
-  const head = sph(0.16, skin, 0, 1.52, 0.02);
-  body.add(head);
-  body.add(sph(0.17, hair, 0, 1.54, 0.06));
-  const hat = new THREE.Group();
-  const brim = shade(new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.26, 0.03, 16), hatMat));
-  const cone = shade(new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.38, 14), hatMat));
-  cone.position.y = 0.2;
-  hat.add(brim, cone);
-  hat.position.set(0, 1.66, 0);
-  body.add(hat);
+  body.add(sph(0.16, skin, 0, 1.52, 0.02));
+  body.add(sph(0.2, hair, 0, 1.58, 0.08));
+  body.add(box(0.28, 0.34, 0.16, hair, 0, 1.42, 0.1));
   g.add(body);
-  g.userData = { wheels: [rear, front], body, hat };
+  g.userData = { wheels: [rear, front], body };
   return g;
 }
 const rider = buildRider();

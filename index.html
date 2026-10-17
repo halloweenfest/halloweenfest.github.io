@@ -4,13 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Holly Haunt · Spooky Halloween games to play in your browser</title>
-  <meta name="description" content="Three free Halloween games for phone and desktop: find hidden objects in a haunted hall, fly Emma the witch on her broom, and stack pumpkins, ghosts and bats in Holly Stack." />
+  <meta name="description" content="Four free Halloween games for phone and desktop: find hidden objects in Emma's hall, fly with Emma, stack Holly blocks, or ride the cliff road." />
   <meta name="theme-color" content="#07040b" />
   <link rel="canonical" href="https://halloweenfest.github.io/" />
   <meta property="og:type" content="website" />
   <meta property="og:site_name" content="Holly Haunt" />
   <meta property="og:title" content="Holly Haunt · Spooky Halloween games" />
-  <meta property="og:description" content="Find hidden objects, fly Emma the witch on her broom, or stack the haunt. Free to play in your browser." />
+  <meta property="og:description" content="Find hidden objects, fly with Emma, stack the haunt, or ride the cliff. Free to play in your browser." />
   <meta property="og:url" content="https://halloweenfest.github.io/" />
   <meta property="og:image" content="https://halloweenfest.github.io/og.jpg" />
   <meta property="og:image:width" content="1200" />
@@ -44,7 +44,8 @@
       background: linear-gradient(180deg, rgba(10, 5, 14, .97), rgba(14, 7, 18, .9));
       border-bottom-color: rgba(232, 195, 106, .16);
     }
-    body > header .mid .kicker { font-family: var(--display); font-size: 13px; letter-spacing: .22em; }
+    body > header .mid { display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .emma-mark { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid #e8c36a; flex: none; }
     body > header .mid .sub { display: inline-flex; align-items: center; gap: 6px; justify-content: center; }
     body > header .mid .sub svg { width: 13px; height: 13px; opacity: .8; }
     #progress {
@@ -570,6 +571,7 @@
     .gate-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .brand { display: inline-flex; align-items: center; gap: 10px; font: 800 15px/1 var(--display); letter-spacing: .12em; color: var(--cream); text-transform: uppercase; }
     .brand svg { width: 30px; height: 30px; filter: drop-shadow(0 0 10px rgba(255, 140, 40, .6)); }
+    .brand .emma-mark { width: 28px; height: 28px; }
     .hero { position: relative; padding: clamp(40px, 8vh, 96px) 0 clamp(36px, 6vh, 64px); max-width: 680px; }
     .hero .eyebrow {
       display: inline-flex; align-items: center; gap: 8px;
@@ -711,8 +713,11 @@
       </button>
     </div>
     <div class="mid">
+      <img class="emma-mark" src="emma-face.png?v=1" alt="Emma" width="34" height="34" />
+      <div>
       <div class="kicker" id="roomName">GREAT HALL</div>
       <div class="sub" id="sub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg><span id="clock">0:00</span></div>
+      </div>
     </div>
     <div class="right">
       <div id="score" aria-live="polite">0/12</div>
@@ -879,6 +884,7 @@
     <div class="gate-inner">
       <nav class="gate-nav" aria-label="Site">
         <span class="brand">
+          <img class="emma-mark" src="emma-face.png?v=1" alt="" width="28" height="28" />
           <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 7c-1-3 1-5 3-5" stroke="#5c8a3a" stroke-width="2.4" fill="none" stroke-linecap="round"/><ellipse cx="16" cy="18" rx="13" ry="11" fill="#ff8a2a"/><path d="M16 7c-4 0-6 5-6 11s2 11 6 11 6-5 6-11-2-11-6-11z" fill="#ff9d45"/><path d="M9 15l4 3H8zM23 15l-4 3h5zM9 22c3 3 11 3 14 0l-2 3-2-2-3 2-3-2-2 2z" fill="#3a1205"/></svg>
           Holly Haunt
         </span>
@@ -887,7 +893,7 @@
       <section class="hero">
         <span class="eyebrow"><i></i>Halloween Fest · 4 free games</span>
         <h1><span>Holly</span><span>Haunt</span></h1>
-        <p class="lede">Hunt hidden treasures in a candlelit manor, ride Emma's broom through the storm, stack the spookiest blocks, or send her down the cliff road.</p>
+        <p class="lede">Hunt hidden treasures in Emma's candlelit manor, fly the night with her, stack the spookiest blocks, or send her down the cliff road.</p>
         <div class="cta">
           <button id="heroPlay" class="btn btn-primary" type="button"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>Play the Haunted Hall</button>
           <a class="btn btn-ghost" href="#games">See all games</a>
@@ -909,18 +915,18 @@
             <span class="foot"><span class="meta">3 rooms · 12 objects each</span><span class="play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>Play</span></span>
           </span>
         </button>
-        <a id="playBroom" class="game-card c-emma" href="fly.html?v=17">
+        <a id="playBroom" class="game-card c-emma" href="fly.html?v=18">
           <span class="glare" aria-hidden="true"></span>
-          <span class="art"><img src="tile-emma.jpg?v=7" alt="" width="720" height="960" decoding="async" /></span>
+          <span class="art"><img src="tile-emma.jpg?v=8" alt="Emma" width="720" height="960" decoding="async" /></span>
           <span class="badges"><span class="pill free">Free</span><span class="pill lock" id="flyLock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>+2 nights</span></span>
           <span class="body">
             <span class="tag">Arcade shooter</span>
             <span class="title" role="heading" aria-level="3">Emma on a Broom</span>
-            <span class="desc">Zap ghosts, bats and wolves with her lightning wand, then face the ugly witch.</span>
+            <span class="desc">Zap ghosts, bats and wolves with her lightning, then face the ugly witch.</span>
             <span class="foot"><span class="meta">3 nights · boss fight</span><span class="play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>Play</span></span>
           </span>
         </a>
-        <a id="playStack" class="game-card c-stack" href="tetris.html">
+        <a id="playStack" class="game-card c-stack" href="tetris.html?v=2">
           <span class="glare" aria-hidden="true"></span>
           <span class="art"><img src="tile-tetris.jpg?v=1" alt="" width="784" height="1168" decoding="async" /></span>
           <span class="badges"><span class="pill free">Free</span></span>
@@ -931,7 +937,7 @@
             <span class="foot"><span class="meta">Endless · high score</span><span class="play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>Play</span></span>
           </span>
         </a>
-        <a id="playRush" class="game-card c-stack" href="rush.html?v=3">
+        <a id="playRush" class="game-card c-stack" href="rush.html?v=4">
           <span class="glare" aria-hidden="true"></span>
           <span class="art"><img src="tile-rush.jpg?v=1" alt="" width="720" height="960" decoding="async" /></span>
           <span class="badges"><span class="pill free">Free</span></span>
