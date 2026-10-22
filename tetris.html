@@ -863,6 +863,8 @@ function drawTile(c, type, s, blink) {
   c.restore();
   const mark = window.hollyPiece ? window.hollyPiece(type) : "";
   if (mark) {
+    c.fillStyle = "rgba(255,255,255,.92)";
+    c.fillRect(x + 8 * u, y + 8 * u, w - 16 * u, h - 16 * u);
     c.font = (46 * u) + "px serif";
     c.textAlign = "center";
     c.textBaseline = "middle";
@@ -1789,6 +1791,6 @@ window.__stackTest = {
   state: () => ({ score, lines, running, paused, over, S, holdType, canHold, combo, clearing: !!clearAnim })
 };
 </script>
-  <script src="theme.js?v=5"></script>
+  <script src="theme.js?v=6"></script>
 </body>
 </html>

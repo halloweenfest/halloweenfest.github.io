@@ -3,7 +3,7 @@
   var FACE = "emma-face.png?v=11";
   var link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "themes.css?v=3";
+  link.href = "themes.css?v=4";
   document.head.appendChild(link);
 
   var THEMES = {
@@ -194,6 +194,16 @@
     return pack ? pack[type] || "" : "";
   };
   window.hollyLoot = function () { return LOOT[saved()] || LOOT.halloween; };
+  var WORLD = {
+    halloween: null,
+    christmas: { can:"#c0392b", cam:"#f4e4a8", rock:"#e7eef4", fog:"#9db4c8", moon:"#f4fbff" },
+    diwali:    { can:"#e07a12", cam:"#ffd56a", rock:"#6a3010", fog:"#4a1c08", moon:"#ffd56a" },
+    holi:      { can:"#ff4fa3", cam:"#7c5cff", rock:"#ff8ad4", fog:"#6a2878", moon:"#ffd1ea" },
+    eid:       { can:"#1f8a5b", cam:"#e7d39a", rock:"#143228", fog:"#0c3024", moon:"#f4fff8" },
+    thanksgiving: { can:"#c45c26", cam:"#f0c07a", rock:"#6a3a18", fog:"#4a2410", moon:"#fff4e6" },
+    newyear:   { can:"#8eb6ff", cam:"#f4e4a8", rock:"#2a3160", fog:"#12183a", moon:"#d7e4ff" }
+  };
+  window.hollyWorld = function () { return WORLD[saved()] || null; };
 
   function dress(theme, id) {
     var scene = q("#gate .scene");

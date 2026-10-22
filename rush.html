@@ -374,6 +374,19 @@ function frame() {
 paintHud();
 requestAnimationFrame(frame);
   </script>
-  <script src="theme.js?v=5"></script>
+  
+function paintWorld() {
+  const w = window.hollyWorld ? window.hollyWorld() : null;
+  if (!w) return;
+  canMat.color.set(w.can); canMat.map = null;
+  camMat.color.set(w.cam);
+  rockMat.color.set(w.rock); rockMat.map = null;
+  wood.color.set(w.rock);
+  moonBall.material.color.set(w.moon);
+  if (scene.fog) scene.fog.color.set(w.fog);
+}
+window.addEventListener("holly-theme", paintWorld);
+paintWorld();
+<script src="theme.js?v=6"></script>
 </body>
 </html>

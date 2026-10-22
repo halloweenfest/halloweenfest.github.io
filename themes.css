@@ -128,7 +128,22 @@ html:not([data-theme="halloween"]) #c { filter: saturate(.9); }
   font-size: clamp(34px, 6vw, 62px); line-height: 1;
   filter: drop-shadow(0 8px 10px rgba(0,0,0,.55));
 }
-html:not([data-theme="halloween"]) #pic { opacity: .22 !important; filter: grayscale(.55) brightness(.55); }
+html:not([data-theme="halloween"]) #pic,
+html:not([data-theme="halloween"]) #bgblur,
+html:not([data-theme="halloween"]) .fx-vignette,
+html:not([data-theme="halloween"]) .fx-candle { opacity: 0 !important; }
+html[data-theme="christmas"] #stage { background: #163044; }
+html[data-theme="diwali"] #stage { background: #4a220c; }
+html[data-theme="holi"] #stage { background: #4a1860; }
+html[data-theme="eid"] #stage { background: #0e3a2c; }
+html[data-theme="thanksgiving"] #stage { background: #4a2814; }
+html[data-theme="newyear"] #stage { background: #161c44; }
+#festBoard.on {
+  background:
+    radial-gradient(circle at 18% 16%, rgba(255,255,255,.22), transparent 36%),
+    radial-gradient(circle at 82% 78%, rgba(255,255,255,.14), transparent 40%),
+    radial-gradient(circle at 50% 46%, rgba(255,255,255,.08), transparent 55%);
+}
 .chip .th.mark {
   display: grid; place-items: center; background-image: none !important;
   font-size: 26px; line-height: 1;

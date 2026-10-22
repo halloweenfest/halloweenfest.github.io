@@ -1196,6 +1196,30 @@ function cropStyle(it, el, px){
   el.style.backgroundSize = (100 / cw).toFixed(1) + "% auto";
   el.style.backgroundPosition = bx.toFixed(1) + "% " + by.toFixed(1) + "%";
 }
+const FEST_GRID = [
+  [20,18],[50,18],[80,18],
+  [20,40],[50,40],[80,40],
+  [20,62],[50,62],[80,62],
+  [20,84],[50,84],[80,84]
+];
+function themedPlay(){
+  const id = document.documentElement.getAttribute("data-theme");
+  return !!id && id !== "halloween";
+}
+function spotOf(it){
+  const i = scene.items.indexOf(it);
+  if (i < 0 || !itemMark(i) || !FEST_GRID[i]) return it;
+  return { x: FEST_GRID[i][0], y: FEST_GRID[i][1], s: 16, n: it.n };
+}
+function playBox(){
+  if (!themedPlay()) return imageBox();
+  const r = stage.getBoundingClientRect();
+  return { left: r.left, top: r.top, w: r.width, h: r.height };
+}
+function pointOf(at){
+  const b = playBox();
+  return { x: b.left + b.w * at.x / 100, y: b.top + b.h * at.y / 100, w: b.w, h: b.h };
+}
 function paintFest(){
   let board = document.getElementById("festBoard");
   if (!board) {
@@ -1203,15 +1227,16 @@ function paintFest(){
     board.id = "festBoard";
     stage.appendChild(board);
   }
-  const themed = document.documentElement.getAttribute("data-theme") && document.documentElement.getAttribute("data-theme") !== "halloween";
-  board.classList.toggle("on", !!themed);
+  const themed = themedPlay();
+  board.classList.toggle("on", themed);
   board.innerHTML = "";
   if (!themed) return;
   const sr = stage.getBoundingClientRect();
   scene.items.forEach((it, i) => {
     const mark = itemMark(i);
     if (!mark) return;
-    const p = pctToScreen(it.x, it.y);
+    const at = spotOf(it);
+    const p = pointOf(at);
     const s = document.createElement("span");
     s.textContent = mark;
     s.style.left = (p.x - sr.left) + "px";
@@ -1277,11 +1302,12 @@ function clearRings(){
   stage.querySelectorAll(".ring:not(.hint)").forEach(n => n.remove());
 }
 function placeRing(it, cls){
-  const p = pctToScreen(it.x, it.y);
+  const at = spotOf(it);
+  const p = pointOf(at);
   const b = imageBox();
   const el = document.createElement("div");
   el.className = "ring " + (cls || "");
-  const size = Math.max(cls === "hint" ? 96 : 34, (it.s || 10) / 100 * b.w * (cls === "hint" ? 1.9 : .95));
+  const size = Math.max(cls === "hint" ? 96 : 34, (at.s || it.s || 10) / 100 * b.w * (cls === "hint" ? 1.9 : .95));
   el.style.width = size + "px";
   el.style.height = size + "px";
   const sr = stage.getBoundingClientRect();
@@ -1293,7 +1319,7 @@ function placeRing(it, cls){
 /* Gold rings mark every object already found; redrawn on resize so they stay on the picture. */
 function drawFoundRings(fresh){
   clearRings();
-  if (!pic.naturalWidth) return;
+  if (!themedPlay() && !pic.naturalWidth) return;
   found.forEach((i) => { const r = placeRing(scene.items[i]); if (i !== fresh) r.style.animation = "none"; });
 }
 
@@ -1359,7 +1385,7 @@ function openScene(sc){
 const CHEERS = ["Boo!", "Got it!", "Eek!", "Wicked!", "Spooky!", "Found!"];
 function hit(clientX, clientY){
   startBed();
-  const b = imageBox();
+  const b = playBox();
   if (b.w < 40 || b.h < 40) { say("Tap the picture"); return; }
   const x = (clientX - b.left) / b.w * 100;
   const y = (clientY - b.top) / b.h * 100;
@@ -1367,8 +1393,9 @@ function hit(clientX, clientY){
   let best = -1, bestD = 1e9;
   let open = -1, openD = 1e9;
   scene.items.forEach((it, i) => {
-    const dx = (x - it.x) / 100 * b.w;
-    const dy = (y - it.y) / 100 * b.h;
+    const at = spotOf(it);
+    const dx = (x - at.x) / 100 * b.w;
+    const dy = (y - at.y) / 100 * b.h;
     const d = Math.hypot(dx, dy);
     const rad = Math.max(48, (it.s || 12) / 100 * b.w * 1.3);
     if (d < rad && d < bestD) { bestD = d; best = i; }
@@ -1384,7 +1411,7 @@ function hit(clientX, clientY){
   burstAt(clientX, clientY);
   flyToScore(it, clientX, clientY);
   popAt(clientX, clientY, CHEERS[found.size % CHEERS.length]);
-  say("Found: " + it.n);
+  say("Found: " + (window.hollyItemName ? window.hollyItemName(scene.id, chosen, it.n) : it.n));
   stage.querySelectorAll(".ring.hint").forEach((n) => n.remove());
   renderList(chosen);
   if (found.size === scene.items.length) {
@@ -1610,6 +1637,6 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) flute
 track("game_picker_view");
 if (paid && window.posthog) posthog.setPersonProperties({ hollyhaunt_paid: true, site: "halloweenfest" });
 </script>
-  <script src="theme.js?v=5"></script>
+  <script src="theme.js?v=6"></script>
 </body>
 </html>

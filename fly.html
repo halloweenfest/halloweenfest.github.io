@@ -1471,7 +1471,18 @@ function drawWitch() {
   glow(GL.green, x, y + 40 * SC, 80 * SC, 0.12);
   ctx.globalCompositeOperation = "source-over";
   const wf = mode === "victory" ? 1 : w.flash;
-  spr("witch", x, y, 1 + wf * 0.5, 1 - wf * 0.35, Math.sin(a * 1.4) * 0.06 - w.cast * 0.2, mode === "victory" ? clamp(endT / 1.6, 0, 1) : 1, wf > 0 ? (mode === "victory" ? 0.45 : Math.min(0.7, wf * 7)) : 0);
+  const boss = window.hollyMark ? window.hollyMark("witch") : "";
+  if (boss) {
+    ctx.save();
+    ctx.globalAlpha = mode === "victory" ? clamp(endT / 1.6, 0, 1) : 1;
+    ctx.font = (120 * SC) + "px serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(boss, x, y);
+    ctx.restore();
+  } else {
+    spr("witch", x, y, 1 + wf * 0.5, 1 - wf * 0.35, Math.sin(a * 1.4) * 0.06 - w.cast * 0.2, mode === "victory" ? clamp(endT / 1.6, 0, 1) : 1, wf > 0 ? (mode === "victory" ? 0.45 : Math.min(0.7, wf * 7)) : 0);
+  }
   const sx = x - 0.45 * SPRITES.witch * SC, sy = y - 0.33 * SPRITES.witch * SC * 420 / 290;
   ctx.globalCompositeOperation = "lighter";
   glow(GL.violet, sx, sy, (16 + pulse * 6 + w.cast * 60) * SC, 0.7);
@@ -1966,6 +1977,6 @@ window.__emmaTest = {
 };
 requestAnimationFrame(frame);
 </script>
-  <script src="theme.js?v=5"></script>
+  <script src="theme.js?v=6"></script>
 </body>
 </html>
