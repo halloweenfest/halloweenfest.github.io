@@ -115,6 +115,82 @@
     else el.textContent = value;
   }
   function q(sel) { return document.querySelector(sel); }
+
+  var ITEMS = {
+    halloween: null,
+    christmas: {
+      hall: ["Christmas moon","Festive bear","Gift chest","Snow globe","Nutcracker","Party mask","Wooden pup","Tree light","Hourglass","Spectacles","Thimble","Golden key"],
+      kitchen: ["Wall clock","Lantern","Christmas moon","Mantel light","Cocoa pot","Tree pumpkin","Red candle","Cookie plate","Shelf lights","Rolling pin","Mince pie","House cat"],
+      bedroom: ["Crescent","Christmas moon","Oval mirror","Jewelry box","Grandfather clock","Little light","Tree light","Festive bear","Toy train","Spectacles","Hourglass","Story book"]
+    },
+    diwali: {
+      hall: ["Festival moon","Diya bear","Sweet chest","Music box","Toy guard","Festive mask","Wooden pup","Oil lamp","Hourglass","Spectacles","Thimble","Brass key"],
+      kitchen: ["Wall clock","Hanging diya","Festival moon","Mantel diya","Sweet pot","Oil lamp","Red candle","Mithai plate","Shelf diyas","Rolling pin","Festive pie","House cat"],
+      bedroom: ["Crescent","Festival moon","Oval mirror","Jewelry box","Grandfather clock","Little diya","Oil lamp","Diya bear","Toy train","Spectacles","Hourglass","Story book"]
+    },
+    holi: {
+      hall: ["Color moon","Color bear","Color chest","Music box","Color guard","Color mask","Color pup","Color lamp","Hourglass","Spectacles","Thimble","Color key"],
+      kitchen: ["Wall clock","Color lantern","Color moon","Color lamp","Color pot","Color gourd","Color candle","Color sweets","Shelf colors","Rolling pin","Color pie","Color cat"],
+      bedroom: ["Crescent","Color moon","Oval mirror","Jewelry box","Grandfather clock","Little lamp","Color lamp","Color bear","Toy train","Spectacles","Hourglass","Story book"]
+    },
+    eid: {
+      hall: ["Crescent moon","Lantern bear","Gift chest","Music box","Night guard","Moon mask","Wooden pup","Hanging lantern","Hourglass","Spectacles","Thimble","Silver key"],
+      kitchen: ["Wall clock","Hanging lantern","Crescent moon","Mantel lantern","Evening pot","Lantern","Candle","Sweet plate","Shelf lanterns","Rolling pin","Evening pie","House cat"],
+      bedroom: ["Crescent","Eid moon","Oval mirror","Jewelry box","Grandfather clock","Little lantern","Hanging lantern","Lantern bear","Toy train","Spectacles","Hourglass","Story book"]
+    },
+    thanksgiving: {
+      hall: ["Harvest moon","Harvest bear","Harvest chest","Music box","Harvest guard","Harvest mask","Harvest pup","Harvest gourd","Hourglass","Spectacles","Thimble","Harvest key"],
+      kitchen: ["Wall clock","Harvest lantern","Harvest moon","Mantel gourd","Harvest pot","Harvest gourd","Candle","Pie plate","Shelf gourds","Rolling pin","Harvest pie","House cat"],
+      bedroom: ["Crescent","Harvest moon","Oval mirror","Jewelry box","Grandfather clock","Little gourd","Harvest gourd","Harvest bear","Toy train","Spectacles","Hourglass","Story book"]
+    },
+    newyear: {
+      hall: ["Midnight moon","Party bear","Gift chest","Music box","Nutcracker","Party mask","Party pup","Party lantern","Countdown glass","Spectacles","Thimble","Midnight key"],
+      kitchen: ["Wall clock","Party lantern","Midnight moon","Mantel spark","Party pot","Party lantern","Candle","Party plate","Shelf sparks","Rolling pin","Midnight pie","House cat"],
+      bedroom: ["Crescent","Midnight moon","Oval mirror","Jewelry box","Grandfather clock","Little spark","Party lantern","Party bear","Toy train","Spectacles","Hourglass","Story book"]
+    }
+  };
+  var MARKS = {
+    halloween: null,
+    christmas: { ghost:"❄️", skeleton:"🎄", bat:"🔔", wolf:"🦌", zombie:"🎁", witch:"🎅", pumpkin:"⭐" },
+    diwali: { ghost:"🪔", skeleton:"🎆", bat:"✨", wolf:"🌸", zombie:"🎇", witch:"🪔", pumpkin:"💛" },
+    holi: { ghost:"💜", skeleton:"💛", bat:"💚", wolf:"💗", zombie:"💙", witch:"🎨", pumpkin:"💜" },
+    eid: { ghost:"🌙", skeleton:"⭐", bat:"✨", wolf:"🏮", zombie:"🕌", witch:"🌙", pumpkin:"⭐" },
+    thanksgiving: { ghost:"🍂", skeleton:"🦃", bat:"🍁", wolf:"🌽", zombie:"🥧", witch:"🍎", pumpkin:"🍂" },
+    newyear: { ghost:"🎆", skeleton:"🥂", bat:"✨", wolf:"🎇", zombie:"🎉", witch:"🕛", pumpkin:"✨" }
+  };
+  var PIECES = {
+    halloween: null,
+    christmas: { pumpkin:"🎁", ghost:"❄️", bat:"🔔", skull:"⭐", cat:"🎄", witch:"🎅", candy:"🍪" },
+    diwali: { pumpkin:"🪔", ghost:"✨", bat:"🎆", skull:"🌸", cat:"💛", witch:"🎇", candy:"🍬" },
+    holi: { pumpkin:"💜", ghost:"💛", bat:"💚", skull:"💗", cat:"💙", witch:"🎨", candy:"🍬" },
+    eid: { pumpkin:"🌙", ghost:"⭐", bat:"🏮", skull:"✨", cat:"🕌", witch:"🌙", candy:"🍬" },
+    thanksgiving: { pumpkin:"🍂", ghost:"🦃", bat:"🍁", skull:"🌽", cat:"🥧", witch:"🍎", candy:"🍪" },
+    newyear: { pumpkin:"🎆", ghost:"🥂", bat:"✨", skull:"🎇", cat:"🎉", witch:"🕛", candy:"🍪" }
+  };
+  var LOOT = {
+    halloween: { a:"cans", b:"cams", shield:"CAM SHIELD" },
+    christmas: { a:"gifts", b:"bells", shield:"BELL SHIELD" },
+    diwali: { a:"sweets", b:"diyas", shield:"DIYA SHIELD" },
+    holi: { a:"colors", b:"packs", shield:"COLOR SHIELD" },
+    eid: { a:"dates", b:"lanterns", shield:"LANTERN SHIELD" },
+    thanksgiving: { a:"pies", b:"gourds", shield:"HARVEST SHIELD" },
+    newyear: { a:"sparks", b:"glasses", shield:"SPARK SHIELD" }
+  };
+  window.hollyItemName = function (room, index, fallback) {
+    var pack = ITEMS[saved()];
+    var row = pack && pack[room];
+    return (row && row[index]) || fallback;
+  };
+  window.hollyMark = function (kind) {
+    var pack = MARKS[saved()];
+    return pack ? pack[kind] || "" : "";
+  };
+  window.hollyPiece = function (type) {
+    var pack = PIECES[saved()];
+    return pack ? pack[type] || "" : "";
+  };
+  window.hollyLoot = function () { return LOOT[saved()] || LOOT.halloween; };
+
   function dress(theme, id) {
     var scene = q("#gate .scene");
     if (!scene) return;
@@ -208,6 +284,8 @@
       if ((img.getAttribute("src") || "").indexOf("emma-face.png?v=11") !== 0) img.src = FACE;
     });
     dress(theme, id);
+    try { window.dispatchEvent(new Event("holly-theme")); } catch (e) {}
+    if (window.hollyRefresh) window.hollyRefresh();
     try { if (window.posthog) posthog.capture("theme_applied", { theme: id }); } catch (e) {}
   }
   function menu() {

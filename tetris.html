@@ -861,7 +861,15 @@ function drawTile(c, type, s, blink) {
   gl.addColorStop(0, "rgba(255,255,255,.55)"); gl.addColorStop(1, "rgba(255,255,255,0)");
   c.fillStyle = gl; c.beginPath(); c.ellipse(s / 2, y + 6 * u, w * .42, h * .26, 0, 0, Math.PI * 2); c.fill();
   c.restore();
-  c.save(); c.translate(s / 2, s / 2 + 1 * u); c.scale(1.06, 1.06); ICON[type](c, u, blink); c.restore();
+  const mark = window.hollyPiece ? window.hollyPiece(type) : "";
+  if (mark) {
+    c.font = (46 * u) + "px serif";
+    c.textAlign = "center";
+    c.textBaseline = "middle";
+    c.fillText(mark, s / 2, s / 2 + 2 * u);
+  } else {
+    c.save(); c.translate(s / 2, s / 2 + 1 * u); c.scale(1.06, 1.06); ICON[type](c, u, blink); c.restore();
+  }
   /* sharp specular glint */
   c.fillStyle = "rgba(255,255,255,.85)";
   c.beginPath(); c.ellipse(x + 15 * u, y + 13 * u, 6 * u, 3.2 * u, -0.6, 0, Math.PI * 2); c.fill();
@@ -1767,6 +1775,7 @@ function castRow(el, size, n) {
 }
 castRow($("cast"), 44, 7);
 castRow($("overArt"), 36, 7);
+window.addEventListener("holly-theme", () => { buildSprites(); castRow($("cast"), 44, 7); castRow($("overArt"), 36, 7); paint(); });
 emmaFace.onload = () => { castRow($("cast"), 44, 7); castRow($("overArt"), 36, 7); };
 
 addEventListener("resize", resize);
@@ -1780,6 +1789,6 @@ window.__stackTest = {
   state: () => ({ score, lines, running, paused, over, S, holdType, canHold, combo, clearing: !!clearAnim })
 };
 </script>
-  <script src="theme.js?v=3"></script>
+  <script src="theme.js?v=4"></script>
 </body>
 </html>

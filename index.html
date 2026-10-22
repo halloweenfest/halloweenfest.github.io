@@ -1263,6 +1263,7 @@ function drawFoundRings(fresh){
 }
 
 function renderList(justFound){
+  window.hollyRefresh = function(){ renderList(); };
   list.innerHTML = '<div class="tray-head"><b>Objects to find</b><span>' + found.size + " / " + scene.items.length + "</span></div>";
   const order = scene.items.map((_, i) => i).sort((a, b) => (found.has(a) - found.has(b)) || a - b);
   order.forEach((i) => {
@@ -1275,10 +1276,11 @@ function renderList(justFound){
     th.className = "th"; th.setAttribute("aria-hidden", "true");
     cropStyle(it, th);
     const nm = document.createElement("span");
-    nm.className = "nm"; nm.textContent = it.n;
+    const label = window.hollyItemName ? window.hollyItemName(scene.id, i, it.n) : it.n;
+    nm.className = "nm"; nm.textContent = label;
     b.append(th, nm);
-    b.setAttribute("aria-label", it.n + (found.has(i) ? ", found" : ", not found yet"));
-    b.onclick = () => { say(found.has(i) ? it.n + " is found" : "Find the " + it.n); };
+    b.setAttribute("aria-label", label + (found.has(i) ? ", found" : ", not found yet"));
+    b.onclick = () => { say(found.has(i) ? label + " is found" : "Find the " + label); };
     list.appendChild(b);
   });
   document.getElementById("score").textContent = found.size + "/" + scene.items.length;
@@ -1420,8 +1422,8 @@ document.getElementById("hintBtn").onclick = () => {
   list.querySelectorAll(".chip.hinted").forEach((c) => c.classList.remove("hinted"));
   const chip = list.querySelector('.chip[data-i="' + i + '"]');
   if (chip) chip.classList.add("hinted");
-  say("Look here: " + scene.items[i].n);
-  track("hint_used", { room: scene.id, object: scene.items[i].n });
+  say("Look here: " + (window.hollyItemName ? window.hollyItemName(scene.id, i, scene.items[i].n) : scene.items[i].n));
+  track("hint_used", { room: scene.id, object: (window.hollyItemName ? window.hollyItemName(scene.id, i, scene.items[i].n) : scene.items[i].n) });
   sfxHint();
 };
 
@@ -1572,6 +1574,6 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) flute
 track("game_picker_view");
 if (paid && window.posthog) posthog.setPersonProperties({ hollyhaunt_paid: true, site: "halloweenfest" });
 </script>
-  <script src="theme.js?v=3"></script>
+  <script src="theme.js?v=4"></script>
 </body>
 </html>

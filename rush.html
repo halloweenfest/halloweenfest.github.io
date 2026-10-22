@@ -279,7 +279,9 @@ function spawnRow() {
 function points() { return Math.floor(dist) + cans * 10 + cams * 50; }
 function paintHud() {
   document.getElementById("score").textContent = points();
-  document.getElementById("loot").textContent = cans + " cans · " + cams + " cams";
+  const loot = window.hollyLoot ? window.hollyLoot() : { a:"cans", b:"cams", shield:"CAM SHIELD" };
+  document.getElementById("loot").textContent = cans + " " + loot.a + " · " + cams + " " + loot.b;
+  document.getElementById("shield").textContent = loot.shield;
   document.getElementById("shield").classList.toggle("on", shield > 0);
 }
 function crash() {
@@ -372,6 +374,6 @@ function frame() {
 paintHud();
 requestAnimationFrame(frame);
   </script>
-  <script src="theme.js?v=3"></script>
+  <script src="theme.js?v=4"></script>
 </body>
 </html>

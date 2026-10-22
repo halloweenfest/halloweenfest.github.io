@@ -1438,7 +1438,18 @@ function drawFoe(z) {
   ctx.globalCompositeOperation = "lighter";
   glow(z.kind.col, x, y + oy, 62 * SC, 0.16 * fade);
   ctx.globalCompositeOperation = "source-over";
-  spr(z.kind.img, x, y + oy, (z.kind.flip ? -1 : 1) * sx * (1 + z.flash * 0.8), sy * (1 - z.flash * 0.5), rot, al * fade, z.flash > 0 ? 0.95 : 0);
+  const mark = window.hollyMark ? window.hollyMark(z.kind.img) : "";
+  if (mark) {
+    ctx.save();
+    ctx.globalAlpha = al * fade;
+    ctx.font = (78 * SC) + "px serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.fillText(mark, x, y + oy);
+    ctx.restore();
+  } else {
+    spr(z.kind.img, x, y + oy, (z.kind.flip ? -1 : 1) * sx * (1 + z.flash * 0.8), sy * (1 - z.flash * 0.5), rot, al * fade, z.flash > 0 ? 0.95 : 0);
+  }
   if (z.hp < z.max) {
     const bx = x, by = y + oy - 50 * SC;
     for (let i = 0; i < z.max; i++) {
@@ -1949,6 +1960,6 @@ window.__emmaTest = {
 };
 requestAnimationFrame(frame);
 </script>
-  <script src="theme.js?v=3"></script>
+  <script src="theme.js?v=4"></script>
 </body>
 </html>
