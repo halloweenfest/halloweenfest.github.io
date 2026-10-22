@@ -120,3 +120,16 @@ html[data-theme="thanksgiving"] .game-card .art img { filter: sepia(.4) saturate
 html[data-theme="newyear"] .game-card .art img { filter: saturate(.75) hue-rotate(190deg) brightness(1.05); }
 html:not([data-theme="halloween"]) #view,
 html:not([data-theme="halloween"]) #c { filter: saturate(.9); }
+
+#festBoard { position: absolute; inset: 0; z-index: 3; pointer-events: none; display: none; }
+#festBoard.on { display: block; }
+#festBoard span {
+  position: absolute; transform: translate(-50%, -50%);
+  font-size: clamp(34px, 6vw, 62px); line-height: 1;
+  filter: drop-shadow(0 8px 10px rgba(0,0,0,.55));
+}
+html:not([data-theme="halloween"]) #pic { opacity: .22 !important; filter: grayscale(.55) brightness(.55); }
+.chip .th.mark {
+  display: grid; place-items: center; background-image: none !important;
+  font-size: 26px; line-height: 1;
+}

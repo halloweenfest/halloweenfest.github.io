@@ -3,7 +3,7 @@
   var FACE = "emma-face.png?v=11";
   var link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "themes.css?v=2";
+  link.href = "themes.css?v=3";
   document.head.appendChild(link);
 
   var THEMES = {
@@ -116,44 +116,45 @@
   }
   function q(sel) { return document.querySelector(sel); }
 
-  var ITEMS = {
+  var PACKS = {
     halloween: null,
-    christmas: {
-      hall: ["Christmas moon","Festive bear","Gift chest","Snow globe","Nutcracker","Party mask","Wooden pup","Tree light","Hourglass","Spectacles","Thimble","Golden key"],
-      kitchen: ["Wall clock","Lantern","Christmas moon","Mantel light","Cocoa pot","Tree pumpkin","Red candle","Cookie plate","Shelf lights","Rolling pin","Mince pie","House cat"],
-      bedroom: ["Crescent","Christmas moon","Oval mirror","Jewelry box","Grandfather clock","Little light","Tree light","Festive bear","Toy train","Spectacles","Hourglass","Story book"]
-    },
-    diwali: {
-      hall: ["Festival moon","Diya bear","Sweet chest","Music box","Toy guard","Festive mask","Wooden pup","Oil lamp","Hourglass","Spectacles","Thimble","Brass key"],
-      kitchen: ["Wall clock","Hanging diya","Festival moon","Mantel diya","Sweet pot","Oil lamp","Red candle","Mithai plate","Shelf diyas","Rolling pin","Festive pie","House cat"],
-      bedroom: ["Crescent","Festival moon","Oval mirror","Jewelry box","Grandfather clock","Little diya","Oil lamp","Diya bear","Toy train","Spectacles","Hourglass","Story book"]
-    },
-    holi: {
-      hall: ["Color moon","Color bear","Color chest","Music box","Color guard","Color mask","Color pup","Color lamp","Hourglass","Spectacles","Thimble","Color key"],
-      kitchen: ["Wall clock","Color lantern","Color moon","Color lamp","Color pot","Color gourd","Color candle","Color sweets","Shelf colors","Rolling pin","Color pie","Color cat"],
-      bedroom: ["Crescent","Color moon","Oval mirror","Jewelry box","Grandfather clock","Little lamp","Color lamp","Color bear","Toy train","Spectacles","Hourglass","Story book"]
-    },
-    eid: {
-      hall: ["Crescent moon","Lantern bear","Gift chest","Music box","Night guard","Moon mask","Wooden pup","Hanging lantern","Hourglass","Spectacles","Thimble","Silver key"],
-      kitchen: ["Wall clock","Hanging lantern","Crescent moon","Mantel lantern","Evening pot","Lantern","Candle","Sweet plate","Shelf lanterns","Rolling pin","Evening pie","House cat"],
-      bedroom: ["Crescent","Eid moon","Oval mirror","Jewelry box","Grandfather clock","Little lantern","Hanging lantern","Lantern bear","Toy train","Spectacles","Hourglass","Story book"]
-    },
-    thanksgiving: {
-      hall: ["Harvest moon","Harvest bear","Harvest chest","Music box","Harvest guard","Harvest mask","Harvest pup","Harvest gourd","Hourglass","Spectacles","Thimble","Harvest key"],
-      kitchen: ["Wall clock","Harvest lantern","Harvest moon","Mantel gourd","Harvest pot","Harvest gourd","Candle","Pie plate","Shelf gourds","Rolling pin","Harvest pie","House cat"],
-      bedroom: ["Crescent","Harvest moon","Oval mirror","Jewelry box","Grandfather clock","Little gourd","Harvest gourd","Harvest bear","Toy train","Spectacles","Hourglass","Story book"]
-    },
-    newyear: {
-      hall: ["Midnight moon","Party bear","Gift chest","Music box","Nutcracker","Party mask","Party pup","Party lantern","Countdown glass","Spectacles","Thimble","Midnight key"],
-      kitchen: ["Wall clock","Party lantern","Midnight moon","Mantel spark","Party pot","Party lantern","Candle","Party plate","Shelf sparks","Rolling pin","Midnight pie","House cat"],
-      bedroom: ["Crescent","Midnight moon","Oval mirror","Jewelry box","Grandfather clock","Little spark","Party lantern","Party bear","Toy train","Spectacles","Hourglass","Story book"]
-    }
+    christmas: [
+      ["Christmas tree","🎄"],["Stocking","🧦"],["Gift","🎁"],["Candy cane","🍬"],
+      ["Nutcracker","🪆"],["Star","⭐"],["Bell","🔔"],["Wreath","🎀"],
+      ["Snowman","☃️"],["Candle","🕯️"],["Cookie","🍪"],["Reindeer","🦌"]
+    ],
+    diwali: [
+      ["Diya","🪔"],["Lantern","🏮"],["Rangoli","🪷"],["Firework","🎆"],
+      ["Mithai","🍬"],["Gold coin","🪙"],["Marigold","🌼"],["Spark","✨"],
+      ["Sparkler","🎇"],["Oil lamp","🪔"],["Toran","🎀"],["Sweet box","🥮"]
+    ],
+    holi: [
+      ["Pichkari","💦"],["Gulal","🟣"],["Water balloon","🎈"],["Dhol","🥁"],
+      ["Thandai","🥤"],["Gujiya","🥟"],["Color bucket","🪣"],["Petals","🌸"],
+      ["White kurta","👕"],["Sunglasses","🕶️"],["Rangoli","🪷"],["Sweets","🍬"]
+    ],
+    eid: [
+      ["Crescent","🌙"],["Lantern","🏮"],["Dates","🍯"],["Prayer beads","📿"],
+      ["Mosque lamp","🕌"],["Star","⭐"],["Gift","🎁"],["Tea pot","🫖"],
+      ["Spark","✨"],["Milk glass","🥛"],["Story book","📖"],["New clothes","👕"]
+    ],
+    thanksgiving: [
+      ["Turkey","🦃"],["Pumpkin pie","🥧"],["Corn","🌽"],["Autumn leaf","🍂"],
+      ["Apple","🍎"],["Cranberries","🫐"],["Wheat","🌾"],["Candle","🕯️"],
+      ["Honey","🍯"],["Acorn","🌰"],["Basket","🧺"],["Bread","🍞"]
+    ],
+    newyear: [
+      ["Firework","🎆"],["Midnight clock","🕛"],["Champagne","🥂"],["Party hat","🥳"],
+      ["Confetti","🎊"],["Balloon","🎈"],["Sparkler","✨"],["Calendar","📅"],
+      ["Rocket","🎇"],["Party mask","🎭"],["Bottle","🍾"],["Star","⭐"]
+    ]
   };
+  function pack() { return PACKS[saved()] || null; }
   var MARKS = {
     halloween: null,
     christmas: { ghost:"❄️", skeleton:"🎄", bat:"🔔", wolf:"🦌", zombie:"🎁", witch:"🎅", pumpkin:"⭐" },
     diwali: { ghost:"🪔", skeleton:"🎆", bat:"✨", wolf:"🌸", zombie:"🎇", witch:"🪔", pumpkin:"💛" },
-    holi: { ghost:"💜", skeleton:"💛", bat:"💚", wolf:"💗", zombie:"💙", witch:"🎨", pumpkin:"💜" },
+    holi: { ghost:"🎈", skeleton:"💦", bat:"🟣", wolf:"🥁", zombie:"🌸", witch:"🎨", pumpkin:"🥤" },
     eid: { ghost:"🌙", skeleton:"⭐", bat:"✨", wolf:"🏮", zombie:"🕌", witch:"🌙", pumpkin:"⭐" },
     thanksgiving: { ghost:"🍂", skeleton:"🦃", bat:"🍁", wolf:"🌽", zombie:"🥧", witch:"🍎", pumpkin:"🍂" },
     newyear: { ghost:"🎆", skeleton:"🥂", bat:"✨", wolf:"🎇", zombie:"🎉", witch:"🕛", pumpkin:"✨" }
@@ -162,7 +163,7 @@
     halloween: null,
     christmas: { pumpkin:"🎁", ghost:"❄️", bat:"🔔", skull:"⭐", cat:"🎄", witch:"🎅", candy:"🍪" },
     diwali: { pumpkin:"🪔", ghost:"✨", bat:"🎆", skull:"🌸", cat:"💛", witch:"🎇", candy:"🍬" },
-    holi: { pumpkin:"💜", ghost:"💛", bat:"💚", skull:"💗", cat:"💙", witch:"🎨", candy:"🍬" },
+    holi: { pumpkin:"🎈", ghost:"💦", bat:"🟣", skull:"🥁", cat:"🌸", witch:"🥤", candy:"🥟" },
     eid: { pumpkin:"🌙", ghost:"⭐", bat:"🏮", skull:"✨", cat:"🕌", witch:"🌙", candy:"🍬" },
     thanksgiving: { pumpkin:"🍂", ghost:"🦃", bat:"🍁", skull:"🌽", cat:"🥧", witch:"🍎", candy:"🍪" },
     newyear: { pumpkin:"🎆", ghost:"🥂", bat:"✨", skull:"🎇", cat:"🎉", witch:"🕛", candy:"🍪" }
@@ -171,15 +172,18 @@
     halloween: { a:"cans", b:"cams", shield:"CAM SHIELD" },
     christmas: { a:"gifts", b:"bells", shield:"BELL SHIELD" },
     diwali: { a:"sweets", b:"diyas", shield:"DIYA SHIELD" },
-    holi: { a:"colors", b:"packs", shield:"COLOR SHIELD" },
+    holi: { a:"gulal", b:"balloons", shield:"GULAL SHIELD" },
     eid: { a:"dates", b:"lanterns", shield:"LANTERN SHIELD" },
     thanksgiving: { a:"pies", b:"gourds", shield:"HARVEST SHIELD" },
     newyear: { a:"sparks", b:"glasses", shield:"SPARK SHIELD" }
   };
   window.hollyItemName = function (room, index, fallback) {
-    var pack = ITEMS[saved()];
-    var row = pack && pack[room];
-    return (row && row[index]) || fallback;
+    var row = pack();
+    return (row && row[index] && row[index][0]) || fallback;
+  };
+  window.hollyItemMark = function (room, index) {
+    var row = pack();
+    return (row && row[index] && row[index][1]) || "";
   };
   window.hollyMark = function (kind) {
     var pack = MARKS[saved()];

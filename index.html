@@ -1174,8 +1174,20 @@ function missAt(clientX, clientY){
   stage.appendChild(el);
   setTimeout(() => el.remove(), 550);
 }
+function itemMark(i){
+  return window.hollyItemMark ? window.hollyItemMark(scene.id, i) : "";
+}
 function cropStyle(it, el, px){
-  /* show a small crop of the room picture around the object */
+  const i = scene.items.indexOf(it);
+  const mark = i >= 0 ? itemMark(i) : "";
+  if (mark) {
+    el.style.backgroundImage = "none";
+    el.classList.add("mark");
+    el.textContent = mark;
+    return;
+  }
+  el.classList.remove("mark");
+  el.textContent = "";
   const cw = Math.min(.42, Math.max(.13, (it.s || 10) / 100 * 1.7));
   const chh = cw * PIC_RATIO;
   const bx = Math.max(0, Math.min(100, ((it.x / 100 - cw / 2) / (1 - cw)) * 100));
@@ -1183,6 +1195,29 @@ function cropStyle(it, el, px){
   el.style.backgroundImage = "url('" + scene.file + "')";
   el.style.backgroundSize = (100 / cw).toFixed(1) + "% auto";
   el.style.backgroundPosition = bx.toFixed(1) + "% " + by.toFixed(1) + "%";
+}
+function paintFest(){
+  let board = document.getElementById("festBoard");
+  if (!board) {
+    board = document.createElement("div");
+    board.id = "festBoard";
+    stage.appendChild(board);
+  }
+  const themed = document.documentElement.getAttribute("data-theme") && document.documentElement.getAttribute("data-theme") !== "halloween";
+  board.classList.toggle("on", !!themed);
+  board.innerHTML = "";
+  if (!themed) return;
+  const sr = stage.getBoundingClientRect();
+  scene.items.forEach((it, i) => {
+    const mark = itemMark(i);
+    if (!mark) return;
+    const p = pctToScreen(it.x, it.y);
+    const s = document.createElement("span");
+    s.textContent = mark;
+    s.style.left = (p.x - sr.left) + "px";
+    s.style.top = (p.y - sr.top) + "px";
+    board.appendChild(s);
+  });
 }
 function flyToScore(it, clientX, clientY){
   if (reduceMotion || !document.body.animate) return;
@@ -1287,6 +1322,7 @@ function renderList(justFound){
   document.querySelector("#progress i").style.width = (found.size / scene.items.length * 100) + "%";
   document.getElementById("roomName").textContent = (window.hollyRoomName ? window.hollyRoomName(scene.id, scene.name) : scene.name).toUpperCase();
   drawFoundRings(justFound);
+  paintFest();
 }
 
 function markRooms(){
@@ -1395,8 +1431,8 @@ stage.addEventListener("pointermove", (e) => {
   cursorEl.classList.toggle("out", !inside);
 });
 stage.addEventListener("pointerleave", () => cursorEl.classList.remove("on"));
-pic.addEventListener("load", () => { pic.classList.add("ready"); drawFoundRings(); });
-window.addEventListener("resize", () => drawFoundRings());
+pic.addEventListener("load", () => { pic.classList.add("ready"); drawFoundRings(); paintFest(); });
+window.addEventListener("resize", () => { drawFoundRings(); paintFest(); });
 
 function updateHintCount(){
   const c = document.getElementById("hintCount");
@@ -1574,6 +1610,6 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) flute
 track("game_picker_view");
 if (paid && window.posthog) posthog.setPersonProperties({ hollyhaunt_paid: true, site: "halloweenfest" });
 </script>
-  <script src="theme.js?v=4"></script>
+  <script src="theme.js?v=5"></script>
 </body>
 </html>
