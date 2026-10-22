@@ -3,7 +3,7 @@
   var FACE = "emma-face.png?v=11";
   var link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "themes.css?v=4";
+  link.href = "themes.css?v=5";
   document.head.appendChild(link);
 
   var THEMES = {

@@ -121,13 +121,24 @@ html[data-theme="newyear"] .game-card .art img { filter: saturate(.75) hue-rotat
 html:not([data-theme="halloween"]) #view,
 html:not([data-theme="halloween"]) #c { filter: saturate(.9); }
 
-#festBoard { position: absolute; inset: 0; z-index: 3; pointer-events: none; display: none; }
-#festBoard.on { display: block; }
-#festBoard span {
-  position: absolute; transform: translate(-50%, -50%);
-  font-size: clamp(34px, 6vw, 62px); line-height: 1;
-  filter: drop-shadow(0 8px 10px rgba(0,0,0,.55));
+#festBoard { position: absolute; inset: 0; z-index: 4; display: none; }
+#festBoard.on {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 10px;
+  padding: 14px;
 }
+#festBoard .fest-item {
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px;
+  border: 0; border-radius: 18px; cursor: pointer;
+  background: rgba(255,255,255,.16);
+  color: #fff; font: 700 13px/1.15 system-ui, sans-serif;
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.18);
+}
+#festBoard .fest-item b { font-size: clamp(32px, 6vw, 56px); font-weight: 400; line-height: 1; }
+#festBoard .fest-item.got { opacity: .35; }
+#festBoard .fest-item.hint { outline: 3px solid #ffe08a; background: rgba(255,224,138,.28); }
 html:not([data-theme="halloween"]) #pic,
 html:not([data-theme="halloween"]) #bgblur,
 html:not([data-theme="halloween"]) .fx-vignette,

@@ -1230,19 +1230,48 @@ function paintFest(){
   const themed = themedPlay();
   board.classList.toggle("on", themed);
   board.innerHTML = "";
+  pic.style.visibility = themed ? "hidden" : "";
+  const blur = document.getElementById("bgblur");
+  if (blur) blur.style.visibility = themed ? "hidden" : "";
+  document.querySelectorAll(".fx-vignette, .fx-candle").forEach((el) => { el.style.visibility = themed ? "hidden" : ""; });
   if (!themed) return;
-  const sr = stage.getBoundingClientRect();
   scene.items.forEach((it, i) => {
     const mark = itemMark(i);
     if (!mark) return;
-    const at = spotOf(it);
-    const p = pointOf(at);
-    const s = document.createElement("span");
-    s.textContent = mark;
-    s.style.left = (p.x - sr.left) + "px";
-    s.style.top = (p.y - sr.top) + "px";
-    board.appendChild(s);
+    const name = window.hollyItemName ? window.hollyItemName(scene.id, i, it.n) : it.n;
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "fest-item" + (found.has(i) ? " got" : "");
+    b.dataset.i = String(i);
+    b.innerHTML = "<b>" + mark + "</b><span>" + name + "</span>";
+    b.addEventListener("pointerdown", (e) => {
+      e.stopPropagation();
+      e.preventDefault();
+      takeFound(i, e.clientX, e.clientY);
+    });
+    board.appendChild(b);
   });
+}
+function takeFound(i, clientX, clientY){
+  if (found.has(i)) { say("Already found"); return; }
+  found.add(i);
+  const it = scene.items[i];
+  const label = window.hollyItemName ? window.hollyItemName(scene.id, i, it.n) : it.n;
+  track("object_found", { room: scene.id, object: label });
+  sfxFind();
+  burstAt(clientX, clientY);
+  flyToScore(it, clientX, clientY);
+  popAt(clientX, clientY, "Found!");
+  say("Found: " + label);
+  stage.querySelectorAll(".ring.hint").forEach((n) => n.remove());
+  renderList(i);
+  if (found.size === scene.items.length) {
+    finalMs = Date.now() - startedAt;
+    stopClock();
+    say("Room cleared!");
+    clearTimers.push(setTimeout(sfxClear, 350));
+    clearTimers.push(setTimeout(showDone, 1500));
+  }
 }
 function flyToScore(it, clientX, clientY){
   if (reduceMotion || !document.body.animate) return;
@@ -1385,6 +1414,7 @@ function openScene(sc){
 const CHEERS = ["Boo!", "Got it!", "Eek!", "Wicked!", "Spooky!", "Found!"];
 function hit(clientX, clientY){
   startBed();
+  if (themedPlay()) { say("Tap a picture"); return; }
   const b = playBox();
   if (b.w < 40 || b.h < 40) { say("Tap the picture"); return; }
   const x = (clientX - b.left) / b.w * 100;
@@ -1476,10 +1506,18 @@ document.getElementById("hintBtn").onclick = () => {
   const hb = document.getElementById("hintBtn");
   hb.classList.add("cool");
   setTimeout(() => { hintsReady = true; hb.classList.remove("cool"); }, 900);
-  stage.querySelectorAll(".ring.hint").forEach((n) => n.remove());
-  const el = placeRing(scene.items[i], "hint");
-  setTimeout(() => { if (el.isConnected) el.classList.add("fade"); }, 3200);
-  setTimeout(() => { if (el.isConnected) el.remove(); }, 3700);
+  stage.querySelectorAll(".ring.hint, .fest-item.hint").forEach((n) => n.remove ? n.classList.remove("hint") : 0);
+  stage.querySelectorAll(".fest-item.hint").forEach((n) => n.classList.remove("hint"));
+  if (themedPlay()) {
+    const btn = document.querySelector('#festBoard .fest-item[data-i="' + i + '"]');
+    if (btn) btn.classList.add("hint");
+    setTimeout(() => { if (btn) btn.classList.remove("hint"); }, 3200);
+  }
+  const el = themedPlay() ? null : placeRing(scene.items[i], "hint");
+  if (el) {
+    setTimeout(() => { if (el.isConnected) el.classList.add("fade"); }, 3200);
+    setTimeout(() => { if (el.isConnected) el.remove(); }, 3700);
+  }
   hintsUsed++;
   updateHintCount();
   list.querySelectorAll(".chip.hinted").forEach((c) => c.classList.remove("hinted"));
@@ -1637,6 +1675,6 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) flute
 track("game_picker_view");
 if (paid && window.posthog) posthog.setPersonProperties({ hollyhaunt_paid: true, site: "halloweenfest" });
 </script>
-  <script src="theme.js?v=6"></script>
+  <script src="theme.js?v=7"></script>
 </body>
 </html>
