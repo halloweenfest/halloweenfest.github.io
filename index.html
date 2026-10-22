@@ -16,13 +16,13 @@
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta name="twitter:card" content="summary_large_image" />
-  <link rel="icon" href="favicon.ico" sizes="any" />
-  <link rel="icon" href="favicon.png?v=1" type="image/png" />
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=1" />
+  <link rel="icon" href="favicon.ico?v=11" sizes="any" />
+  <link rel="icon" href="favicon.png?v=11" type="image/png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=11" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&display=swap" />
-  <link rel="stylesheet" href="site.css?v=3" />
+  <link rel="stylesheet" href="site.css?v=4" />
   <link rel="preload" as="image" href="tile-find.jpg?v=7" />
   <script>
     !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_session_id get_session_replay_url createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
@@ -45,7 +45,7 @@
       border-bottom-color: rgba(232, 195, 106, .16);
     }
     body > header .mid { display: flex; align-items: center; justify-content: center; gap: 8px; }
-    .emma-mark { width: 34px; height: 34px; border-radius: 50%; object-fit: cover; border: 2px solid #e8c36a; flex: none; }
+    .emma-mark { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #e8c36a; flex: none; }
     body > header .mid .sub { display: inline-flex; align-items: center; gap: 6px; justify-content: center; }
     body > header .mid .sub svg { width: 13px; height: 13px; opacity: .8; }
     #progress {
@@ -571,7 +571,7 @@
     .gate-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
     .brand { display: inline-flex; align-items: center; gap: 10px; font: 800 15px/1 var(--display); letter-spacing: .12em; color: var(--cream); text-transform: uppercase; }
     .brand svg { width: 30px; height: 30px; filter: drop-shadow(0 0 10px rgba(255, 140, 40, .6)); }
-    .brand .emma-mark { width: 28px; height: 28px; }
+    .brand .emma-mark { width: 72px; height: 72px; }
     .hero { position: relative; padding: clamp(40px, 8vh, 96px) 0 clamp(36px, 6vh, 64px); max-width: 680px; }
     .hero .eyebrow {
       display: inline-flex; align-items: center; gap: 8px;
@@ -713,7 +713,7 @@
       </button>
     </div>
     <div class="mid">
-      <img class="emma-mark" src="emma-face.svg?v=2" alt="Emma" width="34" height="34" />
+      <img class="emma-mark" src="emma-face.png?v=111" alt="Emma" width="34" height="34" />
       <div>
       <div class="kicker" id="roomName">GREAT HALL</div>
       <div class="sub" id="sub"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2M9 2h6"/></svg><span id="clock">0:00</span></div>
@@ -884,7 +884,7 @@
     <div class="gate-inner">
       <nav class="gate-nav" aria-label="Site">
         <span class="brand">
-          <img class="emma-mark" src="emma-face.svg?v=2" alt="" width="28" height="28" />
+          <img class="emma-mark" src="emma-face.png?v=111" alt="" width="28" height="28" />
           <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 7c-1-3 1-5 3-5" stroke="#5c8a3a" stroke-width="2.4" fill="none" stroke-linecap="round"/><ellipse cx="16" cy="18" rx="13" ry="11" fill="#ff8a2a"/><path d="M16 7c-4 0-6 5-6 11s2 11 6 11 6-5 6-11-2-11-6-11z" fill="#ff9d45"/><path d="M9 15l4 3H8zM23 15l-4 3h5zM9 22c3 3 11 3 14 0l-2 3-2-2-3 2-3-2-2 2z" fill="#3a1205"/></svg>
           Holly Haunt
         </span>
@@ -1572,6 +1572,6 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) flute
 track("game_picker_view");
 if (paid && window.posthog) posthog.setPersonProperties({ hollyhaunt_paid: true, site: "halloweenfest" });
 </script>
-  <script src="theme.js?v=1"></script>
+  <script src="theme.js?v=2"></script>
 </body>
 </html>

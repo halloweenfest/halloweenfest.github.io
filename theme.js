@@ -1,6 +1,6 @@
 (function () {
   var KEY = "holly-theme";
-  var FACE = "emma-face.svg?v=2";
+  var FACE = "emma-face.png?v=11";
   var link = document.createElement("link");
   link.rel = "stylesheet";
   link.href = "themes.css?v=1";
@@ -86,9 +86,11 @@
     box.appendChild(pop);
     return box;
   }
-  function place(parent) {
+  function place(parent, center) {
     if (!parent || parent.querySelector(".theme-hold")) return;
-    parent.appendChild(hold());
+    var box = hold();
+    if (center && parent.firstElementChild) parent.insertBefore(box, parent.firstElementChild.nextSibling);
+    else parent.appendChild(box);
   }
   function mount() {
     if (!document.querySelector(".theme-props")) {
@@ -98,7 +100,7 @@
       document.body.appendChild(p);
     }
     place(document.querySelector(".topbar .right"));
-    place(document.querySelector(".gate-nav"));
+    place(document.querySelector(".gate-nav"), true);
     var rush = document.querySelector("header");
     if (rush && !document.querySelector(".topbar") && !document.querySelector(".gate-nav")) place(rush);
     apply(saved());

@@ -240,12 +240,7 @@ a { color: inherit; }
   }
 }
 
-/* Real Emma portrait. Replaces the old generated face even if the page still points at emma-face.png. */
-img.emma-mark {
-  content: url("emma-face.svg?v=1") !important;
-  border-radius: 50%;
-  object-fit: cover;
-}
+img.emma-mark { border-radius: 50%; object-fit: cover; }
 
 /* Festive themes. One choice, stored on this phone, used by every game. */
 .theme-hold { position: relative; display: inline-flex; pointer-events: auto; }
@@ -333,3 +328,10 @@ html[data-theme]:not([data-theme="halloween"]) .hud span {
   border-color: var(--line) !important;
 }
 html[data-theme]:not([data-theme="halloween"]) .primary { background: var(--gold) !important; color: #24140a !important; }
+
+.gate-nav { display: grid !important; grid-template-columns: 1fr auto 1fr; align-items: center; }
+.gate-nav .brand { justify-self: start; }
+.gate-nav .theme-hold { justify-self: center; }
+.gate-nav > .chip-btn { justify-self: end; }
+.brand .emma-mark { width: 72px !important; height: 72px !important; }
+.topbar .emma-mark { width: 44px !important; height: 44px !important; }
