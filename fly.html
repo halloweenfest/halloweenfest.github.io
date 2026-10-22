@@ -1279,7 +1279,7 @@ function step(dt) {
       flashFx = 1; addShake(22);
       orbs = [];
       popup(x, y - 60 * SC, "+200", "#ffe9a8", 30);
-      banner = { title: "NIGHT " + level + " CLEARED", sub: "The ugly witch is gone. Score " + score, t: 0, dur: 2.2 };
+      banner = { title: "NIGHT " + level + " CLEARED", sub: (window.hollyWinSub ? window.hollyWinSub(score) : "The night is clear. Score " + score), t: 0, dur: 2.2 };
       sfx("win");
     }
   } else if (mode === "victory") {
@@ -1329,7 +1329,7 @@ function step(dt) {
     lastLives = lives;
   }
   const mins = Math.floor(elapsed / 60), secs = String(Math.floor(elapsed % 60)).padStart(2, "0");
-  const txt = mode === "fly" ? "NIGHT " + level + " · " + mins + ":" + secs : witch ? "WITCH " + Math.max(0, witch.hp) + " HP" : modeEl.textContent;
+  const txt = mode === "fly" ? "NIGHT " + level + " · " + mins + ":" + secs : witch ? ((window.hollyBossName ? window.hollyBossName() : "BOSS") + " " + Math.max(0, witch.hp) + " HP") : modeEl.textContent;
   if (modeEl.textContent !== txt) modeEl.textContent = txt;
 }
 
@@ -1977,6 +1977,6 @@ window.__emmaTest = {
 };
 requestAnimationFrame(frame);
 </script>
-  <script src="theme.js?v=7"></script>
+  <script src="theme.js?v=8"></script>
 </body>
 </html>

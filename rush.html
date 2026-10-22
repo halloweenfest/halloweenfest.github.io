@@ -235,21 +235,34 @@ function addObj(type, laneIndex, z) {
     twig.position.set(0.4, 1.85, 0); twig.rotation.z = 0.8;
     mesh.add(trunk, twig);
   } else if (type === "can") {
-    mesh = new THREE.Group();
-    const body = shade(new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.48, 18), canMat));
-    const top = shade(new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.04, 18), steel));
-    top.position.y = 0.24;
-    mesh.add(body, top);
-    mesh.position.y = 0.4;
+    const themed = window.hollyWorld && window.hollyWorld();
+    if (themed) {
+      mesh = shade(new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.36, 0.36), canMat));
+      mesh.position.y = 0.42;
+      mesh.rotation.y = Math.random() * 0.6;
+    } else {
+      mesh = new THREE.Group();
+      const body = shade(new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.48, 18), canMat));
+      const top = shade(new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.04, 18), steel));
+      top.position.y = 0.24;
+      mesh.add(body, top);
+      mesh.position.y = 0.4;
+    }
   } else {
-    mesh = new THREE.Group();
-    const body = shade(new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.24, 0.16), camMat));
-    const lens = shade(new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.08, 16), lensMat));
-    lens.rotation.x = Math.PI / 2; lens.position.z = 0.1;
-    const dot = shade(new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 8), new THREE.MeshBasicMaterial({ color: "#ff3040" })));
-    dot.position.set(0.12, 0.08, 0.08);
-    mesh.add(body, lens, dot);
-    mesh.position.y = 0.55;
+    const themed = window.hollyWorld && window.hollyWorld();
+    if (themed) {
+      mesh = shade(new THREE.Mesh(new THREE.SphereGeometry(0.2, 18, 14), camMat));
+      mesh.position.y = 0.5;
+    } else {
+      mesh = new THREE.Group();
+      const body = shade(new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.24, 0.16), camMat));
+      const lens = shade(new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.08, 16), lensMat));
+      lens.rotation.x = Math.PI / 2; lens.position.z = 0.1;
+      const dot = shade(new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 8), new THREE.MeshBasicMaterial({ color: "#ff3040" })));
+      dot.position.set(0.12, 0.08, 0.08);
+      mesh.add(body, lens, dot);
+      mesh.position.y = 0.55;
+    }
   }
   mesh.position.x = LANES[laneIndex];
   mesh.position.z = z;
@@ -290,7 +303,8 @@ function crash() {
   const total = points();
   if (total > best) { best = total; localStorage.setItem("hollyRush.best", String(best)); }
   document.getElementById("title").textContent = "Emma went down";
-  document.getElementById("blurb").textContent = "Score " + total + ". Best " + best + ". Cans " + cans + ", cams " + cams + ".";
+  const names = window.hollyLoot ? window.hollyLoot() : { a:"cans", b:"cams" };
+  document.getElementById("blurb").textContent = "Score " + total + ". Best " + best + ". " + names.a + " " + cans + ", " + names.b + " " + cams + ".";
   document.getElementById("play").textContent = "Ride again";
   document.getElementById("veil").classList.remove("off");
   track("rush_ended", { score: total, cans, cams });
@@ -387,6 +401,6 @@ function paintWorld() {
 }
 window.addEventListener("holly-theme", paintWorld);
 paintWorld();
-<script src="theme.js?v=7"></script>
+<script src="theme.js?v=8"></script>
 </body>
 </html>

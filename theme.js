@@ -3,7 +3,7 @@
   var FACE = "emma-face.png?v=11";
   var link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "themes.css?v=5";
+  link.href = "themes.css?v=6";
   document.head.appendChild(link);
 
   var THEMES = {
@@ -18,7 +18,7 @@
       stackT: "Holly Stack", stackD: "Falling blocks with pumpkins, ghosts, bats and black cats. Clear the rows.",
       rushT: "Adrenaline Rush", rushD: "Emma on a mountain bike. Jump the rocks, duck the branches, grab energy cans and action cams.",
       rooms: { hall: "Great Hall", kitchen: "Kitchen", bedroom: "Bedroom" },
-      flight: "EMMA'S FLIGHT", stackK: "Holly Stack", stackLine: "Stack pumpkins, ghosts, bats, cats and Emma. Fill a row to clear it."
+      flight: "EMMA'S FLIGHT", stackK: "Holly Stack", stackLine: "Stack pumpkins, ghosts, bats, cats and Emma. Fill a row to clear it.", nightLine: "Night 1 is free. Villains chase her. Nights 2 and 3 unlock together.", winSub: "The ugly witch is gone.", bossName: "WITCH"
     },
     christmas: {
       label: "Christmas", menu: "🎄  Christmas",
@@ -31,7 +31,7 @@
       stackT: "Noel Stack", stackD: "Falling gifts, stars, trees and bells. Clear a row to keep the tree growing.",
       rushT: "Sleigh Rush", rushD: "Emma on the winter road. Jump the drifts, duck the garlands, grab gifts and bells.",
       rooms: { hall: "Christmas Hall", kitchen: "Festive Kitchen", bedroom: "Guest Room" },
-      flight: "SNOW FLIGHT", stackK: "Noel Stack", stackLine: "Stack gifts, stars, trees and bells. Clear a full row."
+      flight: "SNOW FLIGHT", stackK: "Noel Stack", stackLine: "Stack gifts, stars, trees and bells. Clear a full row.", nightLine: "Night 1 is free. Winter spirits chase her. Nights 2 and 3 unlock together.", winSub: "The winter spirit is gone.", bossName: "SPIRIT"
     },
     diwali: {
       label: "Diwali", menu: "🪔  Diwali",
@@ -44,7 +44,7 @@
       stackT: "Diya Stack", stackD: "Falling lamps, sweets and sparks. Clear a row to keep the house bright.",
       rushT: "Lantern Run", rushD: "Emma on the festival road. Jump the stalls, duck the banners, grab sweets and lamps.",
       rooms: { hall: "Diwali Hall", kitchen: "Sweet Kitchen", bedroom: "Guest Room" },
-      flight: "LIGHT FLIGHT", stackK: "Diya Stack", stackLine: "Stack lamps, sweets and sparks. Clear a full row."
+      flight: "LIGHT FLIGHT", stackK: "Diya Stack", stackLine: "Stack lamps, sweets and sparks. Clear a full row.", nightLine: "Night 1 is free. Sparks chase her. Nights 2 and 3 unlock together.", winSub: "The night of lights is won.", bossName: "LAMP"
     },
     holi: {
       label: "Holi", menu: "💜  Holi",
@@ -57,7 +57,7 @@
       stackT: "Color Stack", stackD: "Falling bursts of color. Clear a row before the well fills.",
       rushT: "Color Run", rushD: "Emma on the festival road. Jump the stalls and grab the color packs.",
       rooms: { hall: "Color Hall", kitchen: "Color Kitchen", bedroom: "Guest Room" },
-      flight: "COLOR FLIGHT", stackK: "Color Stack", stackLine: "Stack bursts of color. Clear a full row."
+      flight: "COLOR FLIGHT", stackK: "Color Stack", stackLine: "Stack bursts of color. Clear a full row.", nightLine: "Night 1 is free. Color clouds chase her. Nights 2 and 3 unlock together.", winSub: "The color cloud is cleared.", bossName: "COLOR"
     },
     eid: {
       label: "Eid", menu: "🌙  Eid",
@@ -70,7 +70,7 @@
       stackT: "Crescent Stack", stackD: "Falling moons, stars and lanterns. Clear a row.",
       rushT: "Moonlit Ride", rushD: "Emma on the night road. Jump the gates, duck the banners, grab lanterns.",
       rooms: { hall: "Moonlit Hall", kitchen: "Night Kitchen", bedroom: "Guest Room" },
-      flight: "MOON FLIGHT", stackK: "Crescent Stack", stackLine: "Stack moons, stars and lanterns. Clear a full row."
+      flight: "MOON FLIGHT", stackK: "Crescent Stack", stackLine: "Stack moons, stars and lanterns. Clear a full row.", nightLine: "Night 1 is free. Night spirits chase her. Nights 2 and 3 unlock together.", winSub: "The moonlit night is clear.", bossName: "MOON"
     },
     thanksgiving: {
       label: "Thanksgiving", menu: "🍂  Thanksgiving",
@@ -83,7 +83,7 @@
       stackT: "Harvest Stack", stackD: "Falling leaves, pies and corn. Clear a row.",
       rushT: "Country Ride", rushD: "Emma on the country road. Jump the fences, duck the branches, grab the harvest.",
       rooms: { hall: "Harvest Hall", kitchen: "Harvest Kitchen", bedroom: "Guest Room" },
-      flight: "HARVEST FLIGHT", stackK: "Harvest Stack", stackLine: "Stack leaves, pies and corn. Clear a full row."
+      flight: "HARVEST FLIGHT", stackK: "Harvest Stack", stackLine: "Stack leaves, pies and corn. Clear a full row.", nightLine: "Night 1 is free. Harvest winds chase her. Nights 2 and 3 unlock together.", winSub: "The harvest night is won.", bossName: "HARVEST"
     },
     newyear: {
       label: "New Year", menu: "🎆  New Year",
@@ -96,7 +96,7 @@
       stackT: "Midnight Stack", stackD: "Falling sparks, glasses and stars. Clear a row.",
       rushT: "Midnight Ride", rushD: "Emma on the midnight road. Jump the gates and grab the sparks.",
       rooms: { hall: "Midnight Hall", kitchen: "Midnight Kitchen", bedroom: "Guest Room" },
-      flight: "MIDNIGHT FLIGHT", stackK: "Midnight Stack", stackLine: "Stack sparks, glasses and stars. Clear a full row."
+      flight: "MIDNIGHT FLIGHT", stackK: "Midnight Stack", stackLine: "Stack sparks, glasses and stars. Clear a full row.", nightLine: "Night 1 is free. Midnight sparks chase her. Nights 2 and 3 unlock together.", winSub: "Midnight is won.", bossName: "MIDNIGHT"
     }
   };
 
@@ -118,38 +118,42 @@
 
   var PACKS = {
     halloween: null,
-    christmas: [
-      ["Christmas tree","🎄"],["Stocking","🧦"],["Gift","🎁"],["Candy cane","🍬"],
-      ["Nutcracker","🪆"],["Star","⭐"],["Bell","🔔"],["Wreath","🎀"],
-      ["Snowman","☃️"],["Candle","🕯️"],["Cookie","🍪"],["Reindeer","🦌"]
-    ],
-    diwali: [
-      ["Diya","🪔"],["Lantern","🏮"],["Rangoli","🪷"],["Firework","🎆"],
-      ["Mithai","🍬"],["Gold coin","🪙"],["Marigold","🌼"],["Spark","✨"],
-      ["Sparkler","🎇"],["Oil lamp","🪔"],["Toran","🎀"],["Sweet box","🥮"]
-    ],
-    holi: [
-      ["Pichkari","💦"],["Gulal","🟣"],["Water balloon","🎈"],["Dhol","🥁"],
-      ["Thandai","🥤"],["Gujiya","🥟"],["Color bucket","🪣"],["Petals","🌸"],
-      ["White kurta","👕"],["Sunglasses","🕶️"],["Rangoli","🪷"],["Sweets","🍬"]
-    ],
-    eid: [
-      ["Crescent","🌙"],["Lantern","🏮"],["Dates","🍯"],["Prayer beads","📿"],
-      ["Mosque lamp","🕌"],["Star","⭐"],["Gift","🎁"],["Tea pot","🫖"],
-      ["Spark","✨"],["Milk glass","🥛"],["Story book","📖"],["New clothes","👕"]
-    ],
-    thanksgiving: [
-      ["Turkey","🦃"],["Pumpkin pie","🥧"],["Corn","🌽"],["Autumn leaf","🍂"],
-      ["Apple","🍎"],["Cranberries","🫐"],["Wheat","🌾"],["Candle","🕯️"],
-      ["Honey","🍯"],["Acorn","🌰"],["Basket","🧺"],["Bread","🍞"]
-    ],
-    newyear: [
-      ["Firework","🎆"],["Midnight clock","🕛"],["Champagne","🥂"],["Party hat","🥳"],
-      ["Confetti","🎊"],["Balloon","🎈"],["Sparkler","✨"],["Calendar","📅"],
-      ["Rocket","🎇"],["Party mask","🎭"],["Bottle","🍾"],["Star","⭐"]
-    ]
+    christmas: {
+      hall: [["Christmas tree","🎄"],["Stocking","🧦"],["Gift","🎁"],["Candy cane","🍬"],["Nutcracker","🪆"],["Star","⭐"],["Bell","🔔"],["Wreath","🎀"],["Snowman","☃️"],["Candle","🕯️"],["Cookie","🍪"],["Reindeer","🦌"]],
+      kitchen: [["Cocoa mug","☕"],["Mince pie","🥧"],["Gingerbread","🍪"],["Candy cane","🍬"],["Star cookie","⭐"],["Milk jug","🥛"],["Cinnamon","🍂"],["Wreath","🎀"],["Table candle","🕯️"],["Wrapped gift","🎁"],["Jingle bell","🔔"],["Stocking","🧦"]],
+      bedroom: [["Bed stocking","🧦"],["Snow globe","🔮"],["Teddy","🧸"],["Night candle","🕯️"],["Story book","📖"],["Slipper","🥿"],["Window star","⭐"],["Bedside gift","🎁"],["Bell","🔔"],["Cookie","🍪"],["Mini wreath","🎀"],["Nutcracker","🪆"]]
+    },
+    diwali: {
+      hall: [["Diya","🪔"],["Lantern","🏮"],["Rangoli","🪷"],["Firework","🎆"],["Mithai","🍬"],["Gold coin","🪙"],["Marigold","🌼"],["Spark","✨"],["Sparkler","🎇"],["Oil lamp","🪔"],["Toran","🎀"],["Sweet box","🥮"]],
+      kitchen: [["Sweet plate","🍬"],["Diyas","🪔"],["Ladoo","🟡"],["Kaju katli","⬜"],["Oil lamp","🪔"],["Marigold","🌼"],["Sparkler","🎇"],["Coin","🪙"],["Rangoli","🪷"],["Lantern","🏮"],["Toran","🎀"],["Firework","🎆"]],
+      bedroom: [["Bedside diya","🪔"],["Garland","🌼"],["Gift","🎁"],["Lantern","🏮"],["Coin tray","🪙"],["Rangoli","🪷"],["Spark","✨"],["Sweet box","🥮"],["Oil lamp","🪔"],["Marigold","🌼"],["Toran","🎀"],["Firework","🎆"]]
+    },
+    holi: {
+      hall: [["Pichkari","💦"],["Gulal","🟣"],["Water balloon","🎈"],["Dhol","🥁"],["Thandai","🥤"],["Gujiya","🥟"],["Color bucket","🪣"],["Petals","🌸"],["White kurta","👕"],["Sunglasses","🕶️"],["Rangoli","🪷"],["Sweets","🍬"]],
+      kitchen: [["Thandai jug","🥤"],["Gujiya plate","🥟"],["Color bowl","🟣"],["Sweet tray","🍬"],["Water bucket","🪣"],["Petal bowl","🌸"],["Balloon","🎈"],["Gulal tin","🟡"],["Pichkari","💦"],["Rangoli","🪷"],["Color cup","🥤"],["Flower","🌺"]],
+      bedroom: [["White kurta","👕"],["Sunglasses","🕶️"],["Petals","🌸"],["Balloon","🎈"],["Gulal","🟣"],["Mirror","🪞"],["Flower","🌺"],["Sweets","🍬"],["Bucket","🪣"],["Rangoli","🪷"],["Dhol","🥁"],["Thandai","🥤"]]
+    },
+    eid: {
+      hall: [["Crescent","🌙"],["Lantern","🏮"],["Dates","🍯"],["Prayer beads","📿"],["Mosque lamp","🕌"],["Star","⭐"],["Gift","🎁"],["Tea pot","🫖"],["Spark","✨"],["Milk glass","🥛"],["Story book","📖"],["New clothes","👕"]],
+      kitchen: [["Date plate","🍯"],["Tea pot","🫖"],["Milk glass","🥛"],["Sweet tray","🍬"],["Lantern","🏮"],["Crescent","🌙"],["Star","⭐"],["Gift","🎁"],["Beads","📿"],["Lamp","🕌"],["Book","📖"],["Clothes","👕"]],
+      bedroom: [["New clothes","👕"],["Gift","🎁"],["Lantern","🏮"],["Crescent","🌙"],["Beads","📿"],["Book","📖"],["Star","⭐"],["Tea cup","🫖"],["Dates","🍯"],["Lamp","🕌"],["Spark","✨"],["Milk","🥛"]]
+    },
+    thanksgiving: {
+      hall: [["Turkey","🦃"],["Pumpkin pie","🥧"],["Corn","🌽"],["Autumn leaf","🍂"],["Apple","🍎"],["Cranberries","🫐"],["Wheat","🌾"],["Candle","🕯️"],["Honey","🍯"],["Acorn","🌰"],["Basket","🧺"],["Bread","🍞"]],
+      kitchen: [["Pie","🥧"],["Turkey platter","🦃"],["Corn","🌽"],["Bread","🍞"],["Apple","🍎"],["Honey","🍯"],["Candle","🕯️"],["Basket","🧺"],["Leaf","🍂"],["Acorn","🌰"],["Wheat","🌾"],["Cranberries","🫐"]],
+      bedroom: [["Candle","🕯️"],["Leaf","🍂"],["Book","📖"],["Apple","🍎"],["Acorn","🌰"],["Basket","🧺"],["Pie","🥧"],["Wheat","🌾"],["Honey","🍯"],["Bread","🍞"],["Corn","🌽"],["Turkey","🦃"]]
+    },
+    newyear: {
+      hall: [["Firework","🎆"],["Midnight clock","🕛"],["Champagne","🥂"],["Party hat","🥳"],["Confetti","🎊"],["Balloon","🎈"],["Sparkler","✨"],["Calendar","📅"],["Rocket","🎇"],["Party mask","🎭"],["Bottle","🍾"],["Star","⭐"]],
+      kitchen: [["Glass","🥂"],["Bottle","🍾"],["Party plate","🍽️"],["Confetti","🎊"],["Balloon","🎈"],["Sparkler","✨"],["Clock","🕛"],["Hat","🥳"],["Mask","🎭"],["Star","⭐"],["Firework","🎆"],["Calendar","📅"]],
+      bedroom: [["Party hat","🥳"],["Balloon","🎈"],["Mask","🎭"],["Clock","🕛"],["Confetti","🎊"],["Star","⭐"],["Glass","🥂"],["Sparkler","✨"],["Calendar","📅"],["Bottle","🍾"],["Firework","🎆"],["Rocket","🎇"]]
+    }
   };
-  function pack() { return PACKS[saved()] || null; }
+  function packFor(room) {
+    var all = PACKS[saved()];
+    if (!all) return null;
+    return all[room] || all.hall || null;
+  }
   var MARKS = {
     halloween: null,
     christmas: { ghost:"❄️", skeleton:"🎄", bat:"🔔", wolf:"🦌", zombie:"🎁", witch:"🎅", pumpkin:"⭐" },
@@ -178,12 +182,20 @@
     newyear: { a:"sparks", b:"glasses", shield:"SPARK SHIELD" }
   };
   window.hollyItemName = function (room, index, fallback) {
-    var row = pack();
+    var row = packFor(room);
     return (row && row[index] && row[index][0]) || fallback;
   };
   window.hollyItemMark = function (room, index) {
-    var row = pack();
+    var row = packFor(room);
     return (row && row[index] && row[index][1]) || "";
+  };
+  window.hollyWinSub = function (score) {
+    var t = themeBy(saved());
+    return (t.winSub || "The night is clear.") + " Score " + score;
+  };
+  window.hollyBossName = function () {
+    var t = themeBy(saved());
+    return t.bossName || "WITCH";
   };
   window.hollyMark = function (kind) {
     var pack = MARKS[saved()];
@@ -297,6 +309,19 @@
     document.querySelectorAll("img.emma-mark").forEach(function (img) {
       if ((img.getAttribute("src") || "").indexOf("emma-face.png?v=11") !== 0) img.src = FACE;
     });
+    document.querySelectorAll('a[href^="mailto:"]').forEach(function (a) {
+      a.href = "mailto:info@merahissa.co.in?subject=" + encodeURIComponent(theme.brand || "Holly Haunt");
+    });
+    var levelLine = q("#levelLine");
+    if (levelLine && theme.nightLine) levelLine.textContent = theme.nightLine;
+    document.querySelectorAll(".game-card .art").forEach(function (art, i) {
+      var cover = art.querySelector(".theme-cover");
+      if (!cover) { cover = document.createElement("span"); cover.className = "theme-cover"; art.appendChild(cover); }
+      if (id === "halloween") { cover.hidden = true; return; }
+      cover.hidden = false;
+      cover.textContent = (theme.props && theme.props[i % theme.props.length]) || "";
+    });
+    if (window.refreshRooms) window.refreshRooms();
     dress(theme, id);
     try { window.dispatchEvent(new Event("holly-theme")); } catch (e) {}
     if (window.hollyRefresh) window.hollyRefresh();

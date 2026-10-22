@@ -766,10 +766,14 @@
         <span style="background-image:url('kitchen.jpg')"><b>Kitchen</b></span>
         <span style="background-image:url('bedroom.jpg')"><b>Bedroom</b></span>
       </div>
-      <p id="payLine" class="lead">Pay $1 on this phone. This opens Razorpay. After you pay, come back to this page. Kitchen and Bedroom then open here.</p>
+      <p id="payLine" class="lead">Pay $1 on this phone. Razorpay opens. After you pay, copy the payment id (it starts with pay_) and paste it here. The rooms open on this phone.</p>
       <div class="actions">
-        <a id="payGo" class="btn btn-primary" href="https://rzp.io/rzp/hollyhaunt-unlock">Pay $1 to unlock</a>
+        <a id="payGo" class="btn btn-primary" href="https://rzp.io/rzp/hollyhaunt-unlock" target="_blank" rel="noopener">Pay $1 to unlock</a>
         <button id="payNo" class="btn btn-ghost" type="button">Not now</button>
+      </div>
+      <div class="actions" style="margin-top:10px">
+        <input id="payId" type="text" inputmode="text" autocomplete="off" placeholder="pay_XXXX" style="flex:1;min-width:0;border-radius:12px;border:1px solid rgba(255,236,190,.3);background:rgba(255,243,220,.06);color:inherit;padding:10px 12px;font:600 15px/1 system-ui" />
+        <button id="payCheck" class="btn btn-ghost" type="button">Unlock</button>
       </div>
     </div>
   </div>
@@ -975,7 +979,8 @@ function rememberPayment(id) {
   const q = new URLSearchParams(location.search);
   if (rememberPayment(q.get("razorpay_payment_id"))) history.replaceState({}, "", location.pathname);
 })();
-const paid = localStorage.getItem("hollyHaunt.paid") === "1";
+function isPaid(){ return localStorage.getItem("hollyHaunt.paid") === "1"; }
+const paid = isPaid();
 /* Hotspots are % of the picture (x, y = centre, s = size as % of width). Names match what is drawn at that spot. */
 const SCENES = [
   { id:"hall", name:"Great Hall", file:"hall.jpg", free:true, items:[
@@ -1220,6 +1225,11 @@ function pointOf(at){
   const b = playBox();
   return { x: b.left + b.w * at.x / 100, y: b.top + b.h * at.y / 100, w: b.w, h: b.h };
 }
+const SCATTER = {
+  hall: [[16,20],[74,16],[42,28],[86,36],[24,46],[60,40],[36,60],[78,56],[14,76],[52,70],[68,82],[90,68]],
+  kitchen: [[22,16],[58,22],[82,14],[16,38],[46,34],[76,46],[28,56],[54,52],[12,72],[40,76],[68,70],[88,82]],
+  bedroom: [[18,14],[52,18],[80,26],[28,36],[64,40],[14,54],[46,50],[78,58],[24,70],[56,74],[76,80],[38,84]]
+};
 function paintFest(){
   let board = document.getElementById("festBoard");
   if (!board) {
@@ -1235,6 +1245,7 @@ function paintFest(){
   if (blur) blur.style.visibility = themed ? "hidden" : "";
   document.querySelectorAll(".fx-vignette, .fx-candle").forEach((el) => { el.style.visibility = themed ? "hidden" : ""; });
   if (!themed) return;
+  const spots = SCATTER[scene.id] || SCATTER.hall;
   scene.items.forEach((it, i) => {
     const mark = itemMark(i);
     if (!mark) return;
@@ -1243,7 +1254,11 @@ function paintFest(){
     b.type = "button";
     b.className = "fest-item" + (found.has(i) ? " got" : "");
     b.dataset.i = String(i);
-    b.innerHTML = "<b>" + mark + "</b><span>" + name + "</span>";
+    b.setAttribute("aria-label", name);
+    b.innerHTML = "<b>" + mark + "</b>";
+    const spot = spots[i] || [50, 50];
+    b.style.left = spot[0] + "%";
+    b.style.top = spot[1] + "%";
     b.addEventListener("pointerdown", (e) => {
       e.stopPropagation();
       e.preventDefault();
@@ -1385,7 +1400,7 @@ function markRooms(){
 }
 
 function openScene(sc){
-  const locked = !sc.free && !paid;
+  const locked = !sc.free && !isPaid();
   track("room_opened", { room: sc.id, locked: locked });
   if (locked) {
     document.getElementById("payLine").textContent = sc.name + " opens on this phone after the $1 payment succeeds. Great Hall stays free.";
@@ -1529,17 +1544,39 @@ document.getElementById("hintBtn").onclick = () => {
 };
 
 const roomsEl = document.getElementById("rooms");
-SCENES.forEach((sc) => {
-  const b = document.createElement("button");
-  b.type = "button";
-  b.className = "pic-tile room" + ((sc.free || paid) ? "" : " lock");
-  b.dataset.id = sc.id;
-  b.style.backgroundImage = "url('" + sc.file + "')";
-  b.innerHTML = '<span class="label">' + sc.name + '<span class="meta">' + sc.items.length + ' objects</span><span class="tag">' + (sc.free ? "FREE" : paid ? "UNLOCKED" : "LOCKED · $1") + "</span></span>";
-  b.onclick = () => openScene(sc);
-  roomsEl.appendChild(b);
-});
+function roomLabel(sc){ return window.hollyRoomName ? window.hollyRoomName(sc.id, sc.name) : sc.name; }
+function buildRooms(){
+  roomsEl.innerHTML = "";
+  SCENES.forEach((sc) => {
+    const open = sc.free || isPaid();
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "pic-tile room" + (open ? "" : " lock");
+    b.dataset.id = sc.id;
+    b.style.backgroundImage = "url('" + sc.file + "')";
+    b.innerHTML = '<span class="label">' + roomLabel(sc) + '<span class="meta">' + sc.items.length + ' objects</span><span class="tag">' + (sc.free ? "FREE" : isPaid() ? "UNLOCKED" : "LOCKED · $1") + "</span></span>";
+    b.onclick = () => openScene(sc);
+    roomsEl.appendChild(b);
+  });
+  ["findLock","flyLock"].forEach((id) => {
+    const p = document.getElementById(id);
+    if (!p) return;
+    if (isPaid()) { p.className = "pill open"; p.textContent = "All unlocked"; }
+  });
+}
+buildRooms();
+window.refreshRooms = buildRooms;
 document.getElementById("payNo").onclick = () => document.getElementById("pay").classList.remove("on");
+document.getElementById("payCheck").onclick = () => {
+  const id = (document.getElementById("payId").value || "").trim();
+  if (rememberPayment(id)) {
+    buildRooms();
+    document.getElementById("pay").classList.remove("on");
+    say("Rooms unlocked on this phone");
+  } else {
+    say("Paste the payment id, it starts with pay_");
+  }
+};
 document.getElementById("payGo").addEventListener("click", () => {
   sessionStorage.setItem("holly.payStarted", String(Date.now()));
   track("pay_clicked", { source: "rooms" });
@@ -1617,7 +1654,7 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) flute
 /* ---------- picker scene: stars, bats, embers, parallax, card tilt ---------- */
 (function picker(){
   const gate = document.getElementById("gate");
-  if (paid) {
+  if (isPaid()) {
     ["findLock", "flyLock"].forEach((id) => {
       const p = document.getElementById(id);
       if (p) { p.className = "pill open"; p.textContent = "All unlocked"; }
@@ -1673,8 +1710,8 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) flute
   }
 })();
 track("game_picker_view");
-if (paid && window.posthog) posthog.setPersonProperties({ hollyhaunt_paid: true, site: "halloweenfest" });
+if (isPaid() && window.posthog) posthog.setPersonProperties({ hollyhaunt_paid: true, site: "halloweenfest" });
 </script>
-  <script src="theme.js?v=7"></script>
+  <script src="theme.js?v=8"></script>
 </body>
 </html>
