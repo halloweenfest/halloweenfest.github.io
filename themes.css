@@ -145,17 +145,15 @@ html:not([data-theme="halloween"]) #pic,
 html:not([data-theme="halloween"]) #bgblur,
 html:not([data-theme="halloween"]) .fx-vignette,
 html:not([data-theme="halloween"]) .fx-candle { opacity: 0 !important; }
-html[data-theme="christmas"] #stage { background: #163044; }
-html[data-theme="diwali"] #stage { background: #4a220c; }
-html[data-theme="holi"] #stage { background: #4a1860; }
-html[data-theme="eid"] #stage { background: #0e3a2c; }
-html[data-theme="thanksgiving"] #stage { background: #4a2814; }
-html[data-theme="newyear"] #stage { background: #161c44; }
 #festBoard.on {
-  background:
-    radial-gradient(circle at 18% 16%, rgba(255,255,255,.22), transparent 36%),
-    radial-gradient(circle at 82% 78%, rgba(255,255,255,.14), transparent 40%),
-    radial-gradient(circle at 50% 46%, rgba(255,255,255,.08), transparent 55%);
+  background-color: #102018;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+@media (max-width: 759px) {
+  #festBoard .fest-item { width: 56px; height: 56px; }
+  #festBoard .fest-item b { font-size: 28px; }
 }
 .chip .th.mark {
   display: grid; place-items: center; background-image: none !important;

@@ -335,3 +335,14 @@ html[data-theme]:not([data-theme="halloween"]) .primary { background: var(--gold
 .gate-nav > .chip-btn { justify-self: end; }
 .brand .emma-mark { width: 72px !important; height: 72px !important; }
 .topbar .emma-mark { width: 44px !important; height: 44px !important; }
+
+@media (max-width: 480px) {
+  .topbar { gap: 4px; padding-left: 8px; padding-right: 8px; }
+  .topbar .emma-mark { width: 32px !important; height: 32px !important; }
+  #gamesBtn { padding: 0; width: 38px; }
+  #gamesBtn .btn-word { display: none; }
+  .theme-btn { padding: 0 8px; font-size: 12px; }
+  .theme-btn .feel-word { display: none; }
+  #score { padding: 0 8px; min-height: 32px; font-size: 12px; }
+  .chip-btn.icon { width: 34px; min-width: 34px; }
+}

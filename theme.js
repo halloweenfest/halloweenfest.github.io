@@ -3,7 +3,7 @@
   var FACE = "emma-face.png?v=11";
   var link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "themes.css?v=6";
+  link.href = "themes.css?v=7";
   document.head.appendChild(link);
 
   var THEMES = {
@@ -206,6 +206,16 @@
     return pack ? pack[type] || "" : "";
   };
   window.hollyLoot = function () { return LOOT[saved()] || LOOT.halloween; };
+  var SCENES = {
+    halloween: "",
+    christmas: "scene-christmas.jpg?v=1",
+    diwali: "scene-diwali.jpg?v=1",
+    holi: "scene-holi.jpg?v=1",
+    eid: "scene-eid.jpg?v=1",
+    thanksgiving: "scene-thanksgiving.jpg?v=1",
+    newyear: "scene-newyear.jpg?v=1"
+  };
+  window.hollyScene = function () { return SCENES[saved()] || ""; };
   var WORLD = {
     halloween: null,
     christmas: { can:"#c0392b", cam:"#f4e4a8", rock:"#e7eef4", fog:"#9db4c8", moon:"#f4fbff" },
@@ -353,7 +363,7 @@
     var btn = document.createElement("button");
     btn.type = "button";
     btn.className = "chip-btn theme-btn";
-    btn.innerHTML = "Feel · <span data-theme-label>Halloween</span>";
+    btn.innerHTML = "<span class=\"feel-word\">Feel · </span><span data-theme-label>Halloween</span>";
     var pop = menu();
     btn.addEventListener("click", function (e) {
       e.preventDefault();
