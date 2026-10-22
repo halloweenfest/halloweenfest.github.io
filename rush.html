@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Adrenaline Rush · Holly Haunt</title>
+  <link rel="stylesheet" href="site.css?v=3" />
   <meta name="description" content="A real 3D cliff ride. Emma on a mountain bike, energy cans, action cams." />
   <link rel="icon" href="favicon.png?v=1" type="image/png" />
   <link rel="apple-touch-icon" href="apple-touch-icon.png?v=1" />
@@ -43,7 +44,7 @@
 <body>
   <div id="view"></div>
   <header>
-    <a class="back" href="./"><img class="emma-mark" src="emma-face.png?v=1" alt="Emma" width="34" height="34" style="vertical-align:middle;margin-right:6px" />Games</a>
+    <a class="back" href="./"><img class="emma-mark" src="emma-face.svg?v=2" alt="Emma" width="34" height="34" style="vertical-align:middle;margin-right:6px" />Games</a>
     <div class="hud"><b id="score">0</b><span id="loot">0 cans · 0 cams</span><div id="shield">CAM SHIELD</div></div>
   </header>
   <div class="dock">
@@ -371,5 +372,6 @@ function frame() {
 paintHud();
 requestAnimationFrame(frame);
   </script>
+  <script src="theme.js?v=1"></script>
 </body>
 </html>
