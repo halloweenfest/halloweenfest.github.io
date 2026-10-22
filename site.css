@@ -239,3 +239,10 @@ a { color: inherit; }
     scroll-behavior: auto !important;
   }
 }
+
+/* Real Emma portrait. Replaces the old generated face even if the page still points at emma-face.png. */
+img.emma-mark {
+  content: url("emma-face.svg?v=1") !important;
+  border-radius: 50%;
+  object-fit: cover;
+}
