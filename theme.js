@@ -316,6 +316,48 @@
         "Peacock feather": "An eye of blue and green on a quill",
         "Laddoos": "Round sweets piled on a plate",
         "Carved door": "Wooden panels you can walk through"
+      } },
+      kitchen: { file: "kitchen-diwali.jpg?v=1", items: [
+        {n:"Paper lantern",x:89,y:18,s:16},
+        {n:"Clay diya",x:71.4,y:46,s:7},
+        {n:"Pressure cooker",x:16.5,y:49,s:17},
+        {n:"Copper pot",x:47.4,y:51,s:19},
+        {n:"Coconut",x:64,y:56,s:12},
+        {n:"Bananas",x:87.5,y:57.5,s:18},
+        {n:"Brass plates",x:70.5,y:70.5,s:18},
+        {n:"Jalebi",x:39,y:78.5,s:22},
+        {n:"Spice box",x:23.5,y:87,s:24},
+        {n:"Laddoos",x:52.5,y:92,s:22},
+        {n:"Tea kettle",x:91.5,y:82,s:16},
+        {n:"Chai glasses",x:82,y:92.5,s:18}
+      ], riddles: {
+        "Pressure cooker": "It whistles when the dal is done",
+        "Coconut": "A hairy brown shell with sweet water inside",
+        "Jalebi": "Orange swirls dripping with syrup",
+        "Spice box": "A round tin of many coloured powders",
+        "Clay diya": "A little clay lamp on the windowsill",
+        "Paper lantern": "A bright light with dangling paper tails"
+      } },
+      bedroom: { file: "bedroom-diwali.jpg?v=1", items: [
+        {n:"Star lantern",x:53.1,y:11.8,s:17},
+        {n:"Kite",x:39,y:25.7,s:11},
+        {n:"Sitar",x:37.5,y:50,s:12},
+        {n:"Toy elephant",x:49,y:46.9,s:9},
+        {n:"Alarm clock",x:60.1,y:47.4,s:6},
+        {n:"Bolster pillow",x:87.5,y:50.7,s:23},
+        {n:"Tulsi plant",x:23.5,y:50,s:14},
+        {n:"Rangoli",x:16.1,y:62.8,s:18},
+        {n:"Bangle box",x:12.5,y:81.2,s:22},
+        {n:"Jutti shoes",x:42.7,y:80.2,s:15},
+        {n:"Sparkler box",x:88,y:73.6,s:17},
+        {n:"Storybooks",x:87.5,y:90.3,s:22}
+      ], riddles: {
+        "Sitar": "Strings and a round belly that sing a raga",
+        "Kite": "A paper diamond that dances on the wind",
+        "Alarm clock": "Two bells that ring you awake",
+        "Rangoli": "A flower of coloured powder on the floor",
+        "Jutti shoes": "Embroidered shoes with curled toes",
+        "Bangle box": "A little chest full of shiny bracelets"
       } }
     }
   };
