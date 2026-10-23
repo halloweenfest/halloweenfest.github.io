@@ -23,7 +23,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&display=swap" />
   <link rel="stylesheet" href="site.css?v=5" />
-  <link rel="preload" as="image" href="tile-find.jpg?v=7" />
+  <link rel="preload" as="image" href="tile-find-halloween.jpg?v=1" />
   <script>
     !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_session_id get_session_replay_url createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
     posthog.init('phc_z6kQXd5am8uAvdXVkFVNWkbPxMuJ7vJc547HLKTxLLtp',{api_host:'https://us.i.posthog.com',person_profiles:'identified_only'});
@@ -728,15 +728,6 @@
       color: rgba(255, 243, 220, .5); font-size: 13px;
     }
     .gate-foot .btn-quiet { min-height: 44px; padding: 0 4px; }
-    @media (min-width: 760px) {
-      .games { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; }
-      .game-card .art { aspect-ratio: 4 / 5; }
-      .game-card .body { margin-top: -90px; }
-      .game-card .title { font-size: 26px; }
-    }
-    @media (min-width: 760px) and (max-width: 1020px) {
-      .game-card .foot { flex-direction: column; align-items: flex-start; }
-    }
     @media (max-width: 759px) {
       .scene { height: 640px; }
       .moon-wrap { right: -4%; top: 64px; width: 150px; }
@@ -750,13 +741,317 @@
       .hero .cta .btn-primary { flex: 1 1 auto; }
     }
     @media (max-width: 360px) {
-      .game-card .foot { flex-direction: column; align-items: flex-start; }
       .hero .cta .btn { width: 100%; }
     }
     @media (prefers-reduced-motion: reduce) {
       .bat, .ember, .wisp { display: none; }
       .layer { transition: none; transform: none; }
       #hintBtn::after { display: none; }
+    }
+  </style>
+  <style>
+    /* =====================================================================
+       V3 POLISH: depth, lighting, theme-aware colors, phone-first sizing
+       ===================================================================== */
+    .chip-btn { min-height: 44px; min-width: 44px; }
+    .chip-btn.icon { width: 44px; }
+    #score { min-height: 44px; }
+
+    /* ---------- picker header: Emma portrait + theme switcher ---------- */
+    .gate-nav { position: relative; z-index: 7; display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; }
+    .gate-nav .theme-hold { justify-self: end; }
+    @media (max-width: 559px) {
+      .contact-btn { padding: 0; width: 44px; }
+      .contact-btn .btn-word { display: none; }
+    }
+    .brand { gap: 12px; min-width: 0; text-shadow: 0 2px 10px rgba(0, 0, 0, .7); }
+    .brand > svg { display: none; }
+    .gate-nav .emma-mark {
+      width: 64px; height: 64px; padding: 3px; border: 0;
+      background: conic-gradient(from 200deg, var(--gold), var(--ember), #8b6cff, var(--gold));
+      box-shadow: 0 10px 26px rgba(0, 0, 0, .55), 0 0 26px color-mix(in srgb, var(--ember) 45%, transparent);
+      animation: halo 5s ease-in-out infinite;
+    }
+    @keyframes halo { 50% { box-shadow: 0 10px 26px rgba(0, 0, 0, .55), 0 0 40px color-mix(in srgb, var(--gold) 55%, transparent); } }
+    .gate-nav .chip-btn {
+      background: color-mix(in srgb, var(--bg) 55%, transparent);
+      -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+      border-color: color-mix(in srgb, var(--gold) 40%, transparent);
+      box-shadow: 0 6px 18px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .08);
+    }
+    .theme-btn { gap: 8px; padding: 0 12px 0 8px; }
+    .theme-btn::before {
+      content: ""; flex: none; width: 22px; height: 22px; border-radius: 50%;
+      background: conic-gradient(#ff8a2a, #e23b3b, #ffd56a, #ff4fa3, #7c5cff, #8eb6ff, #1f8a5b, #ff8a2a);
+      box-shadow: 0 0 0 2px rgba(0, 0, 0, .45), 0 0 12px color-mix(in srgb, var(--gold) 60%, transparent);
+    }
+    .theme-btn::after {
+      content: ""; flex: none; width: 7px; height: 7px; margin: -3px 0 0 2px;
+      border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg); opacity: .7;
+    }
+    html body .theme-pop {
+      min-width: 214px; padding: 6px; border-radius: 18px;
+      background: color-mix(in srgb, var(--bg) 90%, transparent);
+      -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px);
+      box-shadow: 0 24px 60px rgba(0, 0, 0, .6), inset 0 1px 0 rgba(255, 255, 255, .06);
+    }
+    html body .theme-pop button { min-height: 44px; border-radius: 12px; font: 700 15px/1.2 var(--sans); padding: 10px 12px; }
+    html body .theme-pop button[aria-current="true"] {
+      background: linear-gradient(90deg, color-mix(in srgb, var(--gold) 24%, transparent), transparent);
+      box-shadow: inset 3px 0 0 var(--gold);
+    }
+
+    @media (max-width: 600px) {
+      .topbar .theme-btn { width: 44px; padding: 0; gap: 0; }
+      .topbar .theme-btn > span, .topbar .theme-btn::after { display: none; }
+      body > header.topbar { gap: 6px; }
+      body > header.topbar .right { gap: 5px; }
+      #score { padding: 0 10px; }
+    }
+    @media (max-width: 360px) {
+      body > header .mid .emma-mark { display: none; }
+      body > header .mid .sub#sub { font-size: 17px; padding-left: 9px; padding-right: 9px; }
+      #score { padding: 0 8px; font-size: 13px; }
+    }
+
+    /* ---------- hero ---------- */
+    .hero { padding: clamp(28px, 5vh, 64px) 0 clamp(28px, 4.5vh, 48px); }
+    .hero h1 { margin: 16px 0 14px; font-size: clamp(54px, 9vw, 112px); }
+    .wisp { background: rgba(18, 8, 28, .38); filter: blur(24px); }
+    .hero .cta .btn-primary { box-shadow: 0 1px 0 rgba(255, 255, 255, .5) inset, 0 12px 30px color-mix(in srgb, var(--ember) 40%, transparent); }
+
+    /* ---------- game cards: one shape, full-bleed art ---------- */
+    .games-head { align-items: baseline; flex-wrap: wrap; }
+    .games-head h2 { white-space: nowrap; }
+    .games-head p { font: 700 12px/1 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--gold); opacity: .85; white-space: nowrap; }
+    .games { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .game-card {
+      aspect-ratio: 3 / 4.5; justify-content: flex-end;
+      border-radius: 22px; background: #0f0811;
+      border-color: rgba(var(--accent), .28);
+      box-shadow: 0 20px 44px rgba(0, 0, 0, .55), 0 0 0 1px rgba(0, 0, 0, .4);
+    }
+    .game-card.c-find { --accent: 255, 170, 70; }
+    .game-card.c-emma { --accent: 170, 130, 255; }
+    .game-card.c-stack { --accent: 255, 128, 60; }
+    .game-card.c-rush { --accent: 90, 180, 255; }
+    .game-card::before {
+      content: ""; position: absolute; inset: 0; z-index: 6; border-radius: inherit; pointer-events: none;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .16), inset 0 0 0 1px rgba(255, 255, 255, .04), inset 0 -60px 80px -60px rgba(var(--accent), .35);
+    }
+    .game-card .art { position: absolute; inset: 0; aspect-ratio: auto; z-index: 0; }
+    .game-card .art img { object-position: center 30%; }
+    .game-card.c-emma .art img { object-position: 45% 40%; }
+    .game-card.c-stack .art img { object-position: center 35%; }
+    .game-card.c-rush .art img { object-position: 55% 30%; }
+    .game-card .art::after {
+      z-index: 3;
+      background: linear-gradient(180deg, rgba(8, 4, 10, .5) 0%, rgba(8, 4, 10, 0) 20%, rgba(8, 4, 10, 0) 38%, rgba(10, 5, 12, .8) 64%, rgba(10, 5, 12, .97) 100%);
+    }
+    .game-card .badges { top: 10px; left: 10px; right: 10px; z-index: 5; gap: 5px; }
+    .pill { padding: 6px 8px; font-size: 9.5px; letter-spacing: .1em; box-shadow: 0 4px 12px rgba(0, 0, 0, .35); }
+    .pill.endless { background: rgba(20, 12, 30, .7); color: rgba(255, 243, 220, .85); border: 1px solid rgba(255, 243, 220, .28); }
+    .game-card .body { z-index: 5; margin-top: 0; padding: 0 12px 12px; }
+    .tagrow { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+    .game-card .tag { font-size: 9.5px; letter-spacing: .14em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+    .skill { display: inline-flex; gap: 3px; flex: none; }
+    .skill i { width: 6px; height: 6px; border-radius: 50%; background: rgba(255, 255, 255, .22); }
+    .skill i.on { background: rgb(var(--accent)); box-shadow: 0 0 6px rgba(var(--accent), .9); }
+    .game-card .title { font-size: clamp(15px, 4.6vw, 22px); line-height: 1.08; margin: 6px 0 0; text-shadow: 0 2px 14px rgba(0, 0, 0, .9); overflow-wrap: anywhere; }
+    .game-card .desc { display: none; }
+    .game-card .meta { display: none; }
+    .game-card .foot { margin-top: 10px; }
+    .game-card .play { width: 100%; justify-content: center; min-height: 44px; padding: 0 12px; }
+    .game-card:hover .play { transform: none; }
+    .game-card .theme-cover {
+      z-index: 2; place-items: start center; padding-top: 30%;
+      font-size: clamp(44px, 12vw, 72px); filter: drop-shadow(0 8px 18px rgba(0, 0, 0, .55));
+      background:
+        radial-gradient(45% 30% at 50% 40%, color-mix(in srgb, var(--gold) 35%, transparent), transparent 70%),
+        linear-gradient(180deg, color-mix(in srgb, var(--bg) 35%, transparent), color-mix(in srgb, var(--gold-2) 22%, transparent));
+    }
+    @media (min-width: 760px) {
+      .games { gap: 18px; }
+      .game-card { border-radius: 24px; }
+      .game-card .badges { top: 14px; left: 14px; right: 14px; }
+      .pill { padding: 7px 10px; font-size: 10.5px; }
+      .game-card .body { padding: 0 18px 18px; }
+      .game-card .tag { font-size: 10.5px; }
+      .game-card .title { font-size: 24px; margin-top: 8px; }
+      .game-card .desc { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; margin-top: 8px; font-size: 13.5px; line-height: 1.45; min-height: calc(1.45em * 3); }
+      .game-card .meta { display: block; }
+      .game-card .foot { margin-top: 14px; }
+      .game-card .play { width: auto; padding: 0 18px 0 14px; }
+      .game-card:hover .play { transform: translateX(2px); }
+    }
+    @media (min-width: 1020px) {
+      .games { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
+      .game-card .title { font-size: 21px; }
+      .game-card .foot { flex-direction: column; align-items: stretch; gap: 10px; }
+      .game-card .play { width: 100%; }
+    }
+    @media (max-width: 759px) {
+      .scene { height: 600px; }
+      .hero { padding: 26px 0 24px; }
+      .hero h1 { font-size: clamp(46px, 15vw, 76px); margin: 14px 0 10px; }
+      .hero .lede { font-size: 15.5px; line-height: 1.45; }
+      .hero .cta { margin-top: 18px; }
+      .facts { margin-top: 14px; font-size: 12px; gap: 6px 14px; }
+      .games-head { margin-bottom: 12px; }
+      .gate-nav .brand .emma-mark { width: 60px !important; height: 60px !important; }
+      .brand { font-size: 13px; letter-spacing: .1em; }
+    }
+    @media (max-width: 380px) {
+      .gate-inner { padding-left: calc(12px + var(--sal)); padding-right: calc(12px + var(--sar)); }
+      .games { gap: 10px; }
+      .gate-nav { gap: 6px; }
+      .gate-nav .brand .emma-mark { width: 52px !important; height: 52px !important; padding: 2px; }
+      .brand { gap: 8px; font-size: 12px; }
+      .theme-btn .feel-word { display: none; }
+      .theme-btn { padding: 0 10px 0 7px; }
+      .game-card .body { padding: 0 9px 10px; }
+      .pill { font-size: 8.5px; padding: 5px 7px; letter-spacing: .08em; }
+      .brand { font-size: 0; }
+      .skill { display: none; }
+      .games-head h2 { font-size: 21px; }
+    }
+
+    /* ---------- find game: theme-aware room lighting ---------- */
+    #stage { background: radial-gradient(110% 80% at 50% 10%, color-mix(in srgb, var(--surface) 55%, #000), var(--bg) 75%); }
+    .fx-glow { position: absolute; inset: 0; z-index: 5; pointer-events: none; }
+    .fx-glow::before, .fx-glow::after { content: ""; position: absolute; inset: 0; }
+    .fx-glow::before {
+      background:
+        radial-gradient(120% 90% at 50% 45%, transparent 58%, color-mix(in srgb, var(--bg) 75%, transparent) 100%),
+        linear-gradient(180deg, color-mix(in srgb, var(--bg) 45%, transparent), transparent 9%, transparent 91%, color-mix(in srgb, var(--bg) 55%, transparent));
+    }
+    .fx-glow::after {
+      background:
+        radial-gradient(55% 35% at 50% 100%, color-mix(in srgb, var(--ember) 20%, transparent), transparent 70%),
+        radial-gradient(40% 30% at 12% 30%, color-mix(in srgb, var(--gold) 10%, transparent), transparent 70%),
+        radial-gradient(40% 30% at 88% 30%, color-mix(in srgb, var(--gold) 10%, transparent), transparent 70%);
+      mix-blend-mode: screen; animation: candle 5.6s infinite;
+    }
+    #stage.glint .fx-glow::before { animation: glint .7s ease-out; }
+    @keyframes glint { 30% { box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--gold) 70%, transparent), inset 0 0 60px color-mix(in srgb, var(--gold) 35%, transparent); } }
+    #stage #festBoard .fest-item {
+      width: 64px; height: 64px;
+      background: radial-gradient(circle at 40% 30%, rgba(255, 255, 255, .28), color-mix(in srgb, var(--surface) 55%, transparent) 70%);
+      -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+      box-shadow: 0 0 0 1.5px color-mix(in srgb, var(--gold) 65%, transparent), 0 10px 22px rgba(0, 0, 0, .4), 0 0 22px color-mix(in srgb, var(--gold) 25%, transparent);
+      transition: opacity .3s;
+      animation: festFloat 4s ease-in-out infinite;
+    }
+    #stage #festBoard .fest-item:nth-child(3n) { animation-delay: -1.3s; }
+    #stage #festBoard .fest-item:nth-child(3n+1) { animation-delay: -2.6s; }
+    @keyframes festFloat { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, calc(-50% - 4px)); } }
+    #stage #festBoard .fest-item.got { opacity: .3; animation: none; filter: grayscale(.6); }
+    #stage #festBoard .fest-item.hint { outline: 3px solid var(--gold); outline-offset: 3px; }
+    @media (max-width: 759px) { #stage #festBoard .fest-item { width: 56px; height: 56px; } }
+
+    /* found banner */
+    .found-card {
+      position: absolute; z-index: 8; left: 50%; top: 12px;
+      display: flex; align-items: center; gap: 10px; max-width: calc(100% - 24px);
+      padding: 6px 18px 6px 6px; border-radius: 999px; pointer-events: none; white-space: nowrap;
+      background: color-mix(in srgb, var(--bg) 84%, transparent);
+      border: 1px solid color-mix(in srgb, var(--gold) 60%, transparent);
+      box-shadow: 0 14px 34px rgba(0, 0, 0, .55), 0 0 34px color-mix(in srgb, var(--gold) 30%, transparent);
+      -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+      animation: foundIn 1.95s cubic-bezier(.2, .9, .3, 1) forwards;
+    }
+    .found-card .th {
+      flex: none; width: 42px; height: 42px; border-radius: 50%;
+      background-color: #1a0f16; background-repeat: no-repeat;
+      box-shadow: 0 0 0 2px var(--gold), 0 0 16px color-mix(in srgb, var(--gold) 60%, transparent);
+    }
+    .found-card .th.mark { display: grid; place-items: center; font-size: 24px; font-style: normal; }
+    .found-card div { min-width: 0; }
+    .found-card b { display: block; font: 800 10px/1 var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--gold); }
+    .found-card span { display: block; margin-top: 4px; font: 800 16px/1.1 var(--display); color: var(--cream); overflow: hidden; text-overflow: ellipsis; }
+    @keyframes foundIn {
+      0% { opacity: 0; transform: translate(-50%, -18px) scale(.9); }
+      12% { opacity: 1; transform: translate(-50%, 0) scale(1.04); }
+      20% { transform: translate(-50%, 0) scale(1); }
+      82% { opacity: 1; transform: translate(-50%, 0); }
+      100% { opacity: 0; transform: translate(-50%, -10px); }
+    }
+
+    /* countdown pill */
+    body > header .mid .sub#sub { overflow: visible; padding-bottom: 6px; }
+    #sub::before {
+      content: ""; position: absolute; left: 12px; right: 12px; bottom: 2px; height: 2px; border-radius: 2px;
+      background: linear-gradient(90deg, var(--gold), var(--ember));
+      transform-origin: left center; transform: scaleX(var(--pct, 1)); transition: transform .25s linear, background .25s;
+      box-shadow: 0 0 8px color-mix(in srgb, var(--ember) 70%, transparent);
+    }
+    #sub.warn { color: #ffd27a; background: rgba(255, 150, 40, .16); border-color: rgba(255, 170, 70, .65); }
+    #sub.warn::before { background: #ffb347; }
+    #sub.low::before { background: #ff6b57; }
+
+    /* item tray */
+    #list { background: linear-gradient(180deg, color-mix(in srgb, var(--surface) 55%, #000), color-mix(in srgb, var(--bg) 92%, #000)); border-top-color: color-mix(in srgb, var(--gold) 28%, transparent); }
+    .chip {
+      background: linear-gradient(180deg, rgba(255, 243, 220, .10), rgba(255, 243, 220, .03));
+      border-color: rgba(255, 236, 190, .16);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, .35), inset 0 1px 0 rgba(255, 255, 255, .07);
+    }
+    .chip .th { box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold) 70%, transparent), 0 4px 10px rgba(0, 0, 0, .5); }
+    .chip .nm { font-weight: 700; }
+    .chip.riddle { border-color: rgba(185, 160, 255, .35); background: linear-gradient(180deg, rgba(139, 108, 255, .16), rgba(139, 108, 255, .05)); }
+    #bar { background: color-mix(in srgb, var(--bg) 92%, #000); }
+    @media (min-width: 980px) {
+      #list {
+        background:
+          radial-gradient(120% 50% at 50% 0%, color-mix(in srgb, var(--gold) 10%, transparent), transparent 70%),
+          linear-gradient(180deg, color-mix(in srgb, var(--surface) 55%, #000), color-mix(in srgb, var(--bg) 92%, #000));
+      }
+    }
+
+    /* room select cards */
+    #rooms .room {
+      align-items: flex-end; justify-content: flex-start; text-align: left; padding: 12px;
+      border-radius: 18px; border-color: color-mix(in srgb, var(--gold) 30%, transparent);
+    }
+    #rooms .room::after { inset: 30% 0 0; background: linear-gradient(transparent, rgba(10, 5, 12, .95)); }
+    #rooms .room .label { display: block; width: 100%; font: 800 15px/1.1 var(--display); }
+    #rooms .room .tag { margin-top: 8px; }
+    #rooms .room.cur { border-color: var(--gold); box-shadow: 0 0 0 2px color-mix(in srgb, var(--gold) 55%, transparent), 0 18px 40px rgba(0, 0, 0, .6), 0 0 30px color-mix(in srgb, var(--gold) 25%, transparent); }
+    @media (max-width: 420px) {
+      .rooms { gap: 8px; }
+      #rooms .room { padding: 9px 8px; }
+      #rooms .room .label { font-size: 13px; }
+      #rooms .room .tag { font-size: 9px; padding: 3px 6px; }
+    }
+
+    /* clear / fail sheets with room art */
+    .sheet-art {
+      position: relative; display: grid; place-items: center; overflow: hidden;
+      height: 150px; margin: -22px -18px 14px; border-radius: 22px 22px 0 0;
+    }
+    .sheet-art .ph { position: absolute; inset: -8px; background: #120a10 center 40% / cover no-repeat; animation: kenburns 14s ease-in-out infinite alternate; }
+    .sheet-art::after {
+      content: ""; position: absolute; inset: 0;
+      background:
+        radial-gradient(55% 65% at 50% 55%, color-mix(in srgb, var(--gold) 26%, transparent), transparent 70%),
+        linear-gradient(180deg, rgba(10, 5, 12, .2), rgba(43, 26, 34, .6) 65%, #2b1a22);
+    }
+    .sheet-art > :not(.ph) { position: relative; z-index: 1; }
+    .sheet-art .stars-row { align-items: center; }
+    .sheet-art .stars-row svg { width: 40px; height: 40px; color: rgba(255, 255, 255, .22); filter: drop-shadow(0 4px 10px rgba(0, 0, 0, .6)); }
+    .sheet-art .stars-row svg.on { color: var(--gold); filter: drop-shadow(0 0 12px color-mix(in srgb, var(--gold) 80%, transparent)) drop-shadow(0 4px 10px rgba(0, 0, 0, .6)); }
+    .sheet-art .stars-row svg:nth-child(2) { width: 54px; height: 54px; margin-top: -14px; }
+    .sheet-art.fail .ph { filter: grayscale(.75) brightness(.6) contrast(1.1); }
+    .sheet-art.fail::after {
+      background:
+        radial-gradient(50% 60% at 50% 55%, rgba(255, 90, 60, .22), transparent 70%),
+        linear-gradient(180deg, rgba(40, 10, 40, .35), rgba(43, 26, 34, .65) 65%, #2b1a22);
+    }
+    .sheet-art .emblem { margin: 0; }
+    @keyframes kenburns { to { transform: scale(1.08) translate(-1%, 1%); } }
+    @media (prefers-reduced-motion: reduce) {
+      .sheet-art .ph, .gate-nav .emma-mark, #stage #festBoard .fest-item, .fx-glow::after { animation: none; }
+      .found-card { animation-duration: .01s; animation-delay: 1.8s; animation-fill-mode: both; }
     }
   </style>
 </head>
@@ -787,6 +1082,7 @@
     <img id="pic" alt="Haunted room full of hidden objects" />
     <div class="fx-candle" aria-hidden="true"></div>
     <div class="fx-vignette" aria-hidden="true"></div>
+    <div class="fx-glow" aria-hidden="true"></div>
     <div id="cursor" aria-hidden="true"></div>
     <div id="curse" aria-hidden="true"><div><b>Cursed!</b><span>Too many wild clicks</span></div></div>
     <div id="toast" class="toast" role="status">Tap the picture</div>
@@ -839,10 +1135,12 @@
   </div>
   <div id="done" class="sheet-wrap" role="dialog" aria-modal="true" aria-labelledby="doneTitle">
     <div class="sheet">
+      <div class="sheet-art" id="doneArt" aria-hidden="true"><i class="ph"></i>
       <div class="stars-row" id="doneStars" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z"/></svg>
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z"/></svg>
         <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.5l2.9 6.1 6.6.8-4.9 4.6 1.3 6.6L12 17.3l-5.9 3.3 1.3-6.6L2.5 9.4l6.6-.8z"/></svg>
+      </div>
       </div>
       <p class="kicker">Room cleared</p>
       <h2 id="doneTitle">The Great Hall is yours</h2>
@@ -864,7 +1162,7 @@
   </div>
   <div id="fail" class="sheet-wrap" role="dialog" aria-modal="true" aria-labelledby="failTitle">
     <div class="sheet">
-      <div class="emblem" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12M6 22h12M7 2c0 5 10 7 10 10S7 17 7 22M17 2c0 5-10 7-10 10s10 5 10 10"/></svg></div>
+      <div class="sheet-art fail" id="failArt" aria-hidden="true"><i class="ph"></i><div class="emblem" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12M6 22h12M7 2c0 5 10 7 10 10S7 17 7 22M17 2c0 5-10 7-10 10s10 5 10 10"/></svg></div></div>
       <p class="kicker">Time is up</p>
       <h2 id="failTitle">The haunt wins</h2>
       <p id="failLine" class="lead">The candle burned out.</p>
@@ -968,7 +1266,7 @@
           <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 7c-1-3 1-5 3-5" stroke="#5c8a3a" stroke-width="2.4" fill="none" stroke-linecap="round"/><ellipse cx="16" cy="18" rx="13" ry="11" fill="#ff8a2a"/><path d="M16 7c-4 0-6 5-6 11s2 11 6 11 6-5 6-11-2-11-6-11z" fill="#ff9d45"/><path d="M9 15l4 3H8zM23 15l-4 3h5zM9 22c3 3 11 3 14 0l-2 3-2-2-3 2-3-2-2 2z" fill="#3a1205"/></svg>
           Holly Haunt
         </span>
-        <button id="gateContact" class="chip-btn" type="button">Contact</button>
+        <button id="gateContact" class="chip-btn contact-btn" type="button" aria-label="Contact"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M3.5 7l8.5 6 8.5-6"/></svg><span class="btn-word">Contact</span></button>
       </nav>
       <section class="hero">
         <span class="eyebrow"><i></i>Halloween Fest · 4 free games</span>
@@ -982,14 +1280,15 @@
       </section>
       <div class="games-head" id="games">
         <h2>Choose your fright</h2>
+        <p>4 games · free to start</p>
       </div>
       <nav class="games" aria-label="Games">
         <button id="playFind" class="game-card c-find" type="button">
           <span class="glare" aria-hidden="true"></span>
-          <span class="art"><img src="tile-find.jpg?v=7" alt="" width="720" height="960" decoding="async" /></span>
+          <span class="art"><img src="tile-find-halloween.jpg?v=1" alt="" width="720" height="960" loading="lazy" decoding="async" /></span>
           <span class="badges"><span class="pill free">Free</span><span class="pill lock" id="findLock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>+2 rooms</span></span>
           <span class="body">
-            <span class="tag">Hidden objects</span>
+            <span class="tagrow"><span class="tag">Hidden objects</span><span class="skill" title="Difficulty: medium" aria-label="Difficulty: medium"><i class="on"></i><i class="on"></i><i></i></span></span>
             <span class="title" role="heading" aria-level="3">The Haunted Hall</span>
             <span class="desc">Find twelve hidden treasures before the candle burns out. Wild clicks cost time, and hints are scarce.</span>
             <span class="foot"><span class="meta">3 rooms · 12 objects each</span><span class="play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>Play</span></span>
@@ -997,10 +1296,10 @@
         </button>
         <a id="playBroom" class="game-card c-emma" href="fly.html?v=18">
           <span class="glare" aria-hidden="true"></span>
-          <span class="art"><img src="tile-emma.jpg?v=8" alt="Emma" width="720" height="960" decoding="async" /></span>
+          <span class="art"><img src="tile-emma-night.jpg?v=2" alt="Emma flying on her broom" width="720" height="960" loading="lazy" decoding="async" /></span>
           <span class="badges"><span class="pill free">Free</span><span class="pill lock" id="flyLock"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>+2 nights</span></span>
           <span class="body">
-            <span class="tag">Arcade shooter</span>
+            <span class="tagrow"><span class="tag">Arcade shooter</span><span class="skill" title="Difficulty: medium" aria-label="Difficulty: medium"><i class="on"></i><i class="on"></i><i></i></span></span>
             <span class="title" role="heading" aria-level="3">Emma on a Broom</span>
             <span class="desc">Zap ghosts, bats and wolves with her lightning, then face the ugly witch.</span>
             <span class="foot"><span class="meta">3 nights · boss fight</span><span class="play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>Play</span></span>
@@ -1008,21 +1307,21 @@
         </a>
         <a id="playStack" class="game-card c-stack" href="tetris.html?v=2">
           <span class="glare" aria-hidden="true"></span>
-          <span class="art"><img src="tile-tetris.jpg?v=1" alt="" width="784" height="1168" decoding="async" /></span>
-          <span class="badges"><span class="pill free">Free</span></span>
+          <span class="art"><img src="tile-tetris.jpg?v=1" alt="" width="784" height="1168" loading="lazy" decoding="async" /></span>
+          <span class="badges"><span class="pill free">Free</span><span class="pill endless">Endless</span></span>
           <span class="body">
-            <span class="tag">Puzzle</span>
+            <span class="tagrow"><span class="tag">Puzzle</span><span class="skill" title="Difficulty: easy" aria-label="Difficulty: easy"><i class="on"></i><i></i><i></i></span></span>
             <span class="title" role="heading" aria-level="3">Holly Stack</span>
             <span class="desc">Falling blocks with pumpkins, ghosts, bats and black cats. Clear the rows.</span>
             <span class="foot"><span class="meta">Endless · high score</span><span class="play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>Play</span></span>
           </span>
         </a>
-        <a id="playRush" class="game-card c-stack" href="rush.html?v=4">
+        <a id="playRush" class="game-card c-rush" href="rush.html?v=4">
           <span class="glare" aria-hidden="true"></span>
-          <span class="art"><img src="tile-rush.jpg?v=1" alt="" width="720" height="960" decoding="async" /></span>
-          <span class="badges"><span class="pill free">Free</span></span>
+          <span class="art"><img src="tile-rush.jpg?v=1" alt="" width="720" height="960" loading="lazy" decoding="async" /></span>
+          <span class="badges"><span class="pill free">Free</span><span class="pill endless">Endless</span></span>
           <span class="body">
-            <span class="tag">Cliff run</span>
+            <span class="tagrow"><span class="tag">Cliff run</span><span class="skill" title="Difficulty: hard" aria-label="Difficulty: hard"><i class="on"></i><i class="on"></i><i class="on"></i></span></span>
             <span class="title" role="heading" aria-level="3">Adrenaline Rush</span>
             <span class="desc">Emma on a mountain bike. Jump the rocks, duck the branches, grab energy cans and action cams.</span>
             <span class="foot"><span class="meta">Endless · 3 lanes</span><span class="play"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M7 4.5v15a1 1 0 0 0 1.5.86l12.5-7.5a1 1 0 0 0 0-1.72L8.5 3.64A1 1 0 0 0 7 4.5z"/></svg>Play</span></span>
@@ -1049,19 +1348,19 @@ let paid = HollyPay.isPaid();
 function isPaid(){ return HollyPay.isPaid(); }
 /* Hotspots are % of the picture (x, y = centre, s = size as % of width). Names match what is drawn at that spot. */
 const SCENES = [
-  { id:"hall", name:"Great Hall", file:"hall.jpg", free:true, items:[
-    {n:"Full moon",x:50,y:11,s:10},
-    {n:"Witch bear",x:15,y:56,s:14},
-    {n:"Treasure chest",x:22,y:75,s:15},
-    {n:"Music box",x:50,y:72,s:13},
-    {n:"Toy soldier",x:68,y:64,s:11},
-    {n:"Masquerade mask",x:88,y:74,s:11},
-    {n:"Wooden dog",x:10,y:80,s:11},
-    {n:"Jack-o'-lantern",x:59,y:33,s:10},
-    {n:"Hourglass",x:90,y:87,s:9},
-    {n:"Spectacles",x:34,y:90,s:10},
-    {n:"Thimble",x:56,y:90,s:6},
-    {n:"Skeleton key",x:75,y:92,s:11}
+  { id:"hall", name:"Great Hall", file:"hall-halloween.jpg", free:true, items:[
+    {n:"Full moon",x:49,y:18,s:12},
+    {n:"Raven",x:13,y:28,s:11},
+    {n:"Grandfather clock",x:13.5,y:44,s:12},
+    {n:"Chandelier",x:83,y:14,s:12},
+    {n:"Jack-o'-lantern",x:50,y:42,s:13},
+    {n:"Potion bottles",x:89,y:50,s:14},
+    {n:"Crystal ball",x:84,y:70.5,s:10},
+    {n:"Hourglass",x:73.6,y:77.6,s:7},
+    {n:"Witch hat",x:88,y:87,s:13},
+    {n:"Cauldron",x:50,y:83,s:14},
+    {n:"Skull",x:30.6,y:80.5,s:10},
+    {n:"Black cat",x:15.5,y:81,s:13}
   ]},
   { id:"kitchen", name:"Kitchen", file:"kitchen.jpg", free:false, items:[
     {n:"Wall clock",x:50,y:12,s:10},
@@ -1117,7 +1416,7 @@ const HINT_COOLDOWN = 12000;   /* ms between hints */
 const SPAM_WINDOW = 2000, SPAM_MISSES = 3, CURSE_MS = 1500;
 /* Riddles only for names with one clear meaning in their room. */
 const RIDDLES = {
-  hall: { "Hourglass": "Sand that counts the seconds", "Skeleton key": "It opens what was locked", "Spectacles": "Glass eyes for tired readers", "Thimble": "A tiny cap for a sewing finger", "Treasure chest": "A box of pirate riches" },
+  hall: { "Hourglass": "Sand that counts the seconds", "Grandfather clock": "Tall, it ticks and chimes", "Crystal ball": "A glass globe that sees the future", "Cauldron": "A witch's pot for bubbling brews", "Raven": "A black bird that croaks nevermore", "Black cat": "It purrs and has nine lives" },
   kitchen: { "Rolling pin": "It flattens the dough", "Wall clock": "Hands that tick on the wall", "Hanging lantern": "It hangs high and lights the way", "Black cat": "It purrs and has nine lives" },
   bedroom: { "Grandfather clock": "Tall, it ticks and chimes", "Hourglass": "Sand that counts the seconds", "Spectacles": "Glass eyes for tired readers", "Spell book": "Pages full of magic words", "Toy train": "It chugs along on little wheels" }
 };
@@ -1369,6 +1668,7 @@ function takeFound(i, clientX, clientY){
   burstAt(clientX, clientY);
   flyToScore(it, clientX, clientY);
   popAt(clientX, clientY, "Found!");
+  celebrate(i);
   say("Found: " + label);
   stage.querySelectorAll(".ring.hint").forEach((n) => n.remove());
   renderList(i);
@@ -1399,6 +1699,36 @@ function flyToScore(it, clientX, clientY){
     s.classList.remove("bump"); void s.offsetWidth; s.classList.add("bump");
   };
 }
+/* Found banner: thumbnail + name slides in over the room. Display only. */
+function celebrate(i){
+  const it = scene.items[i];
+  if (!it) return;
+  stage.querySelectorAll(".found-card").forEach((n) => n.remove());
+  const el = document.createElement("div");
+  el.className = "found-card";
+  el.setAttribute("aria-hidden", "true");
+  const th = document.createElement("i");
+  th.className = "th";
+  cropStyle(it, th);
+  const tx = document.createElement("div");
+  const k = document.createElement("b");
+  k.textContent = "Found · " + found.size + " of " + scene.items.length;
+  const nm = document.createElement("span");
+  nm.textContent = window.hollyItemName ? window.hollyItemName(scene.id, i, it.n) : it.n;
+  tx.append(k, nm);
+  el.append(th, tx);
+  stage.appendChild(el);
+  stage.classList.remove("glint"); void stage.offsetWidth; stage.classList.add("glint");
+  setTimeout(() => el.remove(), 2000);
+}
+function roomArt(sc){
+  const themedArt = themedPlay() && window.hollyScene ? window.hollyScene() : "";
+  return themedArt || sc.file;
+}
+function setSheetArt(id){
+  const ph = document.querySelector("#" + id + " .ph");
+  if (ph) ph.style.backgroundImage = "url('" + roomArt(scene) + "')";
+}
 function say(t){
   toast.textContent = t;
   toast.classList.add("on");
@@ -1414,7 +1744,10 @@ function remaining(){ return Math.max(0, deadline - (pausedAt || Date.now())); }
 function tick(){
   const r = remaining();
   document.getElementById("clock").textContent = fmt(Math.ceil(r / 1000) * 1000);
-  document.getElementById("sub").classList.toggle("low", playing && r <= 15000);
+  const sub = document.getElementById("sub");
+  sub.classList.toggle("low", playing && r <= 15000);
+  sub.classList.toggle("warn", playing && r > 15000 && r <= 30000);
+  sub.style.setProperty("--pct", limitMs ? Math.max(0, Math.min(1, r / limitMs)).toFixed(4) : "1");
   updateHintCount();
   if (playing && r <= 0) timeUp();
 }
@@ -1440,6 +1773,7 @@ function timeUp(){
   stage.querySelectorAll(".ring.hint").forEach((n) => n.remove());
   sfxMiss();
   document.getElementById("failLine").textContent = "The candle burned out with " + found.size + " of " + scene.items.length + " objects found in the " + scene.name + ". Wrong clicks cost " + cfg.miss + "s each, so look before you tap.";
+  setSheetArt("failArt");
   document.getElementById("fail").classList.add("on");
   document.getElementById("failAgain").focus({ preventScroll: true });
   track("room_failed", { room: scene.id, found: found.size, difficulty: diff });
@@ -1636,6 +1970,7 @@ function hit(clientX, clientY){
   burstAt(clientX, clientY);
   flyToScore(it, clientX, clientY);
   popAt(clientX, clientY, CHEERS[found.size % CHEERS.length]);
+  celebrate(chosen);
   say("Found: " + (window.hollyItemName ? window.hollyItemName(scene.id, chosen, it.n) : it.n));
   stage.querySelectorAll(".ring.hint").forEach((n) => n.remove());
   renderList(chosen);
@@ -1667,6 +2002,7 @@ function showDone(){
   document.getElementById("doneHints").textContent = hintsUsed;
   const tip = stars < 3 ? (hintsUsed > 0 ? " Clear it with no hints and 40% of the clock left for three stars." : " Keep 40% of the clock for three stars.") : "";
   document.getElementById("doneLine").textContent = (isNew ? (prev ? "New best time on " : "First clear on ") + cfg.label + "!" : "Best on " + cfg.label + ": " + fmt(prev) + ".") + tip;
+  setSheetArt("doneArt");
   document.getElementById("done").classList.add("on");
   document.getElementById("doneNext").focus({ preventScroll: true });
   track("room_cleared", { room: scene.id, seconds: Math.round(t / 1000), hints: hintsUsed, stars: stars, difficulty: diff });
@@ -1778,6 +2114,17 @@ function paintBest(){
   });
 }
 HollyPay.onChange(() => paintBest());
+/* Room card art follows the festive theme (display only; locking stays in paintRooms). */
+function paintRoomArt(){
+  const themed = themedPlay() && window.hollyScene && window.hollyScene();
+  SCENES.forEach((sc, k) => {
+    const b = roomsEl.querySelector('[data-id="' + sc.id + '"]');
+    if (!b) return;
+    b.style.backgroundImage = "url('" + (themed ? window.hollyScene() : sc.file) + "')";
+    b.style.backgroundPosition = themed ? ["20% 40%", "55% 60%", "85% 30%"][k % 3] : "center 30%";
+  });
+}
+window.addEventListener("holly-theme", paintRoomArt);
 window.refreshRooms = () => { paintRooms(); paintBest(); };
 function paintDiff(){
   document.querySelectorAll("#diff button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.d === diff)));
