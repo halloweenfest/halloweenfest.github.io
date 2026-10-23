@@ -844,6 +844,7 @@
     .game-card.c-emma .art img { object-position: 45% 40%; }
     .game-card.c-stack .art img { object-position: center 35%; }
     .game-card.c-rush .art img { object-position: 55% 30%; }
+    html[data-theme] .game-card .art img.fest-art { filter: saturate(1.05) !important; }
     .game-card .art::after {
       z-index: 3;
       background: linear-gradient(180deg, rgba(8, 4, 10, .5) 0%, rgba(8, 4, 10, 0) 20%, rgba(8, 4, 10, 0) 38%, rgba(10, 5, 12, .8) 64%, rgba(10, 5, 12, .97) 100%);
@@ -1119,8 +1120,8 @@
       <p class="kicker">Locked</p>
       <h2 id="payTitle">Unlock the other rooms</h2>
       <div class="unlock-peek" aria-hidden="true">
-        <span style="background-image:url('kitchen.jpg')"><b>Kitchen</b></span>
-        <span style="background-image:url('bedroom.jpg')"><b>Bedroom</b></span>
+        <span id="peekKitchen" style="background-image:url('kitchen-halloween.jpg')"><b>Kitchen</b></span>
+        <span id="peekBedroom" style="background-image:url('bedroom-halloween.jpg')"><b>Bedroom</b></span>
       </div>
       <p id="payLine" class="lead">Pay $1 on this phone. Razorpay opens. After you pay, copy the payment id (it starts with pay_) and paste it here. The rooms open on this phone.</p>
       <div class="actions">
@@ -1362,33 +1363,33 @@ const SCENES = [
     {n:"Skull",x:30.6,y:80.5,s:10},
     {n:"Black cat",x:15.5,y:81,s:13}
   ]},
-  { id:"kitchen", name:"Kitchen", file:"kitchen.jpg", free:false, items:[
-    {n:"Wall clock",x:50,y:12,s:10},
-    {n:"Hanging lantern",x:76,y:14,s:9},
-    {n:"Full moon",x:91,y:10,s:9},
-    {n:"Mantel pumpkin",x:13,y:19,s:11},
-    {n:"Bubbling cauldron",x:69,y:50,s:13},
-    {n:"Grinning pumpkin",x:36,y:58,s:13},
-    {n:"Red candle",x:25,y:62,s:7},
-    {n:"Cookie plate",x:29,y:71,s:9},
-    {n:"Shelf pumpkins",x:55,y:37,s:10},
-    {n:"Rolling pin",x:49,y:70,s:10},
-    {n:"Lattice pie",x:64,y:65,s:12},
-    {n:"Black cat",x:83,y:79,s:13}
+  { id:"kitchen", name:"Kitchen", file:"kitchen-halloween.jpg", free:false, items:[
+    {n:"Full moon",x:49.3,y:15.6,s:12},
+    {n:"Hanging lantern",x:25.2,y:22.4,s:10},
+    {n:"Wall clock",x:47.5,y:35.3,s:9},
+    {n:"Spider web",x:89,y:9,s:14},
+    {n:"Eyeball jars",x:12,y:38.5,s:14},
+    {n:"Bubbling cauldron",x:75.7,y:66.5,s:13},
+    {n:"Jack-o'-lantern",x:14.4,y:70,s:14},
+    {n:"Pumpkin pie",x:42,y:74,s:11},
+    {n:"Red apple",x:63.3,y:76.8,s:7},
+    {n:"Cookie plate",x:24.6,y:79.7,s:11},
+    {n:"Spell book",x:51.7,y:81.7,s:12},
+    {n:"Black cat",x:84,y:89,s:12}
   ]},
-  { id:"bedroom", name:"Bedroom", file:"bedroom.jpg", free:false, items:[
-    {n:"Crescent moon",x:73,y:10,s:8},
-    {n:"Full moon",x:92,y:12,s:9},
-    {n:"Oval mirror",x:8,y:24,s:12},
-    {n:"Jewelry box",x:12,y:43,s:12},
-    {n:"Grandfather clock",x:72,y:25,s:10},
-    {n:"Little pumpkin",x:84,y:81,s:9},
-    {n:"Jack-o'-lantern",x:92,y:52,s:11},
-    {n:"Witch bear",x:18,y:60,s:14},
-    {n:"Toy train",x:20,y:82,s:14},
-    {n:"Spectacles",x:49,y:87,s:9},
-    {n:"Hourglass",x:70,y:85,s:9},
-    {n:"Spell book",x:40,y:95,s:11}
+  { id:"bedroom", name:"Bedroom", file:"bedroom-halloween.jpg", free:false, items:[
+    {n:"Crescent moon",x:46.3,y:11.2,s:8},
+    {n:"Witch hat",x:80,y:13.2,s:13},
+    {n:"Oval mirror",x:8.7,y:29.6,s:12},
+    {n:"Grandfather clock",x:88.7,y:36.9,s:11},
+    {n:"Candelabra",x:7.2,y:52,s:10},
+    {n:"Little ghost",x:34.3,y:56.5,s:10},
+    {n:"Black cat",x:51,y:57.3,s:9},
+    {n:"Lantern",x:60.3,y:49.3,s:7},
+    {n:"Skull",x:90,y:69.6,s:9},
+    {n:"Old trunk",x:84,y:81.5,s:10},
+    {n:"Jack-o'-lantern",x:19.8,y:79.7,s:15},
+    {n:"Witch boots",x:68,y:87.3,s:11}
   ]}
 ];
 const PIC_RATIO = 784 / 1168; /* every room picture is 784 x 1168 */
@@ -1417,8 +1418,8 @@ const SPAM_WINDOW = 2000, SPAM_MISSES = 3, CURSE_MS = 1500;
 /* Riddles only for names with one clear meaning in their room. */
 const RIDDLES = {
   hall: { "Hourglass": "Sand that counts the seconds", "Grandfather clock": "Tall, it ticks and chimes", "Crystal ball": "A glass globe that sees the future", "Cauldron": "A witch's pot for bubbling brews", "Raven": "A black bird that croaks nevermore", "Black cat": "It purrs and has nine lives" },
-  kitchen: { "Rolling pin": "It flattens the dough", "Wall clock": "Hands that tick on the wall", "Hanging lantern": "It hangs high and lights the way", "Black cat": "It purrs and has nine lives" },
-  bedroom: { "Grandfather clock": "Tall, it ticks and chimes", "Hourglass": "Sand that counts the seconds", "Spectacles": "Glass eyes for tired readers", "Spell book": "Pages full of magic words", "Toy train": "It chugs along on little wheels" }
+  kitchen: { "Wall clock": "Hands that tick on the wall", "Hanging lantern": "It hangs high and lights the way", "Black cat": "It purrs and has nine lives", "Bubbling cauldron": "A witch's pot for bubbling brews", "Spell book": "Pages full of magic words", "Red apple": "A shiny fruit a witch might offer" },
+  bedroom: { "Grandfather clock": "Tall, it ticks and chimes", "Oval mirror": "It shows your face right back", "Witch boots": "A laced-up pair for a witch's feet", "Little ghost": "A white sheet that says boo", "Old trunk": "A heavy chest for old things", "Witch hat": "Pointy, black and worn by witches" }
 };
 function store(k, v){ try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) {} return null; }
 let diff = store("holly.find.diff") === "hard" ? "hard" : "normal";
@@ -1772,7 +1773,7 @@ function timeUp(){
   stage.classList.remove("cursed");
   stage.querySelectorAll(".ring.hint").forEach((n) => n.remove());
   sfxMiss();
-  document.getElementById("failLine").textContent = "The candle burned out with " + found.size + " of " + scene.items.length + " objects found in the " + scene.name + ". Wrong clicks cost " + cfg.miss + "s each, so look before you tap.";
+  document.getElementById("failLine").textContent = "The candle burned out with " + found.size + " of " + scene.items.length + " objects found in the " + roomLabel(scene) + ". Wrong clicks cost " + cfg.miss + "s each, so look before you tap.";
   setSheetArt("failArt");
   document.getElementById("fail").classList.add("on");
   document.getElementById("failAgain").focus({ preventScroll: true });
@@ -1995,7 +1996,7 @@ function showDone(){
   const isNew = !prev || t < prev;
   if (isNew) { store(bestKey(scene.id), String(t)); paintBest(); }
   document.querySelectorAll("#doneStars svg").forEach((s, i) => s.classList.toggle("on", i < stars));
-  document.getElementById("doneTitle").textContent = "The " + scene.name + " is yours";
+  document.getElementById("doneTitle").textContent = "The " + roomLabel(scene) + " is yours";
   document.getElementById("doneTime").textContent = fmt(t);
   document.getElementById("doneLeft").textContent = fmt(finalLeft);
   document.getElementById("doneBest").textContent = fmt(isNew ? t : prev);
@@ -2125,6 +2126,28 @@ function paintRoomArt(){
   });
 }
 window.addEventListener("holly-theme", paintRoomArt);
+/* Festive themes: cards and the unlock peek show the theme's own scene, never Halloween art. */
+function paintThemeArt(){
+  const art = themedPlay() && window.hollyScene ? window.hollyScene() : "";
+  const crops = ["30% 35%", "70% 30%", "45% 70%", "85% 55%"];
+  document.querySelectorAll(".game-card .art img").forEach((img, k) => {
+    if (!img.dataset.src) img.dataset.src = img.getAttribute("src");
+    const want = art || img.dataset.src;
+    if (img.getAttribute("src") !== want) img.setAttribute("src", want);
+    img.classList.toggle("fest-art", !!art);
+    img.style.objectPosition = art ? crops[k % crops.length] : "";
+  });
+  const peeks = { peekKitchen: ["kitchen-halloween.jpg", "25% 60%"], peekBedroom: ["bedroom-halloween.jpg", "80% 40%"] };
+  Object.keys(peeks).forEach((id) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.backgroundImage = "url('" + (art || peeks[id][0]) + "')";
+    el.style.backgroundPosition = art ? peeks[id][1] : "";
+    const b = el.querySelector("b");
+    if (b) b.textContent = roomLabel(SCENES.find((sc) => sc.id === (id === "peekKitchen" ? "kitchen" : "bedroom")));
+  });
+}
+window.addEventListener("holly-theme", paintThemeArt);
 window.refreshRooms = () => { paintRooms(); paintBest(); };
 function paintDiff(){
   document.querySelectorAll("#diff button").forEach((b) => b.setAttribute("aria-checked", String(b.dataset.d === diff)));
