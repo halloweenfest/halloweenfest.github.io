@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Holly Stack · Halloween falling-blocks puzzle</title>
-  <meta name="description" content="Holly Stack is a free Halloween falling-blocks puzzle. Stack pumpkins, ghosts, bats, skulls, black cats, witches and candy and clear full rows. Plays on phone and desktop." />
+  <meta name="description" content="Holly Stack is a free Halloween falling-blocks puzzle. Stack pumpkins, ghosts, bats, skulls, black cats, Emma and candy and clear full rows." />
   <meta name="theme-color" content="#0b0618" />
   <link rel="canonical" href="https://halloweenfest.github.io/tetris.html" />
   <meta property="og:type" content="website" />
@@ -14,13 +14,13 @@
   <meta property="og:url" content="https://halloweenfest.github.io/tetris.html" />
   <meta property="og:image" content="https://halloweenfest.github.io/tile-tetris.jpg" />
   <meta name="twitter:card" content="summary_large_image" />
-  <link rel="icon" href="favicon.ico" sizes="any" />
-  <link rel="icon" href="favicon.png?v=1" type="image/png" />
-  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=1" />
+  <link rel="icon" href="favicon.ico?v=11" sizes="any" />
+  <link rel="icon" href="favicon.png?v=11" type="image/png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=11" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700;800;900&family=Fredoka:wght@500;600;700&display=swap" />
-  <link rel="stylesheet" href="site.css?v=1" />
+  <link rel="stylesheet" href="site.css?v=4" />
   <script>
     !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="init capture register register_once register_for_session unregister unregister_for_session getFeatureFlag getFeatureFlagPayload isFeatureEnabled reloadFeatureFlags updateEarlyAccessFeatureEnrollment getEarlyAccessFeatures on onFeatureFlags onSessionId getSurveys getActiveMatchingSurveys renderSurvey canRenderSurvey getNextSurveyStep identify setPersonProperties group resetGroups setPersonPropertiesForFlags resetPersonPropertiesForFlags setGroupPropertiesForFlags resetGroupPropertiesForFlags reset get_distinct_id set_config startSessionRecording stopSessionRecording sessionRecordingStarted captureException loadToolbar get_session_id get_session_replay_url createPersonProfile opt_in_capturing opt_out_capturing has_opted_in_capturing has_opted_out_capturing clear_opt_in_out_capturing debug".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
     posthog.init('phc_z6kQXd5am8uAvdXVkFVNWkbPxMuJ7vJc547HLKTxLLtp',{api_host:'https://us.i.posthog.com',person_profiles:'identified_only'});
@@ -126,7 +126,8 @@
     .duo { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
     .duo b { display: block; margin-top: 6px; font: 700 28px/1 var(--hs-ui); color: #fff3dc; font-variant-numeric: tabular-nums; }
     .duo > div + div { border-left: 1px solid rgba(255, 255, 255, .1); padding-left: 10px; }
-    .bar { margin-top: 12px; height: 8px; border-radius: 99px; background: rgba(0, 0, 0, .4); box-shadow: inset 0 1px 2px rgba(0, 0, 0, .6); overflow: hidden; }
+    .emma-mark { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #e8c36a; flex: none; }
+    .topbar .mid { display: flex; align-items: center; gap: 8px; }
     .bar i { display: block; height: 100%; width: 0; border-radius: inherit; background: linear-gradient(90deg, #a46bff, #ff6fb0 60%, #ffb347); box-shadow: 0 0 10px rgba(255, 120, 180, .7); transition: width .4s cubic-bezier(.3, 1.3, .5, 1); }
     .bar-cap { margin-top: 6px; font: 500 11px/1 var(--hs-ui); color: rgba(255, 238, 214, .55); }
     .haunt-row { margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255, 255, 255, .09); }
@@ -472,8 +473,11 @@
       </a>
     </div>
     <div class="mid">
+      <img class="emma-mark" src="emma-face.png?v=11" alt="Emma" width="34" height="34" />
+      <div>
       <div class="kicker">Holly Stack</div>
       <div class="sub" id="levelSub">Level 1</div>
+      </div>
     </div>
     <div class="right">
       <button class="chip-btn icon" id="soundBtn" type="button" aria-pressed="true" aria-label="Sound on" title="Sound (M)">
@@ -566,7 +570,7 @@
       <div class="view v-start">
         <div class="cast" id="cast" aria-hidden="true"></div>
         <h1 class="logo" id="veilTitle"><span class="l1">Holly</span><span class="l2">Stack</span></h1>
-        <p class="tagline">Stack pumpkins, ghosts, bats and cats. Fill a row to clear it before the well fills up.</p>
+        <p class="tagline">Stack pumpkins, ghosts, bats, cats and Emma. Fill a row to clear it before the well fills up.</p>
         <ul class="howto" id="howtoTouch">
           <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2" fill="currentColor"/><circle cx="12" cy="12" r="7" opacity=".55"/><circle cx="12" cy="12" r="10.5" opacity=".25"/></svg></span><span><b>Tap</b>to turn</span></li>
           <li><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 12h18M7 8l-4 4 4 4M17 8l4 4-4 4"/></svg></span><span><b>Drag</b>to move</span></li>
@@ -630,6 +634,8 @@
 "use strict";
 const COLS = 10, ROWS = 20;
 const TYPES = ["pumpkin","ghost","bat","skull","cat","witch","candy"];
+const emmaFace = new Image();
+emmaFace.src = "emma-face.png?v=11";
 /* Each shape lives in an n x n box so it can turn in place without drifting. */
 const SHAPES = {
   pumpkin: { n: 2, cells: [[0,0],[1,0],[0,1],[1,1]] },
@@ -881,26 +887,20 @@ const ICON = {
     c.moveTo(19 * u, 12 * u); c.lineTo(40 * u, 8 * u); c.moveTo(19 * u, 16 * u); c.lineTo(40 * u, 19 * u);
     c.stroke();
   },
-  witch(c, u, b) {
-    const ink = "#0e2a10";
-    c.fillStyle = "rgba(255,110,150,.45)"; ell(c, -24 * u, 21 * u, 6 * u, 3.5 * u); ell(c, 24 * u, 21 * u, 6 * u, 3.5 * u);
-    if (b) shutEyes(c, u, ink, [[-13, 14, 6], [13, 14, 6]], 3.6);
-    else {
-      c.fillStyle = ink; ell(c, -13 * u, 11 * u, 5.5 * u, 7 * u); ell(c, 13 * u, 11 * u, 5.5 * u, 7 * u);
-      c.fillStyle = "#fff"; dot(c, -11 * u, 8 * u, 2 * u); dot(c, 15 * u, 8 * u, 2 * u);
-    }
-    c.strokeStyle = ink; c.lineWidth = 3 * u; c.lineCap = "round";
-    c.beginPath(); c.arc(0, 21 * u, 8 * u, 0.25, Math.PI - 0.25); c.stroke();
-    /* hat */
-    const hg = c.createLinearGradient(0, -50 * u, 0, -4 * u); hg.addColorStop(0, "#7a3ac0"); hg.addColorStop(1, "#2a1046");
-    c.fillStyle = hg;
-    c.beginPath(); c.moveTo(-23 * u, -8 * u); c.quadraticCurveTo(-12 * u, -28 * u, -3 * u, -45 * u);
-    c.quadraticCurveTo(8 * u, -52 * u, 21 * u, -45 * u); c.quadraticCurveTo(9 * u, -42 * u, 6 * u, -33 * u);
-    c.quadraticCurveTo(12 * u, -18 * u, 23 * u, -8 * u); c.closePath(); c.fill();
-    c.fillStyle = "#ffc93a"; rr(c, -21 * u, -18 * u, 42 * u, 7 * u, 2 * u); c.fill();
-    c.strokeStyle = "#5a2a00"; c.lineWidth = 1.8 * u; c.strokeRect(-5 * u, -19.5 * u, 10 * u, 10 * u);
-    const bg = c.createLinearGradient(0, -12 * u, 0, 0); bg.addColorStop(0, "#5a28a0"); bg.addColorStop(1, "#1e0b36");
-    c.fillStyle = bg; ell(c, 0, -6 * u, 42 * u, 7.5 * u);
+  witch(c, u) {
+    const r = 34 * u;
+    c.save();
+    c.beginPath();
+    c.arc(0, 2 * u, r, 0, Math.PI * 2);
+    c.clip();
+    if (emmaFace.complete && emmaFace.naturalWidth) c.drawImage(emmaFace, -r, 2 * u - r, r * 2, r * 2);
+    else { c.fillStyle = "#7a2438"; c.fillRect(-r, 2 * u - r, r * 2, r * 2); }
+    c.restore();
+    c.strokeStyle = "#e8c36a";
+    c.lineWidth = 3 * u;
+    c.beginPath();
+    c.arc(0, 2 * u, r, 0, Math.PI * 2);
+    c.stroke();
   },
   candy(c, u, b) {
     c.fillStyle = "#ff7ab6"; c.strokeStyle = "#a8104e"; c.lineWidth = 2.4 * u; c.lineJoin = "round";
@@ -966,7 +966,17 @@ function drawTile(c, type, s, blink) {
   gl.addColorStop(0, "rgba(255,255,255,.55)"); gl.addColorStop(1, "rgba(255,255,255,0)");
   c.fillStyle = gl; c.beginPath(); c.ellipse(s / 2, y + 6 * u, w * .42, h * .26, 0, 0, Math.PI * 2); c.fill();
   c.restore();
-  c.save(); c.translate(s / 2, s / 2 + 1 * u); c.scale(1.06, 1.06); ICON[type](c, u, blink); c.restore();
+  const mark = window.hollyPiece ? window.hollyPiece(type) : "";
+  if (mark) {
+    c.fillStyle = "rgba(255,255,255,.92)";
+    c.fillRect(x + 8 * u, y + 8 * u, w - 16 * u, h - 16 * u);
+    c.font = (46 * u) + "px serif";
+    c.textAlign = "center";
+    c.textBaseline = "middle";
+    c.fillText(mark, s / 2, s / 2 + 2 * u);
+  } else {
+    c.save(); c.translate(s / 2, s / 2 + 1 * u); c.scale(1.06, 1.06); ICON[type](c, u, blink); c.restore();
+  }
   /* sharp specular glint */
   c.fillStyle = "rgba(255,255,255,.85)";
   c.beginPath(); c.ellipse(x + 15 * u, y + 13 * u, 6 * u, 3.2 * u, -0.6, 0, Math.PI * 2); c.fill();
@@ -2040,6 +2050,7 @@ document.addEventListener("visibilitychange", () => { if (document.hidden && run
 if (matchMedia("(hover: hover) and (pointer: fine)").matches) { $("howtoKeys").hidden = false; $("howtoTouch").hidden = true; }
 
 function castRow(el, size, n) {
+  el.replaceChildren();
   TYPES.slice(0, n).forEach((t, i) => {
     const c = document.createElement("canvas");
     const px = Math.round(size * Math.min(2, window.devicePixelRatio || 1));
@@ -2051,6 +2062,8 @@ function castRow(el, size, n) {
 }
 castRow($("cast"), 44, 7);
 castRow($("overArt"), 36, 7);
+window.addEventListener("holly-theme", () => { buildSprites(); castRow($("cast"), 44, 7); castRow($("overArt"), 36, 7); paint(); });
+emmaFace.onload = () => { castRow($("cast"), 44, 7); castRow($("overArt"), 36, 7); };
 
 addEventListener("resize", resize);
 if (document.fonts && document.fonts.ready) document.fonts.ready.then(resize);
@@ -2067,5 +2080,6 @@ window.__stackTest = {
     lockT: piece ? piece.lockT : null, resets: piece ? piece.resets : null, cursed: piece ? piece.cursed : null, hauntT, nextGap })
 };
 </script>
+  <script src="theme.js?v=9"></script>
 </body>
 </html>

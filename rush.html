@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Adrenaline Rush · Holly Haunt</title>
+  <link rel="stylesheet" href="site.css?v=4" />
+  <meta name="description" content="A real 3D cliff ride. Emma on a mountain bike, energy cans, action cams." />
+  <link rel="icon" href="favicon.png?v=11" type="image/png" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png?v=11" />
+  <script>
+    !function(t,e){var o,n,p,r;e.__SV||(window.posthog=e,e._i=[],e.init=function(i,s,a){function g(t,e){var o=e.split(".");2==o.length&&(t=t[o[0]],e=o[1]),t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}}(p=t.createElement("script")).type="text/javascript",p.crossOrigin="anonymous",p.async=!0,p.src=s.api_host.replace(".i.posthog.com","-assets.i.posthog.com")+"/static/array.js",(r=t.getElementsByTagName("script")[0]).parentNode.insertBefore(p,r);var u=e;for(void 0!==a?u=e[a]=[]:a="posthog",u.people=u.people||[],u.toString=function(t){var e="posthog";return"posthog"!==a&&(e+="."+a),t||(e+=" (stub)"),e},u.people.toString=function(){return u.toString(1)+".people (stub)"},o="capture".split(" "),n=0;n<o.length;n++)g(u,o[n]);e._i.push([i,s,a])},e.__SV=1)}(document,window.posthog||[]);
+    posthog.init('phc_z6kQXd5am8uAvdXVkFVNWkbPxMuJ7vJc547HLKTxLLtp',{api_host:'https://us.i.posthog.com',person_profiles:'identified_only'});
+  </script>
+  <style>
+    :root { --gold:#e8c36a; --cream:#fff6e4; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; background: #07060d; color: var(--cream); font-family: "Trebuchet MS", sans-serif; overflow: hidden; }
+    #view { position: fixed; inset: 0; }
+    #view canvas { width: 100%; height: 100%; display: block; touch-action: none; }
+    header { position: fixed; top: 0; left: 0; right: 0; z-index: 2; display: flex; justify-content: space-between; padding: calc(10px + env(safe-area-inset-top)) 12px 0; pointer-events: none; }
+    header a { pointer-events: auto; }
+    .emma-mark { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid #e8c36a; }
+    .hud { text-align: right; }
+    .hud b, .hud span, #shield { display: inline-block; background: #120c10cc; border: 1px solid #e8c36a44; border-radius: 999px; padding: 6px 12px; }
+    .hud b { display: block; margin-left: auto; font-size: 22px; }
+    .hud span { color: var(--gold); font-size: 12px; font-weight: 800; margin-top: 6px; }
+    #shield { display: none; margin-top: 6px; color: #9fd0ff; font-size: 11px; font-weight: 800; }
+    #shield.on { display: block; }
+    .dock { position: fixed; left: 0; right: 0; bottom: 0; z-index: 2; display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; padding: 10px 10px calc(10px + env(safe-area-inset-bottom)); }
+    .dock button { height: 52px; border: 0; border-radius: 16px; background: linear-gradient(180deg, #3a2820cc, #1c1210ee); color: var(--cream); font: 800 14px inherit; }
+    #veil { position: fixed; inset: 0; z-index: 5; display: flex; align-items: flex-end; justify-content: center; background: #07060d99; padding: 18px 14px 24px; }
+    #veil.off { display: none; }
+    .sheet { width: min(460px, 100%); background: linear-gradient(180deg, #2a1c18, #140c0c); border: 1px solid #e8c36a55; border-radius: 22px; padding: 20px 16px 16px; }
+    .sheet p.k { color: var(--gold); letter-spacing: .18em; font-size: 11px; font-weight: 800; }
+    .sheet h1 { font-size: 34px; line-height: .95; margin: 4px 0 8px; }
+    .sheet p { opacity: .9; line-height: 1.4; margin-bottom: 14px; }
+    .row { display: flex; gap: 8px; }
+    .row a, .row button { flex: 1; height: 48px; border: 0; border-radius: 14px; font: 800 15px inherit; text-decoration: none; display: flex; align-items: center; justify-content: center; }
+    .primary { background: var(--gold); color: #2a160c; }
+    .ghost { background: #3a241c; color: var(--cream); }
+  </style>
+</head>
+<body>
+  <div id="view"></div>
+  <header>
+    <a class="back" href="./"><img class="emma-mark" src="emma-face.png?v=11" alt="Emma" width="34" height="34" style="vertical-align:middle;margin-right:6px" />Games</a>
+    <div class="hud"><b id="score">0</b><span id="loot">0 cans · 0 cams</span><div id="shield">CAM SHIELD</div></div>
+  </header>
+  <div class="dock">
+    <button type="button" data-act="left">Left</button>
+    <button type="button" data-act="jump">Jump</button>
+    <button type="button" data-act="slide">Duck</button>
+    <button type="button" data-act="right">Right</button>
+  </div>
+  <div id="veil">
+    <div class="sheet">
+      <p class="k">HOLLY HAUNT</p>
+      <h1 id="title">Adrenaline Rush</h1>
+      <p id="blurb">A real 3D cliff ride. Switch lanes, jump the boulders, duck the branches. Energy cans score. An action cam blocks one crash.</p>
+      <div class="row"><a class="ghost" href="./">Games</a><button class="primary" id="play" type="button">Ride</button></div>
+    </div>
+  </div>
+  <script type="importmap">{ "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js" } }</script>
+  <script type="module">
+import * as THREE from "three";
+const LANES = [-1.85, 0, 1.85];
+const view = document.getElementById("view");
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setPixelRatio(Math.min(2, devicePixelRatio || 1));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.toneMappingExposure = 1.05;
+renderer.shadowMap.enabled = true;
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+view.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color("#0c1428");
+scene.fog = new THREE.Fog("#1c2c4e", 22, 70);
+const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.1, 120);
+camera.position.set(0, 2.4, 6.2);
+
+const hemi = new THREE.HemisphereLight("#c5d4f5", "#6a4030", 0.55);
+scene.add(hemi);
+const moon = new THREE.DirectionalLight("#fff6df", 2.4);
+moon.position.set(-7, 12, 8);
+moon.castShadow = true;
+moon.shadow.mapSize.set(1024, 1024);
+moon.shadow.camera.near = 1;
+moon.shadow.camera.far = 36;
+moon.shadow.camera.left = -10;
+moon.shadow.camera.right = 10;
+moon.shadow.camera.top = 10;
+moon.shadow.camera.bottom = -14;
+moon.shadow.bias = -0.001;
+moon.shadow.normalBias = 0.03;
+scene.add(moon);
+const moonBall = new THREE.Mesh(
+  new THREE.SphereGeometry(2.4, 24, 24),
+  new THREE.MeshBasicMaterial({ color: "#fff4c8" })
+);
+moonBall.position.set(-16, 18, -40);
+scene.add(moonBall);
+
+const loader = new THREE.TextureLoader();
+function loadTex(url, rep) {
+  const t = loader.load(url);
+  t.colorSpace = THREE.SRGBColorSpace;
+  if (rep) { t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rep[0], rep[1]); }
+  return t;
+}
+const cliffMap = loadTex("rush/cliff.jpg", [1, 3]);
+const roadMap = loadTex("rush/road.jpg", [1, 12]);
+const skyMap = loadTex("rush/sky.jpg");
+skyMap.mapping = THREE.EquirectangularReflectionMapping;
+scene.environment = skyMap;
+scene.environmentIntensity = 0.45;
+
+const rockMat = new THREE.MeshStandardMaterial({ map: cliffMap, roughness: 0.92, metalness: 0.02 });
+const roadMat = new THREE.MeshStandardMaterial({ map: roadMap, roughness: 0.8, metalness: 0.04 });
+const rubber = new THREE.MeshStandardMaterial({ color: "#1a1a1a", roughness: 0.7, metalness: 0.15 });
+const steel = new THREE.MeshStandardMaterial({ color: "#8d9098", roughness: 0.35, metalness: 0.85 });
+const cloth = new THREE.MeshStandardMaterial({ color: "#7a2438", roughness: 0.78, metalness: 0.02 });
+const skin = new THREE.MeshStandardMaterial({ color: "#e0b090", roughness: 0.62 });
+const hair = new THREE.MeshStandardMaterial({ color: "#4a2c1c", roughness: 0.7 });
+const wood = new THREE.MeshStandardMaterial({ color: "#3a2618", roughness: 0.9 });
+const canMat = new THREE.MeshPhysicalMaterial({ color: "#1d4ed8", metalness: 0.72, roughness: 0.22, clearcoat: 0.8 });
+const camMat = new THREE.MeshStandardMaterial({ color: "#111", roughness: 0.4, metalness: 0.6 });
+const lensMat = new THREE.MeshPhysicalMaterial({ color: "#9fd0ff", metalness: 0.1, roughness: 0.05, transmission: 0.2 });
+
+function shade(mesh) { mesh.castShadow = true; mesh.receiveShadow = true; return mesh; }
+function box(w, h, d, mat, x, y, z) {
+  const m = shade(new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat));
+  m.position.set(x, y, z);
+  return m;
+}
+function cyl(rt, rb, h, mat, x, y, z) {
+  const m = shade(new THREE.Mesh(new THREE.CylinderGeometry(rt, rb, h, 16), mat));
+  m.position.set(x, y, z);
+  return m;
+}
+function sph(r, mat, x, y, z) {
+  const m = shade(new THREE.Mesh(new THREE.SphereGeometry(r, 18, 14), mat));
+  m.position.set(x, y, z);
+  return m;
+}
+
+const road = shade(new THREE.Mesh(new THREE.PlaneGeometry(8.6, 100), roadMat));
+road.rotation.x = -Math.PI / 2;
+road.position.set(0, 0, -36);
+road.castShadow = false;
+scene.add(road);
+function wall(x, yaw) {
+  const w = shade(new THREE.Mesh(new THREE.BoxGeometry(5, 16, 96), rockMat));
+  w.position.set(x, 5.4, -34);
+  w.rotation.y = yaw;
+  scene.add(w);
+}
+wall(-6.6, 0.06);
+wall(6.6, -0.06);
+const sky = new THREE.Mesh(new THREE.PlaneGeometry(80, 42), new THREE.MeshBasicMaterial({ map: skyMap }));
+sky.position.set(0, 10, -58);
+scene.add(sky);
+
+function buildRider() {
+  const g = new THREE.Group();
+  const bike = new THREE.Group();
+  const wheel = () => {
+    const w = new THREE.Group();
+    const tire = shade(new THREE.Mesh(new THREE.TorusGeometry(0.34, 0.075, 10, 20), rubber));
+    tire.rotation.y = Math.PI / 2;
+    const hub = shade(new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.1, 12), steel));
+    hub.rotation.z = Math.PI / 2;
+    w.add(tire, hub);
+    return w;
+  };
+  const rear = wheel(); rear.position.set(0, 0.34, 0.55); bike.add(rear);
+  const front = wheel(); front.position.set(0, 0.34, -0.72); bike.add(front);
+  bike.add(box(0.12, 0.08, 1.35, steel, 0, 0.48, -0.05));
+  bike.add(box(0.28, 0.06, 0.34, rubber, 0, 0.62, 0.15));
+  bike.add(box(0.36, 0.04, 0.12, steel, 0, 0.78, -0.55));
+  bike.add(cyl(0.015, 0.015, 0.4, steel, -0.16, 0.9, -0.55));
+  bike.add(cyl(0.015, 0.015, 0.4, steel, 0.16, 0.9, -0.55));
+  g.add(bike);
+  const body = new THREE.Group();
+  body.add(box(0.38, 0.42, 0.22, cloth, 0, 1.15, 0.05));
+  body.add(box(0.12, 0.32, 0.12, cloth, -0.22, 1.12, 0.02));
+  body.add(box(0.12, 0.32, 0.12, cloth, 0.22, 1.12, 0.02));
+  body.add(box(0.14, 0.38, 0.14, new THREE.MeshStandardMaterial({ color: "#1a1a1a", roughness: 0.8 }), -0.1, 0.72, 0.08));
+  body.add(box(0.14, 0.38, 0.14, new THREE.MeshStandardMaterial({ color: "#1a1a1a", roughness: 0.8 }), 0.1, 0.72, 0.08));
+  body.add(sph(0.16, skin, 0, 1.52, 0.02));
+  body.add(sph(0.2, hair, 0, 1.58, 0.08));
+  body.add(box(0.28, 0.34, 0.16, hair, 0, 1.42, 0.1));
+  g.add(body);
+  g.userData = { wheels: [rear, front], body };
+  return g;
+}
+const rider = buildRider();
+rider.position.set(0, 0, 0.4);
+scene.add(rider);
+
+const objs = [];
+let lane = 1, x = 0, y = 0, vy = 0, slide = 0, shield = 0;
+let speed = 16, dist = 0, cans = 0, cams = 0, spawned = 0, running = false, over = false;
+let best = Number(localStorage.getItem("hollyRush.best") || 0);
+const clock = new THREE.Clock();
+function track(n, p) { if (window.posthog) posthog.capture(n, p || {}); }
+function tone(freq, dur) {
+  const Ctx = window.AudioContext || window.webkitAudioContext;
+  if (!Ctx) return;
+  const ac = tone.ac || (tone.ac = new Ctx());
+  const o = ac.createOscillator(), g = ac.createGain();
+  o.type = "triangle"; o.frequency.value = freq;
+  g.gain.setValueAtTime(0.0001, ac.currentTime);
+  g.gain.exponentialRampToValueAtTime(0.05, ac.currentTime + 0.02);
+  g.gain.exponentialRampToValueAtTime(0.0001, ac.currentTime + dur);
+  o.connect(g); g.connect(ac.destination); o.start(); o.stop(ac.currentTime + dur);
+}
+function clearWorld() { while (objs.length) scene.remove(objs.pop().mesh); }
+function addObj(type, laneIndex, z) {
+  let mesh;
+  if (type === "rock") {
+    mesh = shade(new THREE.Mesh(new THREE.DodecahedronGeometry(0.55, 1), rockMat));
+    mesh.scale.set(1.1, 0.85, 1);
+    mesh.position.y = 0.45;
+    mesh.rotation.set(Math.random(), Math.random(), Math.random());
+  } else if (type === "limb") {
+    mesh = new THREE.Group();
+    const trunk = shade(new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.1, 2.1, 8), wood));
+    trunk.rotation.z = Math.PI / 2;
+    trunk.position.y = 1.55;
+    const twig = shade(new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.045, 0.8, 6), wood));
+    twig.position.set(0.4, 1.85, 0); twig.rotation.z = 0.8;
+    mesh.add(trunk, twig);
+  } else if (type === "can") {
+    const themed = window.hollyWorld && window.hollyWorld();
+    if (themed) {
+      mesh = shade(new THREE.Mesh(new THREE.BoxGeometry(0.36, 0.36, 0.36), canMat));
+      mesh.position.y = 0.42;
+      mesh.rotation.y = Math.random() * 0.6;
+    } else {
+      mesh = new THREE.Group();
+      const body = shade(new THREE.Mesh(new THREE.CylinderGeometry(0.16, 0.16, 0.48, 18), canMat));
+      const top = shade(new THREE.Mesh(new THREE.CylinderGeometry(0.17, 0.17, 0.04, 18), steel));
+      top.position.y = 0.24;
+      mesh.add(body, top);
+      mesh.position.y = 0.4;
+    }
+  } else {
+    const themed = window.hollyWorld && window.hollyWorld();
+    if (themed) {
+      mesh = shade(new THREE.Mesh(new THREE.SphereGeometry(0.2, 18, 14), camMat));
+      mesh.position.y = 0.5;
+    } else {
+      mesh = new THREE.Group();
+      const body = shade(new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.24, 0.16), camMat));
+      const lens = shade(new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.08, 16), lensMat));
+      lens.rotation.x = Math.PI / 2; lens.position.z = 0.1;
+      const dot = shade(new THREE.Mesh(new THREE.SphereGeometry(0.03, 8, 8), new THREE.MeshBasicMaterial({ color: "#ff3040" })));
+      dot.position.set(0.12, 0.08, 0.08);
+      mesh.add(body, lens, dot);
+      mesh.position.y = 0.55;
+    }
+  }
+  mesh.position.x = LANES[laneIndex];
+  mesh.position.z = z;
+  scene.add(mesh);
+  objs.push({ type, lane: laneIndex, mesh, hit: false });
+}
+function spawnRow() {
+  const slots = [null, null, null];
+  const roll = Math.random();
+  const pick = () => Math.floor(Math.random() * 3);
+  if (roll < 0.34) {
+    slots[pick()] = Math.random() < 0.62 ? "rock" : "limb";
+    const open = slots.findIndex((s) => !s);
+    if (Math.random() < 0.55) slots[open] = Math.random() < 0.8 ? "can" : "cam";
+  } else if (roll < 0.68) {
+    const a = pick(); let b = pick(); while (b === a) b = pick();
+    slots[a] = Math.random() < 0.6 ? "rock" : "limb";
+    slots[b] = Math.random() < 0.45 ? (Math.random() < 0.7 ? "can" : "cam") : (Math.random() < 0.5 ? "rock" : "limb");
+  } else if (roll < 0.88) {
+    slots[pick()] = "can";
+    if (Math.random() < 0.6) slots[pick()] = "can";
+  } else { slots[1] = "cam"; slots[pick() === 1 ? 0 : 2] = "can"; }
+  const hazards = [0, 1, 2].filter((i) => slots[i] === "rock" || slots[i] === "limb");
+  if (hazards.length === 3) slots[hazards[0]] = null;
+  slots.forEach((type, i) => { if (type) addObj(type, i, -52); });
+}
+function points() { return Math.floor(dist) + cans * 10 + cams * 50; }
+function paintHud() {
+  document.getElementById("score").textContent = points();
+  const loot = window.hollyLoot ? window.hollyLoot() : { a:"cans", b:"cams", shield:"CAM SHIELD" };
+  document.getElementById("loot").textContent = cans + " " + loot.a + " · " + cams + " " + loot.b;
+  document.getElementById("shield").textContent = loot.shield;
+  document.getElementById("shield").classList.toggle("on", shield > 0);
+}
+function crash() {
+  if (shield > 0) { shield--; tone(520, 0.12); paintHud(); return true; }
+  running = false; over = true;
+  const total = points();
+  if (total > best) { best = total; localStorage.setItem("hollyRush.best", String(best)); }
+  document.getElementById("title").textContent = "Emma went down";
+  const names = window.hollyLoot ? window.hollyLoot() : { a:"cans", b:"cams" };
+  document.getElementById("blurb").textContent = "Score " + total + ". Best " + best + ". " + names.a + " " + cans + ", " + names.b + " " + cams + ".";
+  document.getElementById("play").textContent = "Ride again";
+  document.getElementById("veil").classList.remove("off");
+  track("rush_ended", { score: total, cans, cams });
+  return false;
+}
+function start() {
+  clearWorld();
+  lane = 1; x = 0; y = 0; vy = 0; slide = 0; shield = 0;
+  speed = 16; dist = 0; cans = 0; cams = 0; spawned = 0;
+  running = true; over = false;
+  document.getElementById("veil").classList.add("off");
+  spawnRow();
+  paintHud();
+  track("rush_started");
+  clock.getDelta();
+}
+function act(name) {
+  if (!running) return;
+  if (name === "left") lane = Math.max(0, lane - 1);
+  if (name === "right") lane = Math.min(2, lane + 1);
+  if (name === "jump" && y <= 0.02 && slide <= 0) { vy = 8.2; tone(440, 0.08); }
+  if (name === "slide" && y <= 0.05) slide = 0.55;
+}
+document.getElementById("play").onclick = start;
+document.querySelectorAll(".dock button").forEach((btn) => btn.addEventListener("pointerdown", (e) => { e.preventDefault(); act(btn.dataset.act); }));
+addEventListener("keydown", (e) => {
+  const map = { ArrowLeft: "left", ArrowRight: "right", ArrowUp: "jump", ArrowDown: "slide", a: "left", d: "right", w: "jump", s: "slide" };
+  if (!map[e.key]) return;
+  e.preventDefault();
+  if (!running && !over) start(); else act(map[e.key]);
+});
+let sx = 0, sy = 0;
+renderer.domElement.addEventListener("pointerdown", (e) => { sx = e.clientX; sy = e.clientY; });
+renderer.domElement.addEventListener("pointerup", (e) => {
+  const dx = e.clientX - sx, dy = e.clientY - sy;
+  if (!running || (Math.abs(dx) < 24 && Math.abs(dy) < 24)) return;
+  if (Math.abs(dx) > Math.abs(dy)) act(dx < 0 ? "left" : "right"); else act(dy < 0 ? "jump" : "slide");
+});
+addEventListener("resize", () => {
+  camera.aspect = innerWidth / innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+function frame() {
+  requestAnimationFrame(frame);
+  const dt = Math.min(0.033, clock.getDelta());
+  if (running) {
+    speed = Math.min(32, 16 + dist * 0.012);
+    const step = speed * dt;
+    dist += step; spawned += step;
+    if (spawned > Math.max(10, 16 - dist * 0.004)) { spawned = 0; spawnRow(); }
+    x += (LANES[lane] - x) * Math.min(1, dt * 9);
+    vy -= 24 * dt; y += vy * dt;
+    if (y < 0) { y = 0; vy = 0; }
+    slide = Math.max(0, slide - dt);
+    rider.position.set(x, y, 0.4);
+    rider.rotation.z = (LANES[lane] - x) * -0.35;
+    rider.rotation.x = slide > 0 ? 0.55 : 0;
+    rider.userData.wheels.forEach((w) => { w.rotation.x = dist * 0.35; });
+    roadMap.offset.y = -dist * 0.01;
+    camera.position.x += (x * 0.45 - camera.position.x) * 0.1;
+    camera.position.y = 2.35 + y * 0.25;
+    camera.lookAt(x * 0.25, 1.1 + y * 0.2, -8);
+    for (let i = objs.length - 1; i >= 0; i--) {
+      const o = objs[i];
+      o.mesh.position.z += step;
+      if (o.type === "can") o.mesh.rotation.y += dt * 2;
+      const near = o.mesh.position.z > -0.5 && o.mesh.position.z < 1.4 && o.lane === lane && !o.hit;
+      if (near) {
+        if (o.type === "can") { o.hit = true; cans++; tone(660, 0.06); scene.remove(o.mesh); }
+        else if (o.type === "cam") { o.hit = true; cams++; shield = 1; tone(780, 0.1); scene.remove(o.mesh); }
+        else if (o.type === "rock" && y < 0.85) { o.hit = true; crash(); scene.remove(o.mesh); }
+        else if (o.type === "limb" && slide <= 0 && y < 0.7) { o.hit = true; crash(); scene.remove(o.mesh); }
+      }
+      if (o.mesh.position.z > 8) { scene.remove(o.mesh); objs.splice(i, 1); }
+    }
+    paintHud();
+  }
+  renderer.render(scene, camera);
+}
+paintHud();
+requestAnimationFrame(frame);
+  </script>
+  
+function paintWorld() {
+  const w = window.hollyWorld ? window.hollyWorld() : null;
+  if (!w) return;
+  canMat.color.set(w.can); canMat.map = null;
+  camMat.color.set(w.cam);
+  rockMat.color.set(w.rock); rockMat.map = null;
+  wood.color.set(w.rock);
+  moonBall.material.color.set(w.moon);
+  if (scene.fog) scene.fog.color.set(w.fog);
+}
+window.addEventListener("holly-theme", paintWorld);
+paintWorld();
+<script src="theme.js?v=9"></script>
+</body>
+</html>

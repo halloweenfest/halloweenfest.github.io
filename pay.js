@@ -57,6 +57,12 @@
     onChange(fn) { listeners.push(fn); fn(state); },
     // Resolves to true when unlocked; waits for an in-flight check first.
     ensure() { return state.paid ? Promise.resolve(true) : check().then((s) => s.paid); },
+    // A payment id typed in by hand: store it and confirm it with the server.
+    submit(id) {
+      if (!/^pay_[A-Za-z0-9]+$/.test(id || "")) return Promise.resolve(false);
+      store(ID_KEY, id);
+      return (pending || Promise.resolve()).then(() => check()).then((s) => s.paid);
+    },
     recheck: check,
   };
   check();
