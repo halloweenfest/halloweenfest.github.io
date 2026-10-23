@@ -226,6 +226,109 @@
     newyear:   { can:"#8eb6ff", cam:"#f4e4a8", rock:"#2a3160", fog:"#12183a", moon:"#d7e4ff" }
   };
   window.hollyWorld = function () { return WORLD[saved()] || null; };
+  /* Festival rooms with their own painted 2:3 picture (960x1440). Hotspots are % of the picture:
+     x, y = centre, s = size as % of width; names match what is drawn there. A room missing here
+     keeps the emoji hunt on the shared festival scene. */
+  var ROOM_SCENES = {
+    christmas: {
+      hall: { file: "hall-christmas.jpg?v=1", items: [
+        {n:"Tree star",x:13.8,y:21,s:9},
+        {n:"Wreath",x:50.5,y:36,s:13},
+        {n:"Stockings",x:50.5,y:49.7,s:20},
+        {n:"Candy jars",x:89.5,y:46,s:15},
+        {n:"Big rocking horse",x:90,y:69,s:14},
+        {n:"Toy train",x:71,y:80.5,s:17},
+        {n:"Snowman",x:21.6,y:75,s:11},
+        {n:"Wrapped gift",x:31.5,y:75.3,s:10},
+        {n:"Lantern",x:7.8,y:88,s:11},
+        {n:"Glass of milk",x:29.5,y:84,s:8},
+        {n:"Gingerbread cookies",x:23.4,y:87.7,s:10},
+        {n:"Candy cane",x:46.3,y:91.7,s:9}
+      ], riddles: {
+        "Snowman": "Made of snow with a carrot nose",
+        "Lantern": "A little glass house for a flame",
+        "Glass of milk": "Left out for Santa, cold and white",
+        "Big rocking horse": "The bigger wooden pony that never runs",
+        "Toy train": "It chugs across the rug",
+        "Wreath": "A green ring with a red bow"
+      } },
+      kitchen: { file: "kitchen-christmas.jpg?v=1", items: [
+        {n:"Cuckoo clock",x:11,y:10,s:11},
+        {n:"Blue plates",x:7.2,y:23.6,s:12},
+        {n:"Tea towel",x:85.6,y:55.7,s:9},
+        {n:"Copper kettle",x:49.3,y:40.5,s:13},
+        {n:"Red teapot",x:87.7,y:40.5,s:10},
+        {n:"Mixing bowl",x:9.6,y:64,s:14},
+        {n:"Gingerbread house",x:30,y:69,s:15},
+        {n:"Roast turkey",x:74.5,y:72,s:19},
+        {n:"Rolling pin",x:51,y:82,s:11},
+        {n:"Star cookies",x:27.6,y:86.5,s:18},
+        {n:"Hot cocoa",x:84,y:85,s:11},
+        {n:"Oven mitt",x:69,y:92.5,s:12}
+      ], riddles: {
+        "Cuckoo clock": "A little bird pops out to tell the time",
+        "Copper kettle": "It whistles when the water boils",
+        "Rolling pin": "It flattens the cookie dough",
+        "Hot cocoa": "A warm mug topped with marshmallows",
+        "Oven mitt": "A spotty glove for hot trays",
+        "Tea towel": "A cloth for drying the dishes"
+      } },
+      bedroom: { file: "bedroom-christmas.jpg?v=1", items: [
+        {n:"Full moon",x:42.7,y:13.2,s:8},
+        {n:"Hanging star",x:83.5,y:18,s:13},
+        {n:"Stocking",x:28.8,y:37,s:9},
+        {n:"Table lamp",x:16.8,y:43.7,s:10},
+        {n:"Teddy bear",x:49.3,y:49,s:13},
+        {n:"Wooden sled",x:78,y:45,s:12},
+        {n:"Snow globe",x:93.7,y:52,s:10},
+        {n:"Red scarf",x:68.5,y:58,s:12},
+        {n:"Nutcrackers",x:13.8,y:79,s:15},
+        {n:"Gift pile",x:73.3,y:79.3,s:17},
+        {n:"Storybook",x:69.7,y:91,s:14},
+        {n:"Slipper",x:92,y:91,s:10}
+      ], riddles: {
+        "Teddy bear": "A soft friend in a Santa hat",
+        "Wooden sled": "It races down snowy hills",
+        "Snow globe": "Shake it and it snows inside",
+        "Nutcrackers": "Wooden soldiers that crack nuts",
+        "Storybook": "Open pages for a bedtime tale",
+        "Slipper": "A cosy shoe for cold toes"
+      } }
+    },
+    diwali: {
+      hall: { file: "hall-diwali.jpg?v=1", items: [
+        {n:"Brass bell",x:49.9,y:12,s:10},
+        {n:"Star lantern",x:50.2,y:26,s:15},
+        {n:"Carved door",x:50.2,y:55.3,s:19},
+        {n:"Green parrots",x:87.5,y:49,s:14},
+        {n:"Brass elephants",x:87,y:69.7,s:17},
+        {n:"Brass lamp stand",x:10.2,y:66.5,s:12},
+        {n:"Peacock feather",x:21,y:55.3,s:10},
+        {n:"Silk cushion",x:22.8,y:74,s:14},
+        {n:"Sparkler box",x:72.7,y:73,s:9},
+        {n:"Flower bowl",x:50.2,y:81.7,s:16},
+        {n:"Laddoos",x:16.2,y:91.3,s:15},
+        {n:"Gift box",x:87.7,y:89.7,s:14}
+      ], riddles: {
+        "Brass bell": "Ring it for the evening prayer",
+        "Green parrots": "Green birds that like to talk",
+        "Brass elephants": "Golden animals with long trunks",
+        "Peacock feather": "An eye of blue and green on a quill",
+        "Laddoos": "Round sweets piled on a plate",
+        "Carved door": "Wooden panels you can walk through"
+      } }
+    }
+  };
+  /* Additive: room picture + objects for a festival room, or null (then the emoji hunt is used). */
+  window.hollyRoomScene = function (themeId, roomId) {
+    var t = themeId || saved();
+    var rooms = ROOM_SCENES[t];
+    var r = rooms && rooms[roomId];
+    if (!r) return null;
+    var th = themeBy(t);
+    return { file: r.file, items: r.items.map(function (it) { return { n: it.n, x: it.x, y: it.y, s: it.s }; }),
+      riddles: r.riddles || {}, name: (th.rooms && th.rooms[roomId]) || roomId };
+  };
 
   function dress(theme, id) {
     var scene = q("#gate .scene");

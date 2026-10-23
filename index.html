@@ -95,6 +95,11 @@
       opacity: 0; transition: opacity .5s ease;
     }
     #pic.ready { opacity: 1; }
+    /* Festival room with its own painted picture: show it like a Halloween room (beats themes.css hiding). */
+    html[data-theme][data-own-room] #pic.ready,
+    html[data-theme][data-own-room] #bgblur,
+    html[data-theme][data-own-room] .fx-vignette,
+    html[data-theme][data-own-room] .fx-candle { opacity: 1 !important; }
     .fx-vignette, .fx-candle {
       position: absolute; inset: 0; pointer-events: none; z-index: 2;
     }
@@ -1393,6 +1398,21 @@ const SCENES = [
   ]}
 ];
 const PIC_RATIO = 784 / 1168; /* every room picture is 784 x 1168 */
+/* Festival rooms: theme.js may give a room its own picture + objects (hollyRoomScene). Then the room plays
+   exactly like a Halloween room; otherwise the emoji hunt on the shared festival scene is the fallback. */
+function currentTheme(){ return document.documentElement.getAttribute("data-theme") || "halloween"; }
+function festTheme(){ return currentTheme() !== "halloween"; }
+function roomScene(sc){
+  const base = SCENES.find((s) => s.id === sc.id) || sc;
+  const th = currentTheme();
+  const own = th !== "halloween" && window.hollyRoomScene ? window.hollyRoomScene(th, base.id) : null;
+  if (!own) return base;
+  return Object.assign({}, base, { file: own.file, items: own.items, riddles: own.riddles, own: true });
+}
+function markOwnRoom(){
+  if (scene && scene.own) document.documentElement.setAttribute("data-own-room", "");
+  else document.documentElement.removeAttribute("data-own-room");
+}
 
 const stage = document.getElementById("stage");
 const pic = document.getElementById("pic");
@@ -1570,7 +1590,14 @@ function missAt(clientX, clientY){
   stage.appendChild(el);
   setTimeout(() => el.remove(), 550);
 }
+function itemName(i){
+  const it = scene.items[i];
+  if (!it) return "";
+  if (scene.own || typeof window.hollyItemName !== "function") return it.n;
+  return window.hollyItemName(scene.id, i, it.n);
+}
 function itemMark(i){
+  if (scene.own) return "";
   return window.hollyItemMark ? window.hollyItemMark(scene.id, i) : "";
 }
 function cropStyle(it, el, px){
@@ -1600,7 +1627,7 @@ const FEST_GRID = [
 ];
 function themedPlay(){
   const id = document.documentElement.getAttribute("data-theme");
-  return !!id && id !== "halloween";
+  return !!id && id !== "halloween" && !(scene && scene.own);
 }
 function spotOf(it){
   const i = scene.items.indexOf(it);
@@ -1641,7 +1668,7 @@ function paintFest(){
   scene.items.forEach((it, i) => {
     const mark = itemMark(i);
     if (!mark) return;
-    const name = window.hollyItemName ? window.hollyItemName(scene.id, i, it.n) : it.n;
+    const name = itemName(i);
     const b = document.createElement("button");
     b.type = "button";
     b.className = "fest-item" + (found.has(i) ? " got" : "");
@@ -1663,7 +1690,7 @@ function takeFound(i, clientX, clientY){
   if (found.has(i)) { say("Already found"); return; }
   found.add(i);
   const it = scene.items[i];
-  const label = window.hollyItemName ? window.hollyItemName(scene.id, i, it.n) : it.n;
+  const label = itemName(i);
   track("object_found", { room: scene.id, object: label });
   sfxFind();
   burstAt(clientX, clientY);
@@ -1715,7 +1742,7 @@ function celebrate(i){
   const k = document.createElement("b");
   k.textContent = "Found · " + found.size + " of " + scene.items.length;
   const nm = document.createElement("span");
-  nm.textContent = window.hollyItemName ? window.hollyItemName(scene.id, i, it.n) : it.n;
+  nm.textContent = itemName(i);
   tx.append(k, nm);
   el.append(th, tx);
   stage.appendChild(el);
@@ -1723,7 +1750,9 @@ function celebrate(i){
   setTimeout(() => el.remove(), 2000);
 }
 function roomArt(sc){
-  const themedArt = themedPlay() && window.hollyScene ? window.hollyScene() : "";
+  const r = roomScene(sc);
+  if (r.own) return r.file;
+  const themedArt = festTheme() && window.hollyScene ? window.hollyScene() : "";
   return themedArt || sc.file;
 }
 function setSheetArt(id){
@@ -1836,10 +1865,10 @@ function renderList(justFound){
   list.innerHTML = '<div class="tray-head"><b>Objects to find</b><span>' + found.size + " / " + scene.items.length + "</span></div>";
   /* Only the next few objects are shown; the rest appear as these are found. */
   const act = activeItems();
-  const rid = RIDDLES[scene.id] || {};
+  const rid = scene.riddles || RIDDLES[scene.id] || {};
   act.forEach((i) => {
     const it = scene.items[i];
-    const shownName = window.hollyItemName ? window.hollyItemName(scene.id, i, it.n) : it.n;
+    const shownName = itemName(i);
     const isRiddle = shownName === it.n && riddled.has(i) && !revealed.has(i);
     const label = isRiddle ? rid[it.n] : shownName;
     const b = document.createElement("button");
@@ -1876,6 +1905,7 @@ function markRooms(){
 }
 
 function openScene(sc){
+  sc = roomScene(sc);
   const locked = !sc.free && !paid;
   if (locked && HollyPay.hasPaymentId() && HollyPay.state.checking) {
     HollyPay.ensure().then(() => openScene(sc)); // payment check still running: wait, then decide
@@ -1898,7 +1928,7 @@ function openScene(sc){
   hintsLeft = cfg.hints; hintReadyAt = 0; misses = []; cursedUntil = 0;
   stage.classList.remove("cursed");
   order = shuffle(sc.items.map((_, i) => i));
-  const ridNames = Object.keys(RIDDLES[sc.id] || {});
+  const ridNames = Object.keys(sc.riddles || RIDDLES[sc.id] || {});
   riddled = new Set(shuffle(sc.items.map((it, i) => ridNames.indexOf(it.n) >= 0 ? i : -1).filter((i) => i >= 0)).slice(0, cfg.riddles));
   revealed = new Set(); shownActive = [];
   document.getElementById("fail").classList.remove("on");
@@ -1907,7 +1937,8 @@ function openScene(sc){
   stage.querySelectorAll(".ring").forEach(n => n.remove());
   if (!pic.src || pic.src.indexOf(sc.file) < 0) pic.classList.remove("ready");
   pic.src = sc.file;
-  pic.alt = sc.name + " full of hidden objects";
+  pic.alt = roomLabel(sc) + " full of hidden objects";
+  markOwnRoom();
   document.getElementById("bgblur").style.backgroundImage = "url('" + sc.file + "')";
   pick.classList.remove("on");
   document.getElementById("pay").classList.remove("on");
@@ -1972,7 +2003,7 @@ function hit(clientX, clientY){
   flyToScore(it, clientX, clientY);
   popAt(clientX, clientY, CHEERS[found.size % CHEERS.length]);
   celebrate(chosen);
-  say("Found: " + (window.hollyItemName ? window.hollyItemName(scene.id, chosen, it.n) : it.n));
+  say("Found: " + itemName(chosen));
   stage.querySelectorAll(".ring.hint").forEach((n) => n.remove());
   renderList(chosen);
   if (found.size === scene.items.length) {
@@ -2073,7 +2104,7 @@ document.getElementById("hintBtn").onclick = () => {
   list.querySelectorAll(".chip.hinted").forEach((c) => c.classList.remove("hinted"));
   const chip = list.querySelector('.chip[data-i="' + i + '"]');
   if (chip) chip.classList.add("hinted");
-  const hintName = window.hollyItemName ? window.hollyItemName(scene.id, i, scene.items[i].n) : scene.items[i].n;
+  const hintName = itemName(i);
   say("Look here: " + hintName + " (−" + cfg.hintCost + "s)");
   track("hint_used", { room: scene.id, object: hintName });
   sfxHint();
@@ -2117,32 +2148,50 @@ function paintBest(){
 HollyPay.onChange(() => paintBest());
 /* Room card art follows the festive theme (display only; locking stays in paintRooms). */
 function paintRoomArt(){
-  const themed = themedPlay() && window.hollyScene && window.hollyScene();
+  const themed = festTheme() && window.hollyScene && window.hollyScene();
   SCENES.forEach((sc, k) => {
     const b = roomsEl.querySelector('[data-id="' + sc.id + '"]');
     if (!b) return;
-    b.style.backgroundImage = "url('" + (themed ? window.hollyScene() : sc.file) + "')";
-    b.style.backgroundPosition = themed ? ["20% 40%", "55% 60%", "85% 30%"][k % 3] : "center 30%";
+    const r = roomScene(sc);
+    const fest = themed && !r.own;
+    b.style.backgroundImage = "url('" + (r.own ? r.file : fest ? window.hollyScene() : sc.file) + "')";
+    b.style.backgroundPosition = fest ? ["20% 40%", "55% 60%", "85% 30%"][k % 3] : "center 30%";
   });
 }
+/* Switching festival mid-room: swap to that festival's own picture (or back to the fallback). */
+window.addEventListener("holly-theme", () => {
+  const r = roomScene(scene);
+  if (r.file === scene.file && !!r.own === !!scene.own) { markOwnRoom(); return; }
+  if (playing) { openScene(r); return; }
+  scene = r; found = new Set(); revealed = new Set(); shownActive = [];
+  order = shuffle(r.items.map((_, i) => i)); riddled = new Set();
+  stage.querySelectorAll(".ring").forEach((n) => n.remove());
+  if (!pic.src || pic.src.indexOf(r.file) < 0) pic.classList.remove("ready");
+  pic.src = r.file;
+  document.getElementById("bgblur").style.backgroundImage = "url('" + r.file + "')";
+  markOwnRoom();
+});
 window.addEventListener("holly-theme", paintRoomArt);
 /* Festive themes: cards and the unlock peek show the theme's own scene, never Halloween art. */
 function paintThemeArt(){
-  const art = themedPlay() && window.hollyScene ? window.hollyScene() : "";
+  const art = festTheme() && window.hollyScene ? window.hollyScene() : "";
+  const hallOwn = roomScene(SCENES[0]);
   const crops = ["30% 35%", "70% 30%", "45% 70%", "85% 55%"];
   document.querySelectorAll(".game-card .art img").forEach((img, k) => {
     if (!img.dataset.src) img.dataset.src = img.getAttribute("src");
-    const want = art || img.dataset.src;
+    const ownArt = k === 0 && hallOwn.own ? hallOwn.file : "";
+    const want = ownArt || art || img.dataset.src;
     if (img.getAttribute("src") !== want) img.setAttribute("src", want);
-    img.classList.toggle("fest-art", !!art);
-    img.style.objectPosition = art ? crops[k % crops.length] : "";
+    img.classList.toggle("fest-art", !!(ownArt || art));
+    img.style.objectPosition = ownArt ? "center 40%" : art ? crops[k % crops.length] : "";
   });
   const peeks = { peekKitchen: ["kitchen-halloween.jpg", "25% 60%"], peekBedroom: ["bedroom-halloween.jpg", "80% 40%"] };
   Object.keys(peeks).forEach((id) => {
     const el = document.getElementById(id);
     if (!el) return;
-    el.style.backgroundImage = "url('" + (art || peeks[id][0]) + "')";
-    el.style.backgroundPosition = art ? peeks[id][1] : "";
+    const own = roomScene({ id: id === "peekKitchen" ? "kitchen" : "bedroom" });
+    el.style.backgroundImage = "url('" + (own.own ? own.file : (art || peeks[id][0])) + "')";
+    el.style.backgroundPosition = own.own ? "center 45%" : art ? peeks[id][1] : "";
     const b = el.querySelector("b");
     if (b) b.textContent = roomLabel(SCENES.find((sc) => sc.id === (id === "peekKitchen" ? "kitchen" : "bedroom")));
   });
@@ -2318,6 +2367,6 @@ document.addEventListener("visibilitychange", () => { if (document.hidden) flute
 })();
 track("game_picker_view");
 </script>
-  <script src="theme.js?v=9"></script>
+  <script src="theme.js?v=10"></script>
 </body>
 </html>
