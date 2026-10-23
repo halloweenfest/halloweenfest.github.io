@@ -799,7 +799,7 @@
         <h2 class="ov-title" id="payTitle">Unlock Nightmare</h2>
         <p class="pay-line" id="payLine">Normal stays free. One $1 payment unlocks Nightmare here and the locked levels in every Holly Haunt game.</p>
         <ul class="pay-perks">
-          <li>Start at level 5: fast drops from the first piece</li>
+          <li>Start at level 6: fast drops and a short lock time</li>
           <li>Rising graves and cursed pieces from the first move</li>
         </ul>
         <div class="cta">
@@ -874,14 +874,16 @@ const PAL = {
 const ALL_TILES = TYPES.concat(["grave"]);
 /* ---- difficulty tuning ---- */
 const LINES_PER_LEVEL = 8;        /* was 10 */
-const LOCK_MS = 500;              /* lock delay once a piece touches down */
-const MAX_RESETS = 15;            /* moves/turns on the ground that restart the lock timer */
+let LOCK_MS = 500;                /* lock delay once a piece touches down (Nightmare: 340) */
+let MAX_RESETS = 15;            /* moves/turns on the ground that restart the lock timer */
 const HAUNT_FROM = 3, CURSE_FROM = 5;
 /* rows-per-drop interval: 560ms at level 1, x0.8 per level, 75ms at 10, one frame by 17+ */
 function gravityMs(L) { return Math.max(17, Math.round(560 * Math.pow(0.8, L - 1))); }
 /* seconds between graves rising: 24s at level 3, 2s quicker per level, 6s floor */
-function hauntSecs(L) { return Math.max(6, 24 - (L - HAUNT_FROM) * 2); }
-function hauntRows(L) { return L >= 9 ? 2 : 1; }
+/* Nightmare: graves rise a third faster and two at a time from level 8 */
+let nightmare = false;
+function hauntSecs(L) { const s = Math.max(6, 24 - (L - HAUNT_FROM) * 2); return nightmare ? Math.max(4, Math.round(s * 0.66)) : s; }
+function hauntRows(L) { return L >= (nightmare ? 8 : 9) ? 2 : 1; }
 const RMQ = matchMedia("(prefers-reduced-motion: reduce)");
 let RM = RMQ.matches;
 RMQ.addEventListener && RMQ.addEventListener("change", e => { RM = e.matches; bgDirty = true; });
@@ -920,7 +922,7 @@ let wantNightmare = store("hollyStack.diff") === "nightmare";
 let diff = "normal";
 const DIFF_NOTE = {
   normal: "Start at level 1. Speed climbs every 8 lines, graves rise from level 3, cursed pieces from level 5.",
-  nightmare: "Start at level 5: fast drops, rising graves and cursed pieces from the first move."
+  nightmare: "Start at level 6: fast drops, short lock time, graves rising every few seconds and more cursed pieces."
 };
 function renderDiff() {
   if (diff === "nightmare" && !paidNow()) diff = "normal";
@@ -1095,7 +1097,7 @@ function applyThemeWords() {
   const w = TW();
   const lbl = document.querySelector("#hauntRow .lbl span"); if (lbl) lbl.textContent = w.meter;
   DIFF_NOTE.normal = "Start at level 1. Speed climbs every 8 lines, " + w.many + " rise from level 3, " + w.curse.toLowerCase() + " pieces from level 5.";
-  DIFF_NOTE.nightmare = "Start at level 5: fast drops, rising " + w.many + " and " + w.curse.toLowerCase() + " pieces from the first move.";
+  DIFF_NOTE.nightmare = "Start at level 6: fast drops, short lock time, " + w.many + " rising every few seconds and more " + w.curse.toLowerCase() + " pieces.";
   const perk = document.querySelectorAll(".pay-perks li")[1]; if (perk) perk.textContent = "Rising " + w.many + " and " + w.curse.toLowerCase() + " pieces from the first move";
   const s = document.documentElement.style;
   s.setProperty("--t-garb", w.garb); s.setProperty("--t-garb-a", hexA(w.garb, .6));
@@ -1560,7 +1562,7 @@ function fillQueue() {
     let cursed = false;
     if (L >= CURSE_FROM) {
       sinceCurse++;
-      if (sinceCurse >= 4 && Math.random() < Math.min(0.3, 0.16 + 0.02 * (L - CURSE_FROM))) { cursed = true; sinceCurse = 0; }
+      if (sinceCurse >= (nightmare ? 3 : 4) && Math.random() < Math.min(nightmare ? 0.42 : 0.3, (nightmare ? 0.26 : 0.16) + 0.02 * (L - CURSE_FROM))) { cursed = true; sinceCurse = 0; }
     }
     curseQ.push(cursed);
   }
@@ -1767,7 +1769,9 @@ function start() {
   if (diff === "nightmare" && !paidNow()) { diff = "normal"; renderDiff(); chooseNightmare(); return; }
   combo = 0; shownCombo = 0; $("combo").classList.remove("on", "pop");
   grid =Array.from({length: ROWS}, () => Array(COLS).fill(null));
-  startLevel = diff === "nightmare" ? 5 : 1;
+  nightmare = diff === "nightmare";
+  startLevel = nightmare ? 6 : 1;
+  LOCK_MS = nightmare ? 340 : 500; MAX_RESETS = nightmare ? 8 : 15;
   score = 0; lines = 0; dropMs = gravityMs(startLevel); acc = 0; over = false; running = true; paused = false;
   combo = 0; dispScore = 0; holdType = null; canHold = true; b2b = false; lastRot = false;
   hauntT = 0; hauntWarned = false; riseAnim = null; nextGap = Math.floor(Math.random() * COLS);

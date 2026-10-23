@@ -1272,8 +1272,8 @@ function clearWorld() { while (objs.length) scene.remove(objs.pop().mesh); }
 
 /* ================= theme / stage palette ================= */
 const STAGES = {
-  1: { label: "Stage 1", speed0: 16, speedMax: 32, ramp: 0.012, bestKey: "hollyRush.best" },
-  2: { label: "Stage 2", speed0: 20, speedMax: 36, ramp: 0.014, bestKey: "hollyRush.best2" },
+  1: { label: "Stage 1", speed0: 16, speedMax: 32, ramp: 0.012, gap: 16, gapMin: 10, gate: 0, bestKey: "hollyRush.best" },
+  2: { label: "Stage 2", speed0: 23, speedMax: 42, ramp: 0.019, gap: 13, gapMin: 8, gate: 0.45, bestKey: "hollyRush.best2" },
 };
 const stageName = (s) => TH[themeId()][s === 2 ? "s2" : "s1"];
 let stage = 1, chosen = 1;
@@ -1364,7 +1364,9 @@ function tone(freq, dur, type, vol) {
 }
 function spawnRow() {
   const slots = [null, null, null];
-  const roll = Math.random();
+  let roll = Math.random();
+  // Stage 2: many coin rows become double-hazard rows
+  if (stage === 2 && roll >= 0.68 && roll < 0.88 && Math.random() < 0.45) roll = 0.5;
   const pick = () => Math.floor(Math.random() * 3);
   if (roll < 0.34) {
     slots[pick()] = Math.random() < 0.62 ? "rock" : "limb";
@@ -1382,7 +1384,7 @@ function spawnRow() {
   const hazards = [0, 1, 2].filter((i) => isHaz(slots[i]));
   if (hazards.length === 3) slots[hazards[0]] = null;
   // Stage 2: an iron gate can replace one hazard per row (dodge only: no jumping or ducking it)
-  if (stage === 2) { const hz = [0, 1, 2].filter((i) => isHaz(slots[i])); if (hz.length && Math.random() < 0.3) slots[hz[Math.floor(Math.random() * hz.length)]] = "gate"; }
+  if (stage === 2) { const hz = [0, 1, 2].filter((i) => isHaz(slots[i])); if (hz.length && Math.random() < STAGES[2].gate) slots[hz[Math.floor(Math.random() * hz.length)]] = "gate"; }
   slots.forEach((type, i) => { if (type) addObj(type, i, -52); });
 }
 function points() { return Math.floor(dist) + cans * 10 + cams * 50 + bonus; }
@@ -1587,7 +1589,7 @@ function frame() {
     speed = Math.min(S.speedMax, S.speed0 + dist * S.ramp);
     step = speed * dt;
     dist += step; spawned += step;
-    if (spawned > Math.max(10, 16 - dist * 0.004)) { spawned = 0; spawnRow(); }
+    if (spawned > Math.max(S.gapMin, S.gap - dist * 0.004)) { spawned = 0; spawnRow(); }
     x += (LANES[lane] - x) * Math.min(1, dt * 9);
     vy -= 24 * dt; y += vy * dt;
     if (y < 0) { y = 0; vy = 0; }
